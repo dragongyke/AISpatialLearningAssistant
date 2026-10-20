@@ -1,0 +1,2931 @@
+WEBVTT
+
+NOTE Generated offline from the matching Stanford SEE MP4 audio.
+
+1
+00:00:10.960 --> 00:00:15.160
+This presentation is delivered by the Stanford Center for Professional Development
+
+2
+00:00:22.170 --> 00:00:27.730
+So welcome to CS106A If you don't think you should be in CS106A, you should think you
+
+3
+00:00:27.730 --> 00:00:31.710
+should be somewhere different Now is probably a good time to go Not that I would scourge
+
+4
+00:00:31.710 --> 00:00:35.490
+anyone for taking this class, think we'll have a lovely time in here But this class
+
+5
+00:00:35.490 --> 00:00:41.150
+is CS106A Or E70A So if you're like, wait, I thought I was an E70A,
+
+6
+00:00:41.210 --> 00:00:46.470
+you're fine They're the same class, it's the same thing, no worries There's four handouts,
+
+7
+00:00:46.610 --> 00:00:49.210
+they're in the back If you haven't already gotten the handouts because you came in,
+
+8
+00:00:49.230 --> 00:00:52.370
+you sat down, don't worry, you can pick them up on the way out They're the same handouts,
+
+9
+00:00:52.390 --> 00:00:57.990
+they'll still be there So just a quick introduction, that's what the first
+
+10
+00:00:57.990 --> 00:01:00.910
+four handouts actually give you They give you a little bit of an introduction to the
+
+11
+00:01:00.910 --> 00:01:04.370
+class What we're going to cover, some of the logistics for the class And some other
+
+12
+00:01:04.370 --> 00:01:07.430
+stuff, we're going to go over all that today so we can try to get a good idea for where
+
+13
+00:01:07.430 --> 00:01:12.750
+we're at So just a quick show of hands before we get into a bunch of things in the
+
+14
+00:01:12.750 --> 00:01:16.950
+class This is kind of an intro programming course Well, it is, I shouldn't say it's
+
+15
+00:01:16.950 --> 00:01:20.090
+kind of an intro programming course It is an intro programming course And it's always
+
+16
+00:01:20.090 --> 00:01:25.690
+good to get an idea as to how much familiarity you may have beforehand So just a
+
+17
+00:01:25.690 --> 00:01:29.290
+quick show of hands How many people can recognize a computer that's on?
+
+18
+00:01:31.030 --> 00:01:36.050
+Good, good, that's the prerequisite for this class So if you're worried about how much
+
+19
+00:01:36.050 --> 00:01:40.430
+previous experience you've had Or your friend who worked their way through high school
+
+20
+00:01:40.430 --> 00:01:45.050
+by programming for Google or whatever Don't worry about it Because all you need to
+
+21
+00:01:45.050 --> 00:01:48.930
+know in here is basically either how to turn a computer on Or to recognize a computer
+
+22
+00:01:48.930 --> 00:01:54.050
+that's on if you were to walk up to it and it were to already be on So, a little bit
+
+23
+00:01:54.050 --> 00:01:57.190
+more seriously How many people have actually used the computer for anything?
+
+24
+00:01:58.910 --> 00:02:02.290
+Alright, I would expect most of you So now we begin to bump it up a notch How many
+
+25
+00:02:02.290 --> 00:02:07.640
+people have used it for word processing? Most folks How many people have done web browsing?
+
+26
+00:02:09.340 --> 00:02:13.940
+Yeah, I won't ask you what you look at I don't want to know How many people have actually
+
+27
+00:02:13.940 --> 00:02:19.530
+created a web page? Okay, fair number How many people have done any kind of
+
+28
+00:02:19.530 --> 00:02:25.180
+programming before? Fair number Alright, how about how many folks have done
+
+29
+00:02:25.180 --> 00:02:26.960
+actually programming in Java before?
+
+30
+00:02:28.470 --> 00:02:31.010
+Alright, a few folks How about another language?
+
+31
+00:02:31.770 --> 00:02:35.690
+C, C++, Basic Anyone programming in Basic?
+
+32
+00:02:37.360 --> 00:02:41.140
+Yeah, aww, I love it That was the first language I learned And it was kind of like
+
+33
+00:02:41.140 --> 00:02:44.440
+the warm and fuzzy and I felt good There's actually people who argue that if you learn
+
+34
+00:02:44.440 --> 00:02:48.040
+Basic as your first language, you're brain damaged And you're just beyond help But
+
+35
+00:02:48.040 --> 00:02:50.900
+if that's the case, we're all in the boat together Because I'm probably brain damaged
+
+36
+00:02:50.900 --> 00:02:55.060
+as well The truth is I probably am, but that's a whole different story Alright, so
+
+37
+00:02:55.060 --> 00:02:58.780
+one thing you should know kind of up front Is actually this course is going to be provided
+
+38
+00:02:58.780 --> 00:03:02.400
+eventually somewhere down the line As part of Stanford's School of Engineering Free
+
+39
+00:03:02.400 --> 00:03:06.700
+Course Initiative Which means not only are we recording this course To broadcast to
+
+40
+00:03:06.700 --> 00:03:09.800
+a bunch of people out in companies and industry Or watching this course But we're eventually
+
+41
+00:03:09.800 --> 00:03:13.320
+going to provide it free to the world So how does that impact your life?
+
+42
+00:03:13.800 --> 00:03:18.200
+And on the average day, it doesn't at all The only way it does impact your life is
+
+43
+00:03:18.200 --> 00:03:21.200
+just so you should know The lawyers told me to tell you that your voice Should you
+
+44
+00:03:21.200 --> 00:03:26.300
+ask a question, may actually be recorded as part of the video As a result, your voice
+
+45
+00:03:26.300 --> 00:03:30.620
+may end up going out to thousands of people or millions of people in the world If you
+
+46
+00:03:30.620 --> 00:03:35.240
+have an issue with that, come talk to me If you don't, everything is just fine Alright,
+
+47
+00:03:35.360 --> 00:03:37.580
+don't worry, we're not going to put your picture up or anything like that You might
+
+48
+00:03:37.580 --> 00:03:41.800
+want to be on the video like, hey mom, I'm on TV We decided that we're just going to
+
+49
+00:03:41.800 --> 00:03:45.460
+not show anyone actually on the video But your voice may actually get recorded, okay
+
+50
+00:03:45.460 --> 00:03:49.800
+Now along those lines, you may also notice there's some microphones in the room So
+
+51
+00:03:49.800 --> 00:03:52.860
+when you want to ask a question, please make sure to use the microphone Because that's
+
+52
+00:03:52.860 --> 00:03:57.040
+not only good for people in here to be able to hear your question It's also good for
+
+53
+00:03:57.040 --> 00:04:00.360
+all the folks that this is getting broadcast to Because not only are we going to broadcast
+
+54
+00:04:00.360 --> 00:04:03.320
+to the world But there's actually some folks who are sort of watching this live now
+
+55
+00:04:03.320 --> 00:04:06.880
+in various companies in Silicon Valley So it's real important that you actually use
+
+56
+00:04:06.880 --> 00:04:09.240
+the microphone So just remember that And every once in a while I might get on your
+
+57
+00:04:09.240 --> 00:04:13.060
+case and be like, please use the microphone I'm not trying to be, you know, argumentative
+
+58
+00:04:13.060 --> 00:04:17.280
+or anything I just want to make sure we pick up all the audio Alright, so with that
+
+59
+00:04:17.280 --> 00:04:19.960
+said, a little bit of an introduction That's kind of a way of background I didn't give
+
+60
+00:04:19.960 --> 00:04:23.420
+you any sort of introduction So just introduce myself My name is Maron Sahami I'm the
+
+61
+00:04:23.420 --> 00:04:28.480
+professor for the class Don't call me Professor Sahami way too formal Don't call me
+
+62
+00:04:28.480 --> 00:04:32.420
+Mr. Sahami I think of my dad And don't call me Mrs.
+
+63
+00:04:32.640 --> 00:04:37.300
+Sahami We're going to have issues, alright So just call me Maron, we'll get along It's
+
+64
+00:04:37.300 --> 00:04:41.140
+just fine, alright It keeps things a little bit more informal But that way it's a little
+
+65
+00:04:41.140 --> 00:04:44.980
+bit easier to discuss stuff as you go along There's also head TA for the class, Ben
+
+66
+00:04:44.980 --> 00:04:49.360
+Newman Who's standing up there Get to know Ben He has all the real power in this class
+
+67
+00:04:49.360 --> 00:04:52.620
+I'm just kind of the monkey that gets up here and, you know, gives the lectures But
+
+68
+00:04:52.620 --> 00:04:56.160
+Ben really is the one who's got all the power Along with the head TA for the class,
+
+69
+00:04:56.200 --> 00:04:59.100
+we have a large section leading staff So the section leader's here Could you stand
+
+70
+00:04:59.100 --> 00:05:04.760
+up if you're here? They're kind of all over the place Some over
+
+71
+00:05:04.760 --> 00:05:08.140
+here, some over there, some over there As you can see, there's a pretty large number
+
+72
+00:05:08.140 --> 00:05:11.240
+of folks And this isn't even all of them We sort of have more, we just can't stuff
+
+73
+00:05:11.240 --> 00:05:15.600
+them all into the room Who are section leaders for the class And these folks are all
+
+74
+00:05:15.600 --> 00:05:19.800
+here to make sure that everyone in this class Has as good of an experience as possible
+
+75
+00:05:19.800 --> 00:05:22.420
+When we're sort of going through the class And the best way to reach all of this is
+
+76
+00:05:22.420 --> 00:05:26.620
+email So on handout number one, you get my email and Ben's email We'll tell you how
+
+77
+00:05:26.620 --> 00:05:29.760
+to sign up for section That's how you'll meet your section leader And get your section
+
+78
+00:05:29.760 --> 00:05:33.300
+leader's email, that will all be coming soon But email really is kind of a happy form
+
+79
+00:05:33.300 --> 00:05:38.600
+of communication To get a hold of us, okay So with that said, I want to tell you a
+
+80
+00:05:38.600 --> 00:05:41.660
+little bit about this class And kind of what we're going to do in here And what you
+
+81
+00:05:41.660 --> 00:05:46.260
+should expect And make sure that you don't feel scared off by this class Because it
+
+82
+00:05:46.260 --> 00:05:49.900
+really is meant to sort of be an interesting time But one question that comes up is
+
+83
+00:05:49.900 --> 00:05:52.260
+Why is this class called programming methodology?
+
+84
+00:05:53.080 --> 00:05:56.620
+Why don't we just call this class like programming with Java?
+
+85
+00:05:57.480 --> 00:06:00.740
+And the real reason for that is that Programming methodology is about good software
+
+86
+00:06:00.740 --> 00:06:04.360
+engineering principles It's about something that's much larger than just programming
+
+87
+00:06:04.360 --> 00:06:07.960
+So some people, like, they'll go and get a book somewhere And they'll think they learned
+
+88
+00:06:07.960 --> 00:06:11.020
+how to program by just reading the book And they're like, oh, I know how to program,
+
+89
+00:06:11.140 --> 00:06:14.280
+isn't that great? And it's like, yeah, you might know the mechanics of the language
+
+90
+00:06:14.280 --> 00:06:18.160
+But the mechanics of the language are nothing compared to Understanding the software
+
+91
+00:06:18.160 --> 00:06:22.600
+engineering principles That go into actually developing a software system And that's
+
+92
+00:06:22.600 --> 00:06:24.880
+what you're going to learn about in this class You're going to learn a lot of those
+
+93
+00:06:24.880 --> 00:06:28.540
+principles But in order to be able to use those principles and apply them You also
+
+94
+00:06:28.540 --> 00:06:31.600
+need to have a language to program in And that language that we're going to use in
+
+95
+00:06:31.600 --> 00:06:35.020
+this class is Java So the way I like to think about it and the way I tell a lot of
+
+96
+00:06:35.020 --> 00:06:39.420
+people Is writing a good program or learning how to program Is like learning to be
+
+97
+00:06:39.420 --> 00:06:42.820
+a good essay writer And you're like, oh, but part of the reason I'm taking this class,
+
+98
+00:06:42.960 --> 00:06:46.620
+Maron Is that I don't like writing essays That's fine, it's okay, trust me I didn't
+
+99
+00:06:46.620 --> 00:06:50.840
+like writing essays either But the whole point is that when you write an essay It's
+
+100
+00:06:50.840 --> 00:06:54.420
+not a formulae kind of thing You're like, well, what about five paragraph essays?
+
+101
+00:06:54.440 --> 00:06:58.020
+Yeah, just block that from your mind, that was a bad time That was just like 70s education
+
+102
+00:06:58.020 --> 00:07:02.360
+at work It's not a formulae kind of thing There's an art to writing an essay, right?
+
+103
+00:07:02.480 --> 00:07:05.040
+In order to write an essay, you need to know a language You need to know English or
+
+104
+00:07:05.040 --> 00:07:08.900
+German or Hindi or whatever language you want to use But then you use that language
+
+105
+00:07:08.900 --> 00:07:13.280
+to write an essay Just knowing the language doesn't make you a good essay writer, though
+
+106
+00:07:13.280 --> 00:07:17.460
+Being a good essay writer makes you a good essay writer So that's the same difference
+
+107
+00:07:17.460 --> 00:07:21.480
+in programming and software engineering Knowing a language, in order to be a good programmer,
+
+108
+00:07:21.680 --> 00:07:25.200
+like a good essayist You need to know a language to write your programs in Whether
+
+109
+00:07:25.200 --> 00:07:30.100
+that be Java or C or C++ or whatever Here we're going to use Java But just knowing
+
+110
+00:07:30.100 --> 00:07:33.840
+the language doesn't make you a good software engineer And doesn't make you understand
+
+111
+00:07:33.840 --> 00:07:37.340
+what the principles are of writing good software Which is what you're also going to
+
+112
+00:07:37.340 --> 00:07:40.400
+get in this class in addition to the language And that's kind of a key thing to stress
+
+113
+00:07:41.270 --> 00:07:44.330
+So if you're sort of worried, if you're kind of looking around You saw a bunch of people
+
+114
+00:07:44.330 --> 00:07:47.610
+raising their hands going And I asked, do you have any previous programming experience
+
+115
+00:07:47.610 --> 00:07:50.490
+And some folks raised their hands And you got a little worried and you're like, oh,
+
+116
+00:07:50.730 --> 00:07:54.690
+am I going to be, you know, in some sense At a disadvantage because I haven't done
+
+117
+00:07:54.690 --> 00:07:58.870
+any programming before The answer, plain and simple, is no You're going to learn everything
+
+118
+00:07:58.870 --> 00:08:02.470
+you need to learn from the first principles And as a matter of fact, in some cases
+
+119
+00:08:02.470 --> 00:08:06.410
+you might be in slightly better shape That's not necessary to say that that's the way
+
+120
+00:08:06.410 --> 00:08:10.190
+it will be But how many people are Star Wars fans, just wondering Anyone?
+
+121
+00:08:10.810 --> 00:08:14.390
+I'm talking about the old school original like three movies We're so good, we're going
+
+122
+00:08:14.390 --> 00:08:20.340
+to no Jar Jar Binks here So if you remember, and sort of, you know, I'm
+
+123
+00:08:20.340 --> 00:08:24.180
+a big Star Wars fan That's just a whole separate point But in the second movie, Yoda
+
+124
+00:08:24.180 --> 00:08:28.000
+actually says something Which I thought was quite profound Which is, he says, you know,
+
+125
+00:08:28.280 --> 00:08:31.740
+sometimes you have to unlearn what you have learned And one of the things we actually
+
+126
+00:08:31.740 --> 00:08:35.160
+find is that some people who are self -taught programmers Some of them are just fine
+
+127
+00:08:35.160 --> 00:08:38.800
+and some of them are very good But some of them have picked up some really bad habits
+
+128
+00:08:38.800 --> 00:08:42.620
+along the way And it's like being a bad essay writer And to go from being a bad essay
+
+129
+00:08:42.620 --> 00:08:46.900
+writer to a good essay writer In some cases can actually be harder than from not being
+
+130
+00:08:46.900 --> 00:08:50.800
+an essay writer To being a good essay writer Because you have to unlearn the bad habits
+
+131
+00:08:50.800 --> 00:08:54.860
+So if you're worried about, oh, I've had no previous experience Don't worry, you're
+
+132
+00:08:54.860 --> 00:08:58.040
+okay, blank slate, you're just fine And now if you're thinking, oh, I have some previous
+
+133
+00:08:58.040 --> 00:09:02.540
+experience Do I have bad habits? Don't worry, you'll be fine too Okay, so it's all
+
+134
+00:09:02.540 --> 00:09:06.840
+going to work out So the next question that kind of comes up Hopefully that helps put
+
+135
+00:09:06.840 --> 00:09:10.120
+some of your fears aside Another one of the things is that we really strive to make
+
+136
+00:09:10.120 --> 00:09:14.460
+everyone successful in this class Okay, at some other schools, they, you know, people
+
+137
+00:09:14.460 --> 00:09:17.320
+want to do computer science Or they want to do an engineering major or whatever And
+
+138
+00:09:17.320 --> 00:09:20.600
+you come into the first day of class and they say, oh, only one -third of you Are actually
+
+139
+00:09:20.600 --> 00:09:23.660
+going to make it through, you know, this program And you look to the person to your
+
+140
+00:09:23.660 --> 00:09:26.460
+left and look to the person to your right And only one of you will make it through
+
+141
+00:09:26.460 --> 00:09:31.400
+And you're like, oh, man, that's real nice It's not like that here As a matter of fact,
+
+142
+00:09:31.460 --> 00:09:34.920
+we want all of you to be extremely successful in this class Which is why we have a
+
+143
+00:09:34.920 --> 00:09:39.080
+huge course staff Which is why over years and years we've refined how we do a lot of
+
+144
+00:09:39.080 --> 00:09:42.720
+the teaching in this class To make sure you have the best possible experience And to
+
+145
+00:09:42.720 --> 00:09:46.920
+make sure that everyone gets through And the important thing about that is that you're
+
+146
+00:09:46.920 --> 00:09:50.400
+not competing against anyone except yourself in this class It's not like we're going
+
+147
+00:09:50.400 --> 00:09:53.760
+to have a curve and we're going to say, oh, we have a certain number of F's And a certain
+
+148
+00:09:53.760 --> 00:09:57.960
+number of D's and a certain number of C's All we really have going into it is an expectation
+
+149
+00:09:57.960 --> 00:10:01.640
+that when you get out of here There's a set of stuff we want you to know And if you
+
+150
+00:10:01.640 --> 00:10:06.480
+know that stuff well, you get an A And if everyone knows that stuff well, everyone
+
+151
+00:10:06.480 --> 00:10:10.000
+gets an A And I've got no problems with that A registrar might have a problem with
+
+152
+00:10:10.000 --> 00:10:13.740
+that, but that's okay You don't need to worry about that So you don't need to think
+
+153
+00:10:13.740 --> 00:10:18.160
+about, oh, is someone else doing better than you or whatever And we'll talk about issues
+
+154
+00:10:18.160 --> 00:10:21.700
+of collaboration in just a little bit All you need to think about is learning the stuff
+
+155
+00:10:21.700 --> 00:10:25.280
+yourself As well as you possibly can and you'll be just fine and you'll get a good
+
+156
+00:10:25.280 --> 00:10:30.940
+grade So that's really all we ask Which is not a trivial amount It
+
+157
+00:10:30.940 --> 00:10:34.640
+requires you to really understand the material So another question that comes up is,
+
+158
+00:10:34.640 --> 00:10:38.280
+are you in the right place? This isn't the only introductory program in class at Stanford
+
+159
+00:10:38.280 --> 00:10:41.400
+So I want to spend a little bit of time making sure you actually are in the right place
+
+160
+00:10:41.400 --> 00:10:46.580
+By going over some of the different options So right now, as you know, you're in CS106A
+
+161
+00:10:46.580 --> 00:10:51.860
+And CS106A, we're sort of happy over here As a matter of fact, we're not only happy
+
+162
+00:10:51.860 --> 00:10:57.460
+We're happy and we're also a little bit loopy There's no previous
+
+163
+00:10:57.460 --> 00:11:01.280
+programming experience required, as I mentioned All you need to know is basically if
+
+164
+00:11:01.280 --> 00:11:05.780
+you can get to a computer And know how to figure out that it's on, you're in good shape
+
+165
+00:11:06.240 --> 00:11:11.120
+But what 106A does is it's a real rigorous class You learn programming in here and
+
+166
+00:11:11.120 --> 00:11:14.700
+you learn it in a way that makes you ready to be an engineer If you so choose to be
+
+167
+00:11:14.700 --> 00:11:17.880
+an engineer That's not to say you're all going to be engineers I would love for all
+
+168
+00:11:17.880 --> 00:11:21.520
+of you to be computer science majors But statistics in the past show only about 6 %
+
+169
+00:11:21.520 --> 00:11:25.020
+of you will be computer science majors That's not because we turn anyone off to computer
+
+170
+00:11:25.020 --> 00:11:29.340
+science It's because we make programming accessible to so many people That you don't
+
+171
+00:11:29.340 --> 00:11:32.940
+have to be a computer science or doubly Or even an engineering major to do extremely
+
+172
+00:11:32.940 --> 00:11:36.660
+well in the class And we actually have sort of a significant percentage of the entire
+
+173
+00:11:36.660 --> 00:11:40.740
+campus Undergraduate student body at Stanford Actually goes through this class and
+
+174
+00:11:40.740 --> 00:11:45.640
+does well So don't worry if you're like, oh, but I'm not really a CS person I hope
+
+175
+00:11:45.640 --> 00:11:50.340
+we'll turn you into one by the end of the class now But you'll be prepared if that's
+
+176
+00:11:50.340 --> 00:11:54.980
+what you want to do So this leads into a whole engineering sequence That can go on
+
+177
+00:11:54.980 --> 00:11:59.480
+to other engineering majors or the computer science majors If you're like, huh, I'm
+
+178
+00:11:59.480 --> 00:12:03.120
+not sure that's really what I want to do As a matter of fact, I'm so sure that's not
+
+179
+00:12:03.120 --> 00:12:06.980
+what I want to do I only want to get the general education requirement out of the way
+
+180
+00:12:06.980 --> 00:12:10.880
+And I'm positive there's nothing else I want to do, really No matter how much I like
+
+181
+00:12:10.880 --> 00:12:15.460
+it, there's no way you're going to drag me into anything That would involve anything
+
+182
+00:12:15.460 --> 00:12:21.600
+remotely techy There's a class CS105 And this is happy This
+
+183
+00:12:21.600 --> 00:12:27.120
+is kind of, oh, we're happy in our little happy world I don't want to say it's
+
+184
+00:12:27.120 --> 00:12:32.640
+holding hands and singing kumbaya Because that's not what it is It's a real class But
+
+185
+00:12:33.830 --> 00:12:39.610
+it's meant to be a general education requirement It doesn't lead into the 106s
+
+186
+00:12:39.610 --> 00:12:43.390
+It's meant to be its own self -contained class You do some JavaScript in there You
+
+187
+00:12:43.390 --> 00:12:46.750
+do a little bit of what computers are about Computers in society, it's a good time
+
+188
+00:12:46.750 --> 00:12:49.790
+We all hold hands, we're all happy I don't teach the class, so I don't actually hold
+
+189
+00:12:49.790 --> 00:12:54.330
+hands But it's a fun time It just doesn't lead to anything else So think of this as
+
+190
+00:12:54.330 --> 00:12:59.400
+kind of a terminal class So it's sort of like, we'll hook you up to the IV drip And
+
+191
+00:12:59.400 --> 00:13:03.260
+you're like, 106A, you told me I don't need any previous background Well, hey, Maron,
+
+192
+00:13:03.360 --> 00:13:07.600
+I got lots of background I got so much background, it hurts I got AP background, I
+
+193
+00:13:07.600 --> 00:13:11.200
+got working through school doing software engineering background I'm not sure I should
+
+194
+00:13:11.200 --> 00:13:16.960
+be here That could be the case We have another class called CS106x And as the x
+
+195
+00:13:16.960 --> 00:13:21.440
+kind of implies, it's sort of the extreme games version of the class Now it stands
+
+196
+00:13:21.440 --> 00:13:22.940
+for accelerated, right?
+
+197
+00:13:23.140 --> 00:13:28.640
+Because A was already taken, so we had to come up with something else So the
+
+198
+00:13:28.640 --> 00:13:33.680
+way CS106x works is it really is a very fast -paced class It's meant for people who've
+
+199
+00:13:33.680 --> 00:13:38.400
+got previous AP exam credit Like got a four or five on the AP Or have had significant
+
+200
+00:13:38.400 --> 00:13:42.600
+prior programming experience before If you're not sure which one of these classes is
+
+201
+00:13:42.600 --> 00:13:45.740
+for you You can come talk to me afterwards Or I'd also encourage you You could go to
+
+202
+00:13:45.740 --> 00:13:51.680
+pick up the syllabus for CS106x And compare it to CS106A This class is all in C++
+
+203
+00:13:52.220 --> 00:13:56.580
+And if you're thinking, hey, Maron, I'm doing 106A I want to learn Java and C++ Don't
+
+204
+00:13:56.580 --> 00:14:01.060
+worry You'll eventually, if you so choose, take a class called CS106B Which is where
+
+205
+00:14:01.060 --> 00:14:05.880
+this class sort of leads to Which is C++ and all the other stuff you would have learned
+
+206
+00:14:05.880 --> 00:14:10.180
+in this accelerated class Okay, so you still certainly have that course path So don't
+
+207
+00:14:10.180 --> 00:14:13.980
+let anyone make you think I know a lot of times, especially for students who come in
+
+208
+00:14:13.980 --> 00:14:16.440
+here And you're like, well, every class I took in high school was like an honors or
+
+209
+00:14:16.440 --> 00:14:20.680
+an AP class Or if it wasn't an honors and an AP class Like I have to tie half my brain
+
+210
+00:14:20.680 --> 00:14:25.320
+behind my head Because I'm just that hardcore And so everyone just wants to like do
+
+211
+00:14:25.320 --> 00:14:27.380
+the most hardcore thing they can, right?
+
+212
+00:14:27.480 --> 00:14:30.920
+And what I'm here to tell you is that You shouldn't necessarily think about it that
+
+213
+00:14:30.920 --> 00:14:35.120
+way You should think about it as where you feel most comfortable Some number of years
+
+214
+00:14:35.120 --> 00:14:39.280
+ago, let's just say greater than 10, maybe 15 I was sitting where you're sitting right
+
+215
+00:14:39.280 --> 00:14:44.780
+now, literally I was in CS106A in term and auditorium as a freshman It
+
+216
+00:14:44.780 --> 00:14:49.500
+was perfectly fine It worked out, I went to grad school, did the faculty thing It's
+
+217
+00:14:49.500 --> 00:14:53.960
+just fine It will open your doors to CS You're not at any kind of disadvantage by starting
+
+218
+00:14:53.960 --> 00:14:57.420
+here So I know where you've been, literally Like that seat right there is where I was
+
+219
+00:14:57.420 --> 00:15:02.560
+Most of the time So just something to keep in mind in terms of the different options
+
+220
+00:15:02.560 --> 00:15:06.040
+that are actually available to you Now with that said, let's just assume for the rest
+
+221
+00:15:06.040 --> 00:15:09.740
+of this lecture that this is the right place for you And if it's not, well afterwards
+
+222
+00:15:09.740 --> 00:15:12.720
+we can kind of talk about it Or if you really are convinced now that it's not the right
+
+223
+00:15:12.720 --> 00:15:16.580
+place You can feel free and try to scramble over 20 of your classmates And actually
+
+224
+00:15:16.580 --> 00:15:20.900
+leave the room, which is probably impossible Alright, so a few other things you should
+
+225
+00:15:20.900 --> 00:15:24.220
+know, some mechanics So handout number one, should you want to follow along at home
+
+226
+00:15:24.880 --> 00:15:30.660
+Is the class webpage And so all the stuff that we think of as course materials
+
+227
+00:15:30.660 --> 00:15:34.060
+Including online copies of the handouts, things that you'll need to do for the assignments
+
+228
+00:15:34.500 --> 00:15:40.940
+Announcements related to the class are all on the class webpage Which is www .stanford
+
+229
+00:15:41.160 --> 00:15:45.280
+.edu Slash class
+
+230
+00:15:47.270 --> 00:15:51.370
+Slash cs106a And because that's just kind of a whole bunch to remember We make your
+
+231
+00:15:51.370 --> 00:15:57.190
+life easy, and so there's an equivalent form of the URL Which is just cs106a .stanford
+
+232
+00:15:57.190 --> 00:16:01.150
+.edu Which is the easy thing to remember You put that in, it'll take you to the class
+
+233
+00:16:01.150 --> 00:16:05.900
+webpage Okay, and you should check that regularly Because all the announcements and
+
+234
+00:16:05.900 --> 00:16:09.480
+handouts Will get out hard copies of all the handouts in class But should you happen
+
+235
+00:16:09.480 --> 00:16:12.820
+to miss a class for whatever reason You want to go print whatever copies of the handouts
+
+236
+00:16:12.820 --> 00:16:16.920
+were actually given out You can find them all on the webpage Now there's this funky
+
+237
+00:16:16.920 --> 00:16:20.940
+thing about units So you may have noticed that this class is for three to five units
+
+238
+00:16:20.940 --> 00:16:24.080
+And that kind of brings up the natural question Should I take it for three or five
+
+239
+00:16:24.080 --> 00:16:27.780
+units? If you're an undergrad, you take it for five units End of story, that's life
+
+240
+00:16:27.780 --> 00:16:32.540
+in the city Congratulations, five units If you're a graduate student You can have the
+
+241
+00:16:32.540 --> 00:16:37.000
+option of taking it for three units if you want If you're going to run into some unit
+
+242
+00:16:37.000 --> 00:16:42.100
+cap It doesn't change the amount of work you have to do Welcome to graduate school
+
+243
+00:16:42.100 --> 00:16:46.800
+Same work, fewer units So that's just the way life is If you have a unit cap and you're
+
+244
+00:16:46.800 --> 00:16:49.780
+a grad student Three units, you can take it if you want You can take it for five if
+
+245
+00:16:49.780 --> 00:16:53.860
+you want as well If you're an undergrad, you take it for five Alright, so why is it
+
+246
+00:16:53.860 --> 00:16:57.720
+five units? And you might think, hey, this class only meets three times a week How
+
+247
+00:16:57.720 --> 00:17:01.120
+come it's five units? Well, it actually has a fourth meeting every week Which is your
+
+248
+00:17:01.120 --> 00:17:05.300
+section And that's something you should sign up for So how you actually sign up for
+
+249
+00:17:05.300 --> 00:17:09.920
+your section Is sections are at a bunch of different times You don't sign up for them
+
+250
+00:17:09.920 --> 00:17:13.000
+in Access Even though they're all kind of listed in the time schedule That's not where
+
+251
+00:17:13.000 --> 00:17:16.980
+you sign up for In Access, you just sign up for the class How you sign up for a section
+
+252
+00:17:16.980 --> 00:17:21.820
+is you go to a website cs198 .stanford
+
+253
+00:17:21.820 --> 00:17:27.860
+.edu slash section And
+
+254
+00:17:27.860 --> 00:17:31.260
+this will give you, give us a list of preferences For section times that you want to
+
+255
+00:17:31.260 --> 00:17:34.440
+sign up for And there's some matching process that goes on That takes all your preferences
+
+256
+00:17:34.440 --> 00:17:39.400
+into consideration with the whole system And eventually you get an email by sometime
+
+257
+00:17:39.400 --> 00:17:42.640
+early next week That tells you what section you're in And section's 50 minutes once
+
+258
+00:17:42.640 --> 00:17:45.680
+a week It's required to go to It's actually going to be part of your class participation
+
+259
+00:17:45.680 --> 00:17:49.380
+grade Which we'll talk about in just a bit When do these signups happen?
+
+260
+00:17:49.560 --> 00:17:51.300
+They happen between 5 p .m.
+
+261
+00:17:51.300 --> 00:17:55.440
+this Thursday Is when they go up So if you try to go there now, you can sign up Or
+
+262
+00:17:55.440 --> 00:18:00.960
+remember 5 p .m. Thursday So they're up And then they're down at 5 p .m.
+
+263
+00:18:00.960 --> 00:18:06.380
+on Sunday So make sure you sign up probably this weekend If you're planning on being
+
+264
+00:18:06.380 --> 00:18:09.780
+out of town this weekend You want to sign up before you go Sign up early, but don't
+
+265
+00:18:09.780 --> 00:18:14.990
+sign up often Because you only need one section If you're an SCPD student Every once
+
+266
+00:18:14.990 --> 00:18:18.970
+in a while you'll hear me refer to SCPD students That stands for Stanford Center for
+
+267
+00:18:18.970 --> 00:18:22.290
+Professional Development They are the folks in industry who actually take this class
+
+268
+00:18:22.290 --> 00:18:26.090
+via broadcast If you're an SCPD student You're automatically enrolled for a section
+
+269
+00:18:26.090 --> 00:18:30.370
+So you don't actually need to do this And your section will meet at, so for SCPD And
+
+270
+00:18:30.370 --> 00:18:35.790
+if you're wondering when an SCPD student Is, you're not one So SCPD section meets Friday
+
+271
+00:18:36.610 --> 00:18:42.370
+From 1 .15 to 2 .05 It meets live if you want to go there live in Skilling
+
+272
+00:18:42.370 --> 00:18:48.230
+Auditorium But if you're watching it remotely It meets on channel E2 I
+
+273
+00:18:48.230 --> 00:18:51.410
+don't know, it seems weird to say it meets on channel What does that mean?
+
+274
+00:18:51.590 --> 00:18:56.910
+It meets on channel E2 That is grammatically the correct way of saying it Alright,
+
+275
+00:18:57.290 --> 00:19:02.070
+so there's a little bit of more administrative kind of stuff Now textbooks Textbooks,
+
+276
+00:19:02.450 --> 00:19:07.370
+there's nothing quite like the extortion that is textbooks So there's two textbooks
+
+277
+00:19:07.370 --> 00:19:10.290
+that are required for this class One's a course reader and one's a textbook The course
+
+278
+00:19:10.290 --> 00:19:13.970
+reader is called Carol the Robot Learns Java You can pick it up at the bookstore It's
+
+279
+00:19:13.970 --> 00:19:17.910
+relatively cheap It was actually written by Eric Roberts here And surprisingly enough
+
+280
+00:19:17.910 --> 00:19:21.150
+the textbook for the class was also written by Eric Roberts The Art and Science of
+
+281
+00:19:21.150 --> 00:19:25.390
+Java Which is available now in your local bookstore Including the bookstore on campus
+
+282
+00:19:25.390 --> 00:19:29.330
+So you can go and pick up a copy of this So both these things you actually want to
+
+283
+00:19:29.330 --> 00:19:32.690
+have Because they're required for the class We'll go through all of them We'll go through
+
+284
+00:19:32.690 --> 00:19:36.030
+basically everything except the last chapter of this book So you start to get your
+
+285
+00:19:36.030 --> 00:19:38.930
+money's worth We're just going to do it a little bit out of order But we'll go through
+
+286
+00:19:38.930 --> 00:19:43.930
+the whole thing So email How many of you have email accounts?
+
+287
+00:19:45.960 --> 00:19:48.340
+Alright, we'll ask the reverse question Because I think at this point some people just
+
+288
+00:19:48.340 --> 00:19:51.500
+don't want to put up their hands How many people don't have email accounts?
+
+289
+00:19:53.080 --> 00:19:57.320
+Odd how that is not the compliment of the folks who had their hands up previously Email's
+
+290
+00:19:57.320 --> 00:20:00.860
+required for this class Chances are by being at Stanford You've already gotten an email
+
+291
+00:20:00.860 --> 00:20:03.760
+account through your SunNet ID But if you don't have an email account get an email
+
+292
+00:20:03.760 --> 00:20:06.360
+account That's how you'll stay in contact with us That's how we'll stay in contact
+
+293
+00:20:06.360 --> 00:20:10.260
+with you Except we'll also meet with you live in person But email is kind of the general
+
+294
+00:20:10.260 --> 00:20:12.900
+method of communication As a matter of fact for your first assignment And part of your
+
+295
+00:20:12.900 --> 00:20:17.500
+first assignment is to send us an email Just because we love you And we don't get enough
+
+296
+00:20:17.500 --> 00:20:20.980
+email as it is So you need to have an email account to be able to do that So if you
+
+297
+00:20:20.980 --> 00:20:24.100
+have not already you can kind of get ahead of the game And go set up your email account
+
+298
+00:20:24.100 --> 00:20:26.840
+Now don't worry you'll get the first assignment next time So you still get like two
+
+299
+00:20:26.840 --> 00:20:30.860
+days of breathing space before your assignment goes out There's also going to be lots
+
+300
+00:20:30.860 --> 00:20:33.760
+of handouts on the class They'll be either given out in class Well they will be given
+
+301
+00:20:33.760 --> 00:20:37.780
+out in class But we'll also post them online in case you missed them And how much real
+
+302
+00:20:37.780 --> 00:20:41.100
+work do you do in this class This is always kind of an interesting question So let's
+
+303
+00:20:41.100 --> 00:20:46.680
+talk a little bit about assignments And a little bit of other logistical things So
+
+304
+00:20:46.680 --> 00:20:52.520
+assignments We'll just call them the dreaded assigns There are seven programming
+
+305
+00:20:52.520 --> 00:20:56.730
+assignments And if you look at the syllabus handout number two It tells you when all
+
+306
+00:20:56.730 --> 00:21:00.830
+of them are due All the way through by day So you can plan out your whole quarter It's
+
+307
+00:21:00.830 --> 00:21:06.410
+just that much fun And these seven programming assignments Are weighted slightly more
+
+308
+00:21:06.410 --> 00:21:09.350
+toward the last assignments Because the assignments will tend to get more complicated
+
+309
+00:21:09.350 --> 00:21:12.950
+That doesn't necessarily mean they'll be more programming It just means conceptually
+
+310
+00:21:12.950 --> 00:21:16.270
+they'll become more complicated So we tend to weigh them more toward the end of the
+
+311
+00:21:16.270 --> 00:21:19.890
+class So the later assignments count more than the early assignments How you're going
+
+312
+00:21:19.890 --> 00:21:25.400
+to be actually doing your programming Is using a little tool called Eclipse And Eclipse
+
+313
+00:21:25.400 --> 00:21:29.100
+thankfully is free So you don't have to pay for it As a matter of fact, you can download
+
+314
+00:21:29.100 --> 00:21:32.560
+it from the CS106A website And if you're wondering how you do that Don't worry, we'll
+
+315
+00:21:32.560 --> 00:21:37.080
+give you a handout next class That explains to you the whole grueling process Of downloading
+
+316
+00:21:37.080 --> 00:21:42.580
+and installing Eclipse And you can use this either on the Mac or the PC So if you have
+
+317
+00:21:42.580 --> 00:21:46.360
+your own computer You can certainly work on this yourself You just download it to your
+
+318
+00:21:46.360 --> 00:21:50.120
+own machine We'll explain the whole process in a handout If you don't have your own
+
+319
+00:21:50.120 --> 00:21:53.880
+computer The public computer clusters on campus Will have Eclipse installed on them
+
+320
+00:21:53.880 --> 00:21:58.980
+And so you can use Eclipse there So you're sort of happy to go either way Now the important
+
+321
+00:21:58.980 --> 00:22:01.940
+thing Remember I mentioned that whole notion of software engineering in the class And
+
+322
+00:22:01.940 --> 00:22:04.480
+that's something we take really seriously So seriously as a matter of fact that when
+
+323
+00:22:04.480 --> 00:22:06.640
+you turn in your assignments One thing we could do is we could take your assignments
+
+324
+00:22:06.640 --> 00:22:11.200
+And we could just kind of look at it and go Yeah, interesting B, here you go Thanks
+
+325
+00:22:11.200 --> 00:22:15.900
+for playing And you don't learn a whole lot from that So in order to actually learn
+
+326
+00:22:15.900 --> 00:22:18.840
+a lot from your assignments We could take your assignment and write a whole bunch of
+
+327
+00:22:18.840 --> 00:22:23.160
+comments on it And hand it back to you Even that's kind of not enough What really is
+
+328
+00:22:23.160 --> 00:22:27.220
+a little bit more that makes it more fun Is every week after you turn in your assignments
+
+329
+00:22:27.220 --> 00:22:30.560
+And your section leader looks it over and grades it You'll actually meet with your
+
+330
+00:22:30.560 --> 00:22:34.440
+section leader For about 10 to 15 minutes every week Or every time an assignment is
+
+331
+00:22:34.440 --> 00:22:38.060
+due To actually go over in something referred to as interactive grading And it's a
+
+332
+00:22:38.060 --> 00:22:41.860
+chance to sit there and talk with an actual human being About what's good in your assignment
+
+333
+00:22:41.860 --> 00:22:44.940
+What are some of the things you need to work on What are some of the software engineering
+
+334
+00:22:44.940 --> 00:22:49.480
+principles you need to develop And that way you can really sort of get more detailed
+
+335
+00:22:49.480 --> 00:22:53.740
+information And be able to ask questions to develop yourself as a programmer As well
+
+336
+00:22:53.740 --> 00:22:58.320
+as get help if you need help And that's in addition to going to section Going to class
+
+337
+00:22:58.320 --> 00:23:02.000
+and all that stuff So it's another 15 minutes a week You'll actually schedule that
+
+338
+00:23:02.000 --> 00:23:05.340
+time with your section leader on a regular basis When you're going to have interactive
+
+339
+00:23:05.340 --> 00:23:10.340
+grading Or just affectionately referred to as IG's Because at Stanford everything is
+
+340
+00:23:10.340 --> 00:23:15.460
+just shortened We just can't say psychology We have to say psych So it's IG, just remember
+
+341
+00:23:15.460 --> 00:23:20.140
+them And then how are these things graded So the other thing we could do is I told
+
+342
+00:23:20.140 --> 00:23:23.660
+you we could just write B and hand it back to you But we found that that's not really
+
+343
+00:23:23.660 --> 00:23:27.900
+great Because people get all wrapped around the axle about the grade And so for a while
+
+344
+00:23:27.900 --> 00:23:31.600
+we did numbers And we're like, huh, why don't we give a number between 1 and 20 And
+
+345
+00:23:31.600 --> 00:23:35.820
+so what happens there People get all wrapped around the axle about numbers So then
+
+346
+00:23:35.820 --> 00:23:39.880
+we thought, huh, what was a happier time when we were in school I remember when we
+
+347
+00:23:39.880 --> 00:23:43.940
+were in school And we used to get back assignments And they had like smiley faces on
+
+348
+00:23:43.940 --> 00:23:48.080
+them Well, we can't do that Because then it doesn't appear to be a rigorous Stanford
+
+349
+00:23:48.080 --> 00:23:54.240
+class So instead of the smiley face We come up with something else Which
+
+350
+00:23:54.240 --> 00:23:59.060
+looks surprisingly like this It's kind of involved to actually draw So I need to erase
+
+351
+00:23:59.060 --> 00:24:04.940
+a board to do it That's
+
+352
+00:24:04.940 --> 00:24:09.120
+kind of the beginning of our grading scale And the way our grading scale works is We
+
+353
+00:24:09.120 --> 00:24:13.480
+start off with a check in the middle Which is, this is a pretty solid program You know,
+
+354
+00:24:13.560 --> 00:24:16.760
+it meets all the requirements for the program Maybe it's got a little problem here
+
+355
+00:24:16.760 --> 00:24:21.880
+or there But it's a check Then we have sort of two grades on the two sides of it Check
+
+356
+00:24:21.880 --> 00:24:27.380
+plus and check minus Check plus is like solid You did a
+
+357
+00:24:27.380 --> 00:24:32.240
+great job You got everything right Things look good Nice style in your program Nice
+
+358
+00:24:32.240 --> 00:24:37.240
+software engineering And the program works flawlessly Good job This is like, you know,
+
+359
+00:24:37.240 --> 00:24:41.980
+total A Check is kind of like, yeah, you're sort of there It's kind of like A minus
+
+360
+00:24:41.980 --> 00:24:46.420
+B plus Maybe on some occasions B But it's kind of like, you know, it's pretty good
+
+361
+00:24:46.420 --> 00:24:50.520
+work You're in pretty good shape here And so a lot of grades in this class Ends up
+
+362
+00:24:50.520 --> 00:24:54.040
+being check pluses and checks And if that's the case, you're perfectly fine grade wise
+
+363
+00:24:54.580 --> 00:24:58.280
+Check minus, as you can imagine This is kind of, you know, thinking about B, B minus
+
+364
+00:24:58.280 --> 00:25:01.980
+It's, yeah, there's some slightly more, you know, Significant problems with your program
+
+365
+00:25:01.980 --> 00:25:03.880
+But that's not where it ends, right?
+
+366
+00:25:03.920 --> 00:25:07.720
+Because we want to be able to even shoot for, you know, In some sense, bigger gustos
+
+367
+00:25:07.720 --> 00:25:13.500
+There was a plus and a minus So plus is like, oh, nice job,
+
+368
+00:25:13.500 --> 00:25:18.900
+you know It's kind of the party pat on the back If you get pluses all the way through
+
+369
+00:25:18.900 --> 00:25:22.840
+on all your assignments You're on a pretty good candidate to get an A plus And minus,
+
+370
+00:25:23.180 --> 00:25:28.700
+like, just take good over here And replace it with bad It's kind of like, oh, bad times,
+
+371
+00:25:28.700 --> 00:25:34.320
+right? It's, you know, or maybe, yeah, you know
+
+372
+00:25:35.950 --> 00:25:39.930
+But even there's, like, more significant problems With this program Where just the
+
+373
+00:25:39.930 --> 00:25:44.230
+style on the program is just really bad But even there we don't stop And you're like,
+
+374
+00:25:44.470 --> 00:25:49.030
+come on, man Like, I thought the whole reason was to simplify this Don't worry It gets
+
+375
+00:25:49.030 --> 00:25:53.070
+even better Because we have a plus plus and a minus minus And at this point, we've
+
+376
+00:25:53.070 --> 00:25:58.030
+run out of board space So we can't go any further But a plus plus is just outrageous,
+
+377
+00:25:58.030 --> 00:26:01.970
+right? It's the kind of thing So this is the kind of thing your section leader can't
+
+378
+00:26:01.970 --> 00:26:05.990
+actually give you Without coming and talking to Ben and I first Because they get a
+
+379
+00:26:05.990 --> 00:26:09.970
+program that just goes It has to actually exceed the requirements for the assignments
+
+380
+00:26:09.970 --> 00:26:14.530
+By a long shot Like, you'll get all your assignment requirements And what we encourage
+
+381
+00:26:14.530 --> 00:26:17.850
+you to do is You can do a great assignment And get everything right and have good style
+
+382
+00:26:17.850 --> 00:26:20.930
+And you'll be in this category And for the later assignments You may be in this category
+
+383
+00:26:20.930 --> 00:26:26.250
+if it's flawless But we'll actually If you want to go for the plus plus Go beyond the
+
+384
+00:26:26.250 --> 00:26:29.090
+assignment requirements And the way we think about the plus plus Is the program that
+
+385
+00:26:29.090 --> 00:26:33.590
+makes you weep In a good way It's just like your section leader sees it And they're
+
+386
+00:26:33.590 --> 00:26:38.030
+just like This is so good I've got to show someone else And they come and show Ben
+
+387
+00:26:38.030 --> 00:26:41.130
+and I And we're, like, sitting there looking at this on a monitor And, like, tears
+
+388
+00:26:41.130 --> 00:26:45.490
+are just welling in our eyes And there's, like, soft violin music Playing in the background
+
+389
+00:26:45.490 --> 00:26:51.030
+And we get out the wine and cheese So this is just like You know This
+
+390
+00:26:51.030 --> 00:26:54.450
+is the kind of thing that gets you, like, remembered And the, oh, if you want a letter
+
+391
+00:26:54.450 --> 00:27:00.250
+of recommendation Just ask because you got a plus plus Like, oh It's awesome, right?
+
+392
+00:27:00.490 --> 00:27:03.910
+There are very few of these in a quarter So just by sort of way of comparison In a
+
+393
+00:27:03.910 --> 00:27:07.630
+class this size Probably throughout the span of the whole quarter I'd expect there
+
+394
+00:27:07.630 --> 00:27:12.450
+to be maybe 10 plus pluses I mean, 10 assignment plus pluses Not 10 students who get
+
+395
+00:27:12.450 --> 00:27:15.930
+plus pluses across the board So it's really something to strive for But if you strive
+
+396
+00:27:15.930 --> 00:27:19.770
+for it Like, we're giving you the credit for it And this gets remembered And you get,
+
+397
+00:27:19.770 --> 00:27:24.910
+like, extra credit and everything So We're left with this Right?
+
+398
+00:27:24.990 --> 00:27:30.590
+This assignment also makes you weep But not in the good way,
+
+399
+00:27:30.590 --> 00:27:34.590
+right? It makes you kind of weep in the sense, like I look at them and I'm, like, oh,
+
+400
+00:27:34.630 --> 00:27:36.770
+man, like What did I teach?
+
+401
+00:27:37.050 --> 00:27:38.410
+Like, where did I go wrong? Right?
+
+402
+00:27:38.530 --> 00:27:44.530
+I, like, blame myself I blame you a little bit But I blame myself And
+
+403
+00:27:44.530 --> 00:27:47.670
+this is really just, like, you know The program is just, like, you know, it's a shell
+
+404
+00:27:47.670 --> 00:27:50.810
+Like, there really wasn't much effort that was put into it Yeah, you slapped something
+
+405
+00:27:50.810 --> 00:27:53.810
+to be out of the good Or it doesn't really work, you know, that whole deal And then
+
+406
+00:27:53.810 --> 00:27:57.150
+if you don't turn anything in We do kind of reserve the zero to distinguish from the
+
+407
+00:27:57.150 --> 00:28:03.030
+You know, made really bad effort Versus didn't make any effort at all So,
+
+408
+00:28:03.170 --> 00:28:04.990
+and we just won't talk about these, right?
+
+409
+00:28:05.010 --> 00:28:07.930
+Let's just hope we can avoid those if possible But that's kind of how the grading scale
+
+410
+00:28:07.930 --> 00:28:13.210
+works out Now At the same time, you know, I trust all of you to be responsible people
+
+411
+00:28:13.210 --> 00:28:17.690
+And every once in a while, something bad happens to a good person And there's an assignment
+
+412
+00:28:17.690 --> 00:28:21.070
+that you'd like to be able to turn in But for whatever reason, you can't turn in on
+
+413
+00:28:21.070 --> 00:28:24.930
+time And I just want to treat you like adults I don't want you to have to worry about
+
+414
+00:28:24.930 --> 00:28:28.830
+coming in and asking for an extension Or, like, oh, I had this really hard thing in
+
+415
+00:28:28.830 --> 00:28:32.850
+another class And I couldn't do it at the same time Up front, everyone gets two free
+
+416
+00:28:32.850 --> 00:28:38.010
+extensions Okay? So in terms of late days, we refer to these as late days Strangely
+
+417
+00:28:38.010 --> 00:28:43.310
+enough, you get two free ones What a late day is, is a class day They're not 24 -hour
+
+418
+00:28:43.310 --> 00:28:46.710
+days, but class days So if something is due on a Wednesday, you turn in on a Friday
+
+419
+00:28:46.710 --> 00:28:51.050
+That's a late day, that's one You turn in on the following Monday, that's two late
+
+420
+00:28:51.050 --> 00:28:54.450
+days You can split up your two late days among two different assignments You can use
+
+421
+00:28:54.450 --> 00:28:58.170
+them both on one assignment But we encourage you to not use them at all Because if
+
+422
+00:28:58.170 --> 00:29:01.550
+you use your late days, you fall behind in the class The way you should think about
+
+423
+00:29:01.550 --> 00:29:05.890
+these things are These are pre -approved extensions They're not the kind of thing where
+
+424
+00:29:05.890 --> 00:29:08.830
+you just think Oh, yeah, I'm not going to do the assignment Because I want to go and
+
+425
+00:29:08.830 --> 00:29:10.430
+play Frisbee Golf, right?
+
+426
+00:29:10.430 --> 00:29:14.010
+Think of it, you wouldn't come ask me for an extension You might, but you probably
+
+427
+00:29:14.010 --> 00:29:17.450
+wouldn't ask me for an extension If you're like, hey, okay, Maron, can I turn in the
+
+428
+00:29:17.450 --> 00:29:21.610
+assignment Like on Wednesday, because I'm playing Frisbee Golf this afternoon If you
+
+429
+00:29:21.610 --> 00:29:24.570
+would feel embarrassed asking that question You probably don't want to use one of your
+
+430
+00:29:24.570 --> 00:29:29.110
+free late days But something happens, like, oh, it's a tough week You got midterms
+
+431
+00:29:29.110 --> 00:29:31.890
+in other classes and you got the assignment due Or whatever, that's a good time to
+
+432
+00:29:31.890 --> 00:29:36.050
+use it So we just trust you And most people, we actually encourage you not to use them
+
+433
+00:29:36.050 --> 00:29:40.090
+Because it just makes you fall behind in the class Because we trust you and we give
+
+434
+00:29:40.090 --> 00:29:44.150
+you these two up front Getting extensions beyond your two free class days is virtually
+
+435
+00:29:44.150 --> 00:29:47.710
+impossible Because we sort of up front and said, hey, it's your responsibility We're
+
+436
+00:29:47.710 --> 00:29:50.690
+giving it to freebies We're not going to give you a third extension Imagine if you
+
+437
+00:29:50.690 --> 00:29:54.290
+had to come ask us for three extensions By the third one, we'd be like, okay, what's
+
+438
+00:29:54.290 --> 00:29:57.790
+going on? Which is why we don't necessarily give extensions beyond these two The only
+
+439
+00:29:57.790 --> 00:30:01.590
+time we might give an extension beyond the two free ones Is for something major, like
+
+440
+00:30:01.590 --> 00:30:05.850
+death in the family Or, like, serious medical problem that might require surgery Or
+
+441
+00:30:05.850 --> 00:30:09.450
+something like that Every once in a while, unfortunately, that happens I hope it doesn't
+
+442
+00:30:09.450 --> 00:30:12.690
+happen in this class But those are the only kinds of things that we give extensions
+
+443
+00:30:12.690 --> 00:30:17.230
+to Beyond the two free late days Importantly, don't ask your section leader for extensions
+
+444
+00:30:17.230 --> 00:30:21.230
+They cannot grant you extensions Only Ben, who has all the power in this class, can
+
+445
+00:30:21.230 --> 00:30:24.150
+give extensions Which is why you should get to know Ben And then hopefully you won't
+
+446
+00:30:24.150 --> 00:30:29.510
+need to talk to him about extensions So, other thing to keep in mind is that three
+
+447
+00:30:29.510 --> 00:30:35.040
+days late is the max Beyond three days late, which is basically one class
+
+448
+00:30:35.040 --> 00:30:38.700
+week If you think about late days being class days, we will not accept an assignment
+
+449
+00:30:38.700 --> 00:30:41.880
+And the reason for that is a certain point, you're so late You're better off just doing
+
+450
+00:30:41.880 --> 00:30:45.900
+the next assignment, letting the old one go So, to sort of enforce that policy, after
+
+451
+00:30:45.900 --> 00:30:49.480
+three days, we don't accept any That assignment late anymore It's just going to be
+
+452
+00:30:49.480 --> 00:30:53.180
+a zero if it's not turned in Okay, and that just kind of forces you to keep up A couple
+
+453
+00:30:53.180 --> 00:30:55.500
+other minor things Well, I shouldn't say they're minor things They're actually kind
+
+454
+00:30:55.500 --> 00:30:59.420
+of important Exams, there's two exams in this class There's a midterm and a final Both
+
+455
+00:30:59.420 --> 00:31:04.880
+of them are, well, I shouldn't say both The midterm is out of class It's from 7 to
+
+456
+00:31:04.880 --> 00:31:11.050
+8 30 p .m. on Tuesday, October 30th And
+
+457
+00:31:11.050 --> 00:31:14.210
+it's on the syllabus, it's there It's on the syllabus, it's on handout number one We
+
+458
+00:31:14.210 --> 00:31:17.150
+repeat it multiple times The date will eventually be announced when we get closer to
+
+459
+00:31:17.150 --> 00:31:21.090
+the midterm But if you have a conflict with this time, you just need to send me email
+
+460
+00:31:21.090 --> 00:31:25.350
+Okay, you can send me email a little closer to the midterm Because I'll announce it
+
+461
+00:31:25.350 --> 00:31:29.730
+again for people who have conflicts But since it's an out -of -class exam, you need
+
+462
+00:31:29.730 --> 00:31:33.150
+to send me email If you have a conflict, I'll get all the constraints from people who
+
+463
+00:31:33.150 --> 00:31:35.910
+have conflicts And try to schedule an alternate time if there's enough people with
+
+464
+00:31:35.910 --> 00:31:40.790
+conflicts But 7 to 8 30 is when you need to know about the midterm And to make up for
+
+465
+00:31:40.790 --> 00:31:43.970
+the fact that we have an out -of -class midterm I actually give you sort of a belated
+
+466
+00:31:43.970 --> 00:31:47.190
+free day Which is the Friday of the week of the midterm We don't have class to make
+
+467
+00:31:47.190 --> 00:31:50.590
+up for the fact that we made you come to the midterm outside of class But the midterm
+
+468
+00:31:50.590 --> 00:31:53.870
+is an hour and a half and we can't compress time If we could, we have different issues
+
+469
+00:31:53.870 --> 00:31:57.310
+We can't compress time and fit it into a 50 -minute class Which is why it's out of
+
+470
+00:31:57.310 --> 00:32:02.550
+class, but you get a free day for it Last but not least, a few things about grading
+
+471
+00:32:03.470 --> 00:32:06.530
+Grading one of those things that you might be able to tell from this little board over
+
+472
+00:32:06.530 --> 00:32:10.650
+here is something If I didn't have to do, I wouldn't do it Because honestly, as corny
+
+473
+00:32:10.650 --> 00:32:14.630
+as this sounds, I just believe in the love of learning Like, I think if you're passionate
+
+474
+00:32:14.630 --> 00:32:19.430
+about something, you just go do it and you learn it But I'm naive, and so that's not
+
+475
+00:32:19.430 --> 00:32:23.150
+the way learning always works So sometimes we actually need grading to make sure that
+
+476
+00:32:23.150 --> 00:32:27.650
+learning takes place And so this is how your grade breaks down 45 % of your grade is
+
+477
+00:32:27.650 --> 00:32:33.280
+on the programming assignments 15 % is the midterm Which we'll
+
+478
+00:32:33.280 --> 00:32:38.440
+just call the mid because we like to abbreviate everything 30 % is the final It's a
+
+479
+00:32:38.440 --> 00:32:43.200
+three -hour final exam in the regular final time slot for this class If you think,
+
+480
+00:32:43.440 --> 00:32:47.480
+or under the delusion, that you should take two classes at the same time That's a bad
+
+481
+00:32:47.480 --> 00:32:52.380
+idea because their final exams are at the same time So you should not take two classes
+
+482
+00:32:52.380 --> 00:32:57.340
+at the same time Because our final exam is scheduled for, I believe it's December 13th,
+
+483
+00:32:57.340 --> 00:33:01.960
+which is a Thursday, 12 -15 to 3 -15 That's the regular final exam slot for this class
+
+484
+00:33:01.960 --> 00:33:05.580
+And any other class at the same time will conflict with that slot 30 % of your grade
+
+485
+00:33:05.580 --> 00:33:09.840
+is the final, and that, if you add it all up, it's not just that I'm bad with math
+
+486
+00:33:09.840 --> 00:33:15.450
+It's because 10 % of your grade is actually participation And this is things like,
+
+487
+00:33:15.810 --> 00:33:17.550
+did you go to your interactive grading sessions?
+
+488
+00:33:17.770 --> 00:33:20.190
+Did you regularly attend section? Did you participate in section?
+
+489
+00:33:20.370 --> 00:33:26.180
+Did you participate in class? And so, in order to help you participate in class There's
+
+490
+00:33:26.180 --> 00:33:30.280
+a little incentive to participate in class, which is sugar in the afternoon So someone
+
+491
+00:33:30.280 --> 00:33:35.890
+raise their hand Alright Yeah, sometimes
+
+492
+00:33:35.890 --> 00:33:38.670
+I'm not a good shot And this will tell you, if you're sitting in the back of the room
+
+493
+00:33:38.670 --> 00:33:44.380
+I can't throw a KitKat back there because they're a little too light Oh, yeah,
+
+494
+00:33:44.420 --> 00:33:48.460
+sorry If you sit in the back of the room, the roof prevents me from actually being
+
+495
+00:33:48.460 --> 00:33:52.660
+able to hit you So, if you want the food to come up But if you ask questions in class,
+
+496
+00:33:53.020 --> 00:33:56.700
+hey, that's a good time It's just a little way to be able to reward you for actually
+
+497
+00:33:56.700 --> 00:34:01.740
+participating in class Or to keep your blood sugar up if you need it Alright So, that's
+
+498
+00:34:01.740 --> 00:34:04.160
+participation is 10 % of your grade As a matter of fact, at the end of the quarter
+
+499
+00:34:04.160 --> 00:34:07.240
+I ask everyone in your section leaders to actually tell me how much you participated
+
+500
+00:34:07.240 --> 00:34:11.120
+in class And some of them just say, oh, this person was wonderful They came every time
+
+501
+00:34:11.120 --> 00:34:15.200
+they participated It's just a great thing And that helps your grade out a lot Okay
+
+502
+00:34:15.200 --> 00:34:19.820
+Now, the final thing And as you can kind of tell, most of the time I'm not the most
+
+503
+00:34:19.820 --> 00:34:22.920
+serious person in the world I just like to have fun with things And I think it's important
+
+504
+00:34:22.920 --> 00:34:26.860
+for you to have fun with things There is just one place where I get real serious And
+
+505
+00:34:26.860 --> 00:34:30.940
+it's one place where Stanford gets real serious Anyone want to guess what that is?
+
+506
+00:34:31.200 --> 00:34:34.780
+Uh -huh Plagiarism Plagiarism and the honor code As a matter of fact, that's what we
+
+507
+00:34:34.780 --> 00:34:38.300
+call a social So, we had someone down here who got it And then a whole bunch of people
+
+508
+00:34:38.300 --> 00:34:43.480
+who I don't know So, we just spray Alright
+
+509
+00:34:44.640 --> 00:34:50.140
+So, the honor code In terms of the honor code The question
+
+510
+00:34:50.140 --> 00:34:52.660
+comes up is What is the honor code all about?
+
+511
+00:34:52.660 --> 00:34:56.400
+And how does that affect working in groups In computer science, etc.
+
+512
+00:34:57.100 --> 00:34:59.300
+Does that mean we shouldn't talk to each other?
+
+513
+00:34:59.800 --> 00:35:04.280
+No The answer to all those is no Okay If you look at handout number four Which is all
+
+514
+00:35:04.280 --> 00:35:07.920
+about the honor code We encourage you to talk to each other We encourage you to talk
+
+515
+00:35:07.920 --> 00:35:11.620
+about concepts in the class Talk about different strategies to problems To think about
+
+516
+00:35:11.620 --> 00:35:15.460
+the ways that you could potentially Approach some problem Or the way different control
+
+517
+00:35:15.460 --> 00:35:19.020
+constructs When we eventually get to them work in the class And discussion is perfectly
+
+518
+00:35:19.020 --> 00:35:23.860
+fine Especially among the core staff But also amongst yourselves That's a great thing
+
+519
+00:35:23.860 --> 00:35:25.660
+So, where do we draw the line?
+
+520
+00:35:25.740 --> 00:35:30.140
+We try to make a bright line For where you've crossed the line for the honor code Which
+
+521
+00:35:30.140 --> 00:35:35.760
+is Don't share code Plain and simple
+
+522
+00:35:35.760 --> 00:35:41.220
+In any respect Okay Don't give a file to someone else that's got your code in it Don't
+
+523
+00:35:41.220 --> 00:35:44.760
+get code from someone else Don't look at someone else's printout Don't give them a
+
+524
+00:35:44.760 --> 00:35:48.520
+printout If you have two people who are sitting Looking at the same screen together
+
+525
+00:35:48.520 --> 00:35:53.260
+That code can't belong to both of you It belongs to one of you I don't know which one
+
+526
+00:35:53.260 --> 00:35:57.060
+But it becomes an honor code violation So you shouldn't both You know, two people shouldn't
+
+527
+00:35:57.060 --> 00:36:00.480
+be staring at the monitor together If it ever gets to the point where you're looking
+
+528
+00:36:00.480 --> 00:36:04.160
+at someone else's code That's where you're going to reach an issue Okay?
+
+529
+00:36:04.620 --> 00:36:09.120
+Discuss as much as you want That's great Write your own code That's all we care about
+
+530
+00:36:09.120 --> 00:36:10.540
+And you're like, well, what is code, Marilyn?
+
+531
+00:36:10.660 --> 00:36:15.580
+What does that word mean? Code is, geek speak, for your program So when you program,
+
+532
+00:36:15.720 --> 00:36:19.720
+the program that you write Is what we affectionately refer to as code And the idea
+
+533
+00:36:19.720 --> 00:36:24.300
+of programming is what we refer to as coding Strangely enough, we just, you know Computer
+
+534
+00:36:24.300 --> 00:36:28.100
+scientists need to make everything more complicated than it really is So we can get
+
+535
+00:36:28.100 --> 00:36:31.600
+people under the illusion That they should pay us lots of money to do what we do And
+
+536
+00:36:31.600 --> 00:36:34.980
+you're like, oh, I just write programs And they're like, oh, yeah, I should pay you
+
+537
+00:36:34.980 --> 00:36:37.460
+half And you're like, no, no, no, I write code And they're like, oh, yeah, suddenly
+
+538
+00:36:37.460 --> 00:36:42.860
+it's much more impressive So don't share code The other thing is if you talk to other
+
+539
+00:36:42.860 --> 00:36:46.300
+people Like if you have a study group to talk about solution approaches Or you go,
+
+540
+00:36:46.380 --> 00:36:49.720
+let's say, talk to the TA or section leader To how do you shoot approach a problem
+
+541
+00:36:49.720 --> 00:36:55.880
+And they give you a lot of hints as to how to do it Sight collaboration So
+
+542
+00:36:55.880 --> 00:37:00.040
+sighting collaboration gets you out of trouble Any collaboration that you sight You
+
+543
+00:37:00.040 --> 00:37:04.560
+cannot be held responsible for under the honor code You can actually copy someone else's
+
+544
+00:37:04.560 --> 00:37:08.860
+program And say, I copied this program from Mary Smith And I'll look at that and say,
+
+545
+00:37:08.980 --> 00:37:13.420
+they sighted it And it will warm the cockles of my heart And Mary Smith will get full
+
+546
+00:37:13.420 --> 00:37:17.280
+credit And you'll get a zero because you copied your program from Mary Smith But it's
+
+547
+00:37:17.280 --> 00:37:22.840
+not an honor code violation Because you sighted the work So the bottom line
+
+548
+00:37:22.840 --> 00:37:27.780
+is keep yourself safe And sight your collaborations And I guarantee you most of the
+
+549
+00:37:27.780 --> 00:37:31.360
+time you'll be just fine Now you might wonder, why do I make such a big deal about
+
+550
+00:37:31.360 --> 00:37:34.600
+this And the reason I make a big deal about this is for a while Thankfully it's not
+
+551
+00:37:34.600 --> 00:37:38.420
+true anymore But for a while, the computer science department Actually had more honor
+
+552
+00:37:38.420 --> 00:37:43.920
+code violations Than the rest of the university combined Take everything else in the
+
+553
+00:37:43.920 --> 00:37:46.400
+university Put them all together, they were like, over here And we're like, we're computer
+
+554
+00:37:46.400 --> 00:37:52.320
+science Which is not a fun distinction to have, let me tell you And
+
+555
+00:37:52.320 --> 00:37:55.600
+you might wonder, why is that? Is it because computer science people are just mischievous
+
+556
+00:37:55.600 --> 00:38:00.620
+and dishonest? No It's because it's easier to catch honor code violations in computer
+
+557
+00:38:00.620 --> 00:38:04.320
+science We have a whole bunch of tools that allow us That we take all your programs
+
+558
+00:38:04.320 --> 00:38:06.920
+and we run them through this tool And it compares them not only to everyone else in
+
+559
+00:38:06.920 --> 00:38:10.960
+here But to everyone from the last X years Where X is a large number of people who
+
+560
+00:38:10.960 --> 00:38:15.280
+have ever gone through the classes And it's an extremely good tool from finding where
+
+561
+00:38:15.280 --> 00:38:20.360
+honor code violations happen From where they don't And it doesn't find spurious violations
+
+562
+00:38:20.360 --> 00:38:25.880
+To be honest, I've never lost an honor code case When I find an honor code case,
+
+563
+00:38:26.180 --> 00:38:29.580
+it is blatant And you take it to judicial affairs And they look at it and they're like,
+
+564
+00:38:29.660 --> 00:38:33.840
+yeah, this is blatant And I take it to the student And every student I've ever confronted
+
+565
+00:38:33.840 --> 00:38:38.540
+them with Never said, oh, no, no, I didn't cheat They said, you caught me So it's blatant
+
+566
+00:38:38.540 --> 00:38:41.820
+It's not like, oh, there's some little line And oh, am I going to need to worry about
+
+567
+00:38:41.820 --> 00:38:44.000
+an honor code violation? Remember those rules?
+
+568
+00:38:44.200 --> 00:38:47.700
+You have nothing to worry about in this class It's people who go and, like, fish out
+
+569
+00:38:47.700 --> 00:38:51.240
+printouts from the recycle bins And copy other people's code that are the people we
+
+570
+00:38:51.240 --> 00:38:55.780
+catch Right? It's blatant cheating that we catch But we catch it We catch it all the
+
+571
+00:38:55.780 --> 00:38:59.760
+time So I just, I hope, I pray it doesn't happen in this class But the reason I make
+
+572
+00:38:59.760 --> 00:39:03.520
+a big deal about it is historically If I look at the evidence, it happens and we catch
+
+573
+00:39:03.520 --> 00:39:06.660
+it And when we catch it, we're required by the University to prosecute And I would
+
+574
+00:39:06.660 --> 00:39:10.140
+feel bad, you know Because usually it's someone who just made a bad call Like, they
+
+575
+00:39:10.140 --> 00:39:13.660
+were up way too late the night before working on something else And they're not thinking
+
+576
+00:39:13.660 --> 00:39:17.120
+straight And rather than just taking a late day or turning in their assignment late
+
+577
+00:39:17.120 --> 00:39:21.080
+And getting a slight penalty on it beyond their two free late days They decide to cheat
+
+578
+00:39:21.080 --> 00:39:25.260
+And that's just always the wrong call So you just don't want to put yourself in that
+
+579
+00:39:25.260 --> 00:39:28.120
+situation Which is why I get real serious about it for a moment And hopefully it won't
+
+580
+00:39:28.120 --> 00:39:33.460
+be an issue And we can just kind of go on So with that said, that's a whole bunch of
+
+581
+00:39:33.460 --> 00:39:37.760
+logistical stuff Any questions about the logistics of this class or anything I just
+
+582
+00:39:37.760 --> 00:39:43.440
+talked about? Uh -huh Oh, the late penalty,
+
+583
+00:39:43.460 --> 00:39:47.760
+good point So remember our little bucket scale If you go beyond your two free late
+
+584
+00:39:47.760 --> 00:39:52.240
+days Every day you turn an assignment late beyond those It drops down one bucket So
+
+585
+00:39:52.240 --> 00:39:55.200
+let's say you already used your two free late days on assignment number one And on
+
+586
+00:39:55.200 --> 00:39:57.880
+assignment number two You turn in something one day late And you would have gotten
+
+587
+00:39:57.880 --> 00:40:01.720
+a check normally It becomes a check minus So that's how it is It's one bucket per late
+
+588
+00:40:01.720 --> 00:40:07.260
+day beyond your two free ones Uh -huh Yeah, the signups Well, they take
+
+589
+00:40:07.260 --> 00:40:10.920
+into consideration your preference But part of your preference is to do the match Is
+
+590
+00:40:10.920 --> 00:40:16.320
+first come, first serve So you want to sign up early Uh, thanks for your honesty As
+
+591
+00:40:16.320 --> 00:40:21.220
+a matter of fact, I dig honesty Alright Any other questions?
+
+592
+00:40:23.420 --> 00:40:28.940
+It's just honesty is cool Uh -huh Ah, good
+
+593
+00:40:28.940 --> 00:40:30.400
+question How much time should you plan?
+
+594
+00:40:30.480 --> 00:40:33.580
+And this is something that I say for classes in general at Stanford Which is not always
+
+595
+00:40:33.580 --> 00:40:39.040
+true Which is take the number of units that a class is Multiply it by three That's
+
+596
+00:40:39.040 --> 00:40:44.540
+how many hours you'll spend per week in that class Total On average So what that
+
+597
+00:40:44.540 --> 00:40:49.080
+means is in 106A Five unit class, you multiply it by three, you get fifteen Five of
+
+598
+00:40:49.080 --> 00:40:52.400
+those hours are roughly spent In between class, section, interactive, grading, other
+
+599
+00:40:52.400 --> 00:40:56.760
+stuff That means on average about ten hours a week Will be spent on your assignments
+
+600
+00:40:56.760 --> 00:41:00.340
+in this class Again, that's an average Sometimes when I go to computer science conferences
+
+601
+00:41:00.340 --> 00:41:03.520
+I sit there and joke around with pals And we're like, oh, how long did your assignments
+
+602
+00:41:03.520 --> 00:41:07.120
+take? And I say, oh, on average ten hours And what I really mean when I say on average
+
+603
+00:41:07.120 --> 00:41:12.860
+ten hours Is they take between three and forty -five Okay It's a large variance event,
+
+604
+00:41:12.860 --> 00:41:17.200
+right Ten is the average Some people take a really long time Some people get through
+
+605
+00:41:17.200 --> 00:41:21.610
+it really quickly But that's about the average you can plan for Uh -huh, another question?
+
+606
+00:41:27.520 --> 00:41:33.170
+Yeah, all late days are class days So the free ones The halfway mark's really my
+
+607
+00:41:33.170 --> 00:41:38.660
+reach That's about it Alright, so I do want to give you your very beginning Of an introduction
+
+608
+00:41:38.660 --> 00:41:43.500
+to programming Before we sort of break for the day How are we doing on time?
+
+609
+00:41:45.610 --> 00:41:50.490
+And so in order to kind of see this There's a few things that we want to keep in mind
+
+610
+00:41:50.490 --> 00:41:56.700
+Actually, let me show you a little picture Okay Sometimes When
+
+611
+00:41:56.700 --> 00:42:01.900
+we talk about writing programs We talk about debugging programs Right How many people
+
+612
+00:42:01.900 --> 00:42:04.260
+ever heard the term debugging Or bugs in programs?
+
+613
+00:42:04.580 --> 00:42:08.340
+A bug in a program is an error in a program So sometimes when you hear us say, oh,
+
+614
+00:42:08.340 --> 00:42:12.760
+come see Like your section leader to help debug Or see the helpers in layer That's
+
+615
+00:42:12.760 --> 00:42:16.540
+another thing in the Trusted or computer cluster Is the layer It's a computer cluster
+
+616
+00:42:16.540 --> 00:42:20.220
+that we have helpers there To help you get through this class Or what is it?
+
+617
+00:42:20.660 --> 00:42:25.240
+Sunday through Thursday every week From around two in the afternoon till midnight Every
+
+618
+00:42:25.240 --> 00:42:29.540
+day Okay To help you get through the class So that's a good place if you know You can
+
+619
+00:42:29.540 --> 00:42:32.820
+work in your dorm room certainly But if you also want help Go to the Trusted or computer
+
+620
+00:42:32.820 --> 00:42:36.020
+cluster And there will be helpers there There's a little queue you sign up for to get
+
+621
+00:42:36.020 --> 00:42:39.480
+help And that's a great place And it's all explained in hand out number one But that's
+
+622
+00:42:39.480 --> 00:42:42.920
+just something to keep in mind Where the term debugging comes from It turns out that's
+
+623
+00:42:42.920 --> 00:42:47.360
+an apocryphal story But I'll tell you anyway Back in the days of Yore in 1945 actually
+
+624
+00:42:47.360 --> 00:42:50.760
+There was a computer called the Mark II at Harvard And there was a woman named Grace
+
+625
+00:42:50.760 --> 00:42:53.120
+Marie Hopper Anyone ever heard of Grace Marie Hopper?
+
+626
+00:42:53.840 --> 00:42:58.360
+A few folks She was actually the first woman Who was an admiral in the Navy And she
+
+627
+00:42:58.360 --> 00:43:02.340
+was also one of the very early pioneers Of computer programming She did a lot of computer
+
+628
+00:43:02.340 --> 00:43:05.800
+programming When she was actually a captain And she was stationed at Harvard As part
+
+629
+00:43:05.800 --> 00:43:09.700
+of some sort of Navy thing I don't know why But that's what happens And they had this
+
+630
+00:43:09.700 --> 00:43:12.880
+huge computer there And they were noticing the computer was on the fritz And they couldn't
+
+631
+00:43:12.880 --> 00:43:15.760
+understand what was wrong And this is one of those big old machines In the days of
+
+632
+00:43:15.760 --> 00:43:19.380
+Yore that has vacuum tubes And stuff inside it So they walked inside the computer,
+
+633
+00:43:19.420 --> 00:43:23.380
+right? Because then you could actually open it up And walk inside your computer And
+
+634
+00:43:23.380 --> 00:43:28.300
+they saw this And I don't know if you can see that But that's a moth It was a moth
+
+635
+00:43:28.300 --> 00:43:31.820
+that had sort of given its life To be immortalized Because it had actually shorted
+
+636
+00:43:31.820 --> 00:43:37.040
+out Across two relays in the computer And was causing these sort of, you know, Errors
+
+637
+00:43:37.040 --> 00:43:40.240
+to happen on the fritz And so they took the bug out And once they actually, you know,
+
+638
+00:43:40.340 --> 00:43:43.760
+Plucked this little charred bug out of there The computer started working fine again
+
+639
+00:43:43.760 --> 00:43:48.740
+And she taped it in her logbook And this logbook's actually preserved In the Smithsonian
+
+640
+00:43:48.740 --> 00:43:52.760
+Institution now Which is where all this comes from Here's all the standard disclaimer
+
+641
+00:43:52.760 --> 00:43:56.480
+information Image used under fair use For educational purposes Use of this image Exempt
+
+642
+00:43:56.480 --> 00:44:00.600
+from Creative Commons And other licenses Just so you know Now the lawyers are happy
+
+643
+00:44:01.620 --> 00:44:05.820
+But this is where we think of Sort of the modern term debugging Actually came from
+
+644
+00:44:05.820 --> 00:44:09.880
+Now it turns out the actual story Is that the term debugging Came from the 1800s In
+
+645
+00:44:09.880 --> 00:44:14.180
+the late 1800s From mechanical devices People actually referred to debugging As fixing
+
+646
+00:44:14.180 --> 00:44:17.720
+mechanical devices But this is kind of the apocryphal story For how it comes up in
+
+647
+00:44:17.720 --> 00:44:23.240
+computer science Now with that said What is the platform In which you're going to
+
+648
+00:44:23.240 --> 00:44:27.160
+sort of do Your first debugging Or your first work on We talked about Java But in fact
+
+649
+00:44:27.160 --> 00:44:30.160
+in this class We're not going to start with Java We're going to start with something
+
+650
+00:44:30.160 --> 00:44:33.820
+Even sort of simpler than Java Because as I mentioned Sometimes what happens in computer
+
+651
+00:44:33.820 --> 00:44:37.920
+science Is people learn all the features Of some language And they think just knowing
+
+652
+00:44:37.920 --> 00:44:42.120
+the language Makes them a good software engineer And they get so worried about All
+
+653
+00:44:42.120 --> 00:44:45.960
+the features of the language That they don't kind of think about The big picture And
+
+654
+00:44:45.960 --> 00:44:49.580
+so there was a guy named Rich Paddis Who oddly enough was actually A grad student at
+
+655
+00:44:49.580 --> 00:44:53.620
+the time At Stanford And he said You know what If we're going to teach computer science
+
+656
+00:44:53.620 --> 00:44:57.620
+When we first start out Why don't we have people Not worry about all of the different
+
+657
+00:44:57.620 --> 00:45:01.000
+Commands of the language And all the different things they can do Let's start with
+
+658
+00:45:01.000 --> 00:45:05.680
+something really simple So you can learn all the commands Real quick And then you've
+
+659
+00:45:05.680 --> 00:45:09.760
+mastered Everything there is to master About that language And you can focus on the
+
+660
+00:45:09.760 --> 00:45:13.100
+software Engineering concept And it turns out to be a brilliant idea Which has actually
+
+661
+00:45:13.100 --> 00:45:18.660
+been adopted By a bunch of people And so Rich Who's a wonderfully friendly guy Sometime
+
+662
+00:45:18.660 --> 00:45:23.060
+if we get him To come to Stanford I'll introduce you He's just very nice Came up with
+
+663
+00:45:23.060 --> 00:45:29.100
+this thing called Carol the Robot And the term Carol Actually
+
+664
+00:45:29.100 --> 00:45:32.320
+comes from Carol Chopic
+
+665
+00:45:35.520 --> 00:45:37.360
+Anyone know who he is?
+
+666
+00:45:39.800 --> 00:45:45.350
+Ah, freak Andy, huh? He coined the term robot He was a Czech playwright Who actually
+
+667
+00:45:45.350 --> 00:45:50.850
+wrote a play called R -U -R Which was about robots And the word robot Actually
+
+668
+00:45:50.850 --> 00:45:56.510
+comes from a Czech word The Czech word for work And so The robot is named
+
+669
+00:45:56.510 --> 00:46:00.830
+after Carol And some people say Carl Which is kind of actually closer to I believe
+
+670
+00:46:00.830 --> 00:46:03.610
+I don't know if there's anyone Who speaks Czech in the room But closer to the actual
+
+671
+00:46:03.610 --> 00:46:06.730
+pronunciation But we say Carol these days Because it's kind of like Gender neutral
+
+672
+00:46:06.730 --> 00:46:12.090
+And so Carol the Robot Is basically this robot That lives in a really simple world
+
+673
+00:46:12.090 --> 00:46:16.410
+And so I'll show you You can meet Carol the Robot He's friendly He's fun I'll show
+
+674
+00:46:16.410 --> 00:46:22.010
+you Carol the Robot Do do do do So we've got to get Carol
+
+675
+00:46:22.010 --> 00:46:26.250
+running He's at the factory He's getting souped up We're energizing Carol Do do do
+
+676
+00:46:26.250 --> 00:46:31.970
+You've got to add some color to it Otherwise Alright We're begging for
+
+677
+00:46:31.970 --> 00:46:36.850
+him Come on Carol There he is Awww
+
+678
+00:46:38.190 --> 00:46:43.770
+Yeah That's Carol the Robot He looks like one of the old macintoshes
+
+679
+00:46:43.770 --> 00:46:47.010
+If you remember the original macintoshes It looked like a lunch pail Except he's got
+
+680
+00:46:47.010 --> 00:46:52.610
+legs One sticks out his back That's just the way it is And the way Carol
+
+681
+00:46:52.610 --> 00:46:57.730
+works Is he lives in a grid To you it may not be exciting But to Carol it's way exciting
+
+682
+00:46:58.350 --> 00:47:02.410
+So Carol lives in this little grid and the way the grid works is there are streets
+
+683
+00:47:02.410 --> 00:47:05.010
+and avenues in the grid. Streets run horizontally.
+
+684
+00:47:05.290 --> 00:47:07.790
+So this is first street, second street, third street.
+
+685
+00:47:08.170 --> 00:47:09.610
+And then over here we have avenues.
+
+686
+00:47:09.870 --> 00:47:12.670
+First avenue, second avenue, third avenue, fourth avenue, fifth avenue.
+
+687
+00:47:12.770 --> 00:47:15.350
+It's kind of like Carol lives in Manhattan if you want to think about it that way.
+
+688
+00:47:15.930 --> 00:47:18.430
+So Carol always is on one of these corners.
+
+689
+00:47:18.610 --> 00:47:21.350
+So right now he's at the corner of first street and first avenue where we just refer
+
+690
+00:47:21.350 --> 00:47:24.430
+to as 1 -1 if you want to think about sort of Cartesian coordinates, right?
+
+691
+00:47:24.430 --> 00:47:26.130
+But just think of him as streets and avenues.
+
+692
+00:47:26.470 --> 00:47:30.280
+That's where Carol lives. And Carol can move around in this world.
+
+693
+00:47:30.380 --> 00:47:31.820
+There's a bunch of things that Carol can do.
+
+694
+00:47:32.040 --> 00:47:33.340
+He can take steps forward.
+
+695
+00:47:33.660 --> 00:47:35.560
+He can turn around to face different directions.
+
+696
+00:47:35.620 --> 00:47:37.600
+And he can sense certain things about his world.
+
+697
+00:47:38.060 --> 00:47:40.720
+So there's some things that exist in Carol's world, okay?
+
+698
+00:47:41.060 --> 00:47:43.700
+Things like walls that Carol cannot move through, right?
+
+699
+00:47:43.780 --> 00:47:46.720
+So his world has walls all around it that he can't go through.
+
+700
+00:47:46.880 --> 00:47:48.600
+So there, you know, he can't fall off the end of the world.
+
+701
+00:47:48.820 --> 00:47:50.780
+And there's other walls like this one.
+
+702
+00:47:50.780 --> 00:47:52.920
+If Carol were over here, he can't step through that wall.
+
+703
+00:47:53.720 --> 00:47:56.980
+There's also something referred to as beepers in Carol's world.
+
+704
+00:47:57.140 --> 00:48:00.440
+And what a beeper is is it's like a big diamond, okay?
+
+705
+00:48:00.460 --> 00:48:04.040
+But what a beeper really is is basically just some marker that he puts in the world.
+
+706
+00:48:04.100 --> 00:48:05.840
+You can think of a beeper like a piece of candy.
+
+707
+00:48:06.160 --> 00:48:09.380
+And Carol just goes around like putting pieces of candy in the world.
+
+708
+00:48:09.520 --> 00:48:13.220
+And as a matter of fact, not only does he put pieces of candy in the world, he carries
+
+709
+00:48:13.220 --> 00:48:14.600
+around a whole bag of candy.
+
+710
+00:48:14.860 --> 00:48:16.940
+So he has a beeper bag with him.
+
+711
+00:48:17.120 --> 00:48:19.720
+And sometimes that bag has a whole bunch of beepers in it.
+
+712
+00:48:19.760 --> 00:48:23.860
+Sometimes it only has one beeper. Sometimes it's sad, Carol, and he has no beepers.
+
+713
+00:48:23.940 --> 00:48:27.380
+But he's still got the bag. There just don't happen to be any beepers in it.
+
+714
+00:48:27.500 --> 00:48:30.900
+So he can potentially, if he comes across a beeper in his world, he can pick it up
+
+715
+00:48:30.900 --> 00:48:34.600
+and put it in his bag. Or he can take, if he's got beepers in his bag, he can take
+
+716
+00:48:34.600 --> 00:48:36.740
+them out of his bag and put them places in the world.
+
+717
+00:48:37.100 --> 00:48:40.720
+And corners in the world can have either zero, if they have no beepers, they just appear
+
+718
+00:48:40.720 --> 00:48:45.880
+like a little dot, or one or more beepers on them that Carol can potentially pick up.
+
+719
+00:48:46.760 --> 00:48:50.300
+So any questions about beepers or Carol having a little bag of beepers?
+
+720
+00:48:50.720 --> 00:48:52.560
+And that's it. That's Carol.
+
+721
+00:48:53.560 --> 00:48:56.060
+That's his world. His world, we can make it larger if we want.
+
+722
+00:48:56.120 --> 00:48:58.820
+We can put in walls in different places. We can put beepers in different places.
+
+723
+00:48:58.900 --> 00:49:00.540
+We can have Carol be in a different place.
+
+724
+00:49:01.020 --> 00:49:03.980
+But starting next time, what you're going to realize is with this extremely simple
+
+725
+00:49:03.980 --> 00:49:06.760
+world, there's actually some complicated things you can do.
+
+726
+00:49:07.100 --> 00:49:10.900
+And after about a week, so this first week we're going to focus on Carol, you'll notice
+
+727
+00:49:10.900 --> 00:49:14.220
+that Carol is actually a very nice, gentle introduction into Java.
+
+728
+00:49:14.360 --> 00:49:18.020
+And a lot of the concepts that we learn, sort of software engineering concepts, using
+
+729
+00:49:18.020 --> 00:49:20.400
+Carol will translate over to the Java world.
+
+730
+00:49:21.360 --> 00:49:25.360
+So any questions about Carol or any of the other logistics that you've actually heard
+
+731
+00:49:25.360 --> 00:49:29.980
+about in the class? Alrighty, then welcome to 106A.
+
+732
+00:49:30.060 --> 00:49:30.760
+I'll see you on Wednesday.

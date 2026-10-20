@@ -1,0 +1,1011 @@
+WEBVTT
+
+NOTE Generated offline from the matching Stanford SEE MP4 audio.
+
+1
+00:00:11.730 --> 00:00:15.910
+This presentation is delivered by the Stanford Center for Professional Development
+
+2
+00:00:56.100 --> 00:00:59.700
+It is official. I'm actually going to cover Python from now on in 107.
+
+3
+00:01:02.620 --> 00:01:05.640
+People look at this and they go, wow, I'm going to be able to legitimately put all
+
+4
+00:01:05.640 --> 00:01:07.120
+of these languages on my resume.
+
+5
+00:01:08.340 --> 00:01:10.580
+And it's kind of a separate list at the bottom and it feels really good.
+
+6
+00:01:11.060 --> 00:01:12.980
+It isn't so much about that.
+
+7
+00:01:13.140 --> 00:01:16.820
+Certainly we want to give you some mileage in some very relevant languages that are
+
+8
+00:01:16.820 --> 00:01:19.320
+very good for both research and for industry.
+
+9
+00:01:20.440 --> 00:01:25.220
+But the real intellectual value in learning all of these languages is to really study
+
+10
+00:01:25.220 --> 00:01:27.120
+the paradigms that they represent.
+
+11
+00:01:27.300 --> 00:01:28.700
+And I'll explain what that means in a second.
+
+12
+00:01:29.980 --> 00:01:35.540
+But to program in C or C++, you're following a
+
+13
+00:01:35.540 --> 00:01:39.240
+different thought process than you are when you program in Scheme or in Python.
+
+14
+00:01:40.520 --> 00:01:44.680
+You all know enough C++ and believe it or not, you know a lot of C already.
+
+15
+00:01:45.320 --> 00:01:48.620
+Just take out the object orientation from C++ and you're more or less left with C.
+
+16
+00:01:49.180 --> 00:01:54.820
+When you program in C, pure C and you have no classes, you're very
+
+17
+00:01:54.820 --> 00:01:57.120
+procedure oriented.
+
+18
+00:01:57.840 --> 00:02:01.440
+You think about the main function as being a high -level outline of maybe five top
+
+19
+00:02:01.440 --> 00:02:05.160
+-level functions to call. And those five functions each have sub -functions and those
+
+20
+00:02:05.160 --> 00:02:06.900
+sub -functions have sub -sub -functions, etc.
+
+21
+00:02:07.520 --> 00:02:13.100
+It makes sense. It's like outlined notes for a history class
+
+22
+00:02:13.100 --> 00:02:16.180
+where you have Roman numeral one in main and Roman numeral two in main and Roman numeral
+
+23
+00:02:16.180 --> 00:02:19.060
+three in main. And you have small a and b and they have little i's and things like
+
+24
+00:02:19.060 --> 00:02:20.580
+that. You understand what I'm getting at?
+
+25
+00:02:21.440 --> 00:02:23.040
+You're oriented around the procedures.
+
+26
+00:02:24.140 --> 00:02:25.520
+You program with side effects.
+
+27
+00:02:25.640 --> 00:02:29.040
+You pass around references and pointers with the idea of updating shared data.
+
+28
+00:02:29.680 --> 00:02:31.220
+You do that both in C and C++.
+
+29
+00:02:32.020 --> 00:02:37.400
+But as far as C is concerned, this represents what's called the procedural paradigm.
+
+30
+00:02:37.540 --> 00:02:39.540
+You also hear it called the imperative paradigm.
+
+31
+00:02:39.540 --> 00:02:44.560
+It is verb -oriented in the sense that the first thing you ever see or you typically
+
+32
+00:02:44.560 --> 00:02:49.960
+see with a statement is the function call, where the function name usually has some
+
+33
+00:02:49.960 --> 00:02:52.920
+strong verb in it so it gives you some idea as to what the function is supposed to
+
+34
+00:02:52.920 --> 00:02:55.240
+accomplish. Does that make sense to people?
+
+35
+00:02:56.020 --> 00:03:01.660
+When you studied C++ and all of a sudden, rather than calling do this and passing the
+
+36
+00:03:01.660 --> 00:03:05.540
+address of some object, you do my object arrow do this.
+
+37
+00:03:06.280 --> 00:03:10.700
+Does that make sense? Then all of a sudden, the first thing you see on that line is
+
+38
+00:03:10.700 --> 00:03:13.140
+the data or the object that's being manipulated.
+
+39
+00:03:13.660 --> 00:03:16.860
+And because the first thing you see is the object, that's why it's object -oriented
+
+40
+00:03:16.860 --> 00:03:18.980
+as opposed to procedurally oriented.
+
+41
+00:03:20.020 --> 00:03:26.030
+Does that make sense to people? I think a lot of C++ programmers
+
+42
+00:03:26.030 --> 00:03:30.750
+really program in C and just incidentally use the objects and classes that are available
+
+43
+00:03:30.750 --> 00:03:33.350
+to them, which is a perfectly reasonable way to program.
+
+44
+00:03:33.350 --> 00:03:34.870
+Most people learned how to program in C.
+
+45
+00:03:35.190 --> 00:03:38.110
+Most people I know in industry know C very, very well.
+
+46
+00:03:38.610 --> 00:03:42.130
+And in spite of the fact that there's 50 million newer languages that are better in
+
+47
+00:03:42.130 --> 00:03:44.470
+many regards, they still stick with what they know.
+
+48
+00:03:44.730 --> 00:03:47.290
+And that's why C and C++ are still such popular languages.
+
+49
+00:03:47.930 --> 00:03:51.470
+There's nothing wrong at all with programming in C if you really know it very well
+
+50
+00:03:51.470 --> 00:03:53.970
+and you write clean readable code.
+
+51
+00:03:54.150 --> 00:03:56.530
+It's just more difficult. I'm sorry, let's say it this way.
+
+52
+00:03:56.590 --> 00:04:00.410
+It's much easier to make memory errors in C because everything is exposed and there's
+
+53
+00:04:00.410 --> 00:04:03.790
+very little error checking going on. C++ is a little bit better about it.
+
+54
+00:04:04.710 --> 00:04:06.570
+In between here I have this thing called assembly.
+
+55
+00:04:07.470 --> 00:04:10.890
+I haven't decided whether I'm going to go with what I've gone with for the past seven
+
+56
+00:04:10.890 --> 00:04:13.410
+or eight years, which is this mock assembly language.
+
+57
+00:04:14.170 --> 00:04:18.350
+Or I'm going to really take a step and teach you a real, I don't want to say it's,
+
+58
+00:04:18.750 --> 00:04:21.610
+it is a real assembly language, although you don't see it, it's in use very much.
+
+59
+00:04:21.730 --> 00:04:25.870
+But there's this assembly language called MIPS, which is very easy as far as assembly
+
+60
+00:04:25.870 --> 00:04:27.310
+languages go to learn.
+
+61
+00:04:27.310 --> 00:04:31.230
+I don't really care so much about teaching you how to program an assembly.
+
+62
+00:04:31.870 --> 00:04:37.490
+I use it as a vehicle for showing you how C and C++ programs compile to .O and
+
+63
+00:04:37.490 --> 00:04:41.350
+to object files and to binaries and eventually become executables and show you how
+
+64
+00:04:41.350 --> 00:04:46.990
+a line like I equals 7 or J++ or foo of X
+
+65
+00:04:46.990 --> 00:04:51.990
+and Y as a function call, how that all translates to assembly code, okay?
+
+66
+00:04:52.210 --> 00:04:55.710
+Does that make sense? I mean, you know that when you write C++ code that when you execute
+
+67
+00:04:55.710 --> 00:04:59.090
+the program it's not C++ anymore, it's assembly code.
+
+68
+00:04:59.330 --> 00:05:00.690
+It's all zeros and ones eventually.
+
+69
+00:05:01.350 --> 00:05:06.430
+I want to give you some insight as to how C is translated to assembly code, how all
+
+70
+00:05:06.430 --> 00:05:10.310
+your variables and your functions and your objects and all of that eventually get boiled
+
+71
+00:05:10.310 --> 00:05:12.790
+down and hashed down to a collection of zeros and ones.
+
+72
+00:05:13.490 --> 00:05:15.670
+And I want to do a little bit of the same thing for C++.
+
+73
+00:05:16.170 --> 00:05:22.190
+It turns out that while C++ and C represent different paradigms that they really all
+
+74
+00:05:22.190 --> 00:05:26.110
+still compile to zeros and ones and after you get enough experience with this assembly
+
+75
+00:05:26.110 --> 00:05:29.550
+and the manual compilation process that we're going to learn about as to how to look
+
+76
+00:05:29.550 --> 00:05:32.690
+at C code and figure out what the assembly code would look like, you're really going
+
+77
+00:05:32.690 --> 00:05:37.490
+to see that C++ and C almost look like the same language as far as the zeros and ones
+
+78
+00:05:37.490 --> 00:05:38.830
+are concerned, okay?
+
+79
+00:05:39.170 --> 00:05:42.370
+We're really just going to extend the compilation model we use for going from C to
+
+80
+00:05:42.370 --> 00:05:48.050
+assembly to accommodate C++ references and classes and templates and things like that
+
+81
+00:05:48.050 --> 00:05:49.530
+that are new to the language compared to C.
+
+82
+00:05:49.890 --> 00:05:55.390
+And you have, I think, a very, very good understanding of how C and C++ work after
+
+83
+00:05:55.390 --> 00:05:57.150
+the first five weeks of the course, okay?
+
+84
+00:05:57.190 --> 00:05:59.330
+And it makes you so much better of a C and C++ programmer.
+
+85
+00:05:59.510 --> 00:06:01.630
+We're going to demystify this whole pointer thing.
+
+86
+00:06:02.010 --> 00:06:05.070
+I'm going to be able to do something like asterisk, asterisk, ampersand, asterisk,
+
+87
+00:06:05.130 --> 00:06:09.750
+asterisk, P arrow, asterisk, asterisk, asterisk equals 7 and you're going to know exactly
+
+88
+00:06:09.750 --> 00:06:11.250
+what it means, okay?
+
+89
+00:06:11.250 --> 00:06:15.950
+And so it takes a little bit of work and it's almost laughable how arbitrary you can
+
+90
+00:06:15.950 --> 00:06:21.350
+be with all your casts and your ampersands and your asterisk, but if it compiles, it
+
+91
+00:06:21.350 --> 00:06:24.370
+means something. So when it runs, it actually does something.
+
+92
+00:06:24.710 --> 00:06:28.210
+It's probably not good if you have a lot of asterisk and ampersands, but nonetheless
+
+93
+00:06:28.210 --> 00:06:32.950
+you can have some idea as to why it's crashing, not just that it is crashing, okay?
+
+94
+00:06:34.290 --> 00:06:37.770
+I spend a good amount of energy talking about concurrent programming.
+
+95
+00:06:37.770 --> 00:06:44.210
+We actually at the moment do that type of programming in C, but all the programs you've
+
+96
+00:06:44.210 --> 00:06:47.630
+written in the past two quarters, if you've just taken the 106A and 106B courses here
+
+97
+00:06:47.630 --> 00:06:52.290
+or 106X, all the programs you've written at Stanford prior to 107 have been sequential
+
+98
+00:06:52.290 --> 00:06:57.390
+programs, which means that there is, whether it's object -oriented or imperative, procedurally
+
+99
+00:06:57.390 --> 00:07:01.970
+oriented, you have this outline of steps that happen one after another, okay?
+
+100
+00:07:02.070 --> 00:07:05.270
+Nothing's done in parallel or pipelined or done side by side.
+
+101
+00:07:05.270 --> 00:07:09.130
+Everything happens in one clean stream of instructions, okay?
+
+102
+00:07:09.750 --> 00:07:16.050
+Well, what concurrent programming is about is within a single program trying
+
+103
+00:07:16.050 --> 00:07:20.870
+to get two functions to seemingly run simultaneously, okay?
+
+104
+00:07:20.870 --> 00:07:24.350
+And if you can get two functions to seemingly run simultaneously, then you can extend
+
+105
+00:07:24.350 --> 00:07:28.890
+that and get 10 functions to run simultaneously or 20 functions to run simultaneously
+
+106
+00:07:28.890 --> 00:07:30.590
+or seemingly simultaneously.
+
+107
+00:07:30.870 --> 00:07:33.450
+I say it that way because technically they don't run at the same time.
+
+108
+00:07:34.010 --> 00:07:37.430
+When I go over assembly code, and I think you can intuit enough about what assembly
+
+109
+00:07:37.430 --> 00:07:42.090
+code is like, but if you have this one function, okay, my hand is a function, this
+
+110
+00:07:42.090 --> 00:07:47.590
+hand is another function, okay, and you concern yourself with the execution of one
+
+111
+00:07:47.590 --> 00:07:51.070
+of them, then when I do this, you can just think about it reading the code and executing
+
+112
+00:07:51.070 --> 00:07:53.270
+it for side effects. That make sense to people?
+
+113
+00:07:54.160 --> 00:07:57.340
+When you deal with concurrent programming, you have two or more functions, just two
+
+114
+00:07:57.340 --> 00:08:00.800
+right here because I only have two hands, to do this and they both seemingly run at
+
+115
+00:08:00.800 --> 00:08:02.180
+the same time, okay?
+
+116
+00:08:02.180 --> 00:08:06.620
+But what really happens is it's like watching two movies at the same time where because
+
+117
+00:08:06.620 --> 00:08:10.100
+there's only one processor on most machines, it doesn't really run like this.
+
+118
+00:08:10.500 --> 00:08:15.510
+It runs like this and switches back and forth between the two functions, but it's happened
+
+119
+00:08:15.510 --> 00:08:17.590
+so fast that you just can't see the difference, okay?
+
+120
+00:08:17.610 --> 00:08:19.030
+It's more than 24 frames per second.
+
+121
+00:08:19.170 --> 00:08:23.350
+It's like a million, okay? And you're watching two movies at the same time, okay?
+
+122
+00:08:23.430 --> 00:08:28.170
+And that extends just fine to 3 to 5 to 10 to 100 in theory, okay?
+
+123
+00:08:29.500 --> 00:08:34.780
+There are a lot of situations where concurrent programming is really not very useful,
+
+124
+00:08:34.940 --> 00:08:37.900
+but there are several situations, particularly networking, whenever that's involved,
+
+125
+00:08:38.240 --> 00:08:40.320
+where concurrent programming is actually very useful.
+
+126
+00:08:41.040 --> 00:08:43.860
+There are some problems that come up when you deal with concurrent programming that
+
+127
+00:08:43.860 --> 00:08:48.500
+you might not think about. The example I always go over the first day of class is just,
+
+128
+00:08:49.020 --> 00:08:53.020
+it uses two Wells Fargo ATM machines, okay?
+
+129
+00:08:53.560 --> 00:08:55.160
+Think about you have a Wells Fargo checking account.
+
+130
+00:08:55.940 --> 00:08:57.440
+You may not have to think about it because you probably do.
+
+131
+00:08:57.440 --> 00:09:01.380
+So just imagine your checking account is in danger because two people are using ATM
+
+132
+00:09:01.380 --> 00:09:03.760
+machines, and you have $100 in it, okay?
+
+133
+00:09:04.200 --> 00:09:07.860
+And you share your PIN with your best friend, and you go up to neighboring ATM machines,
+
+134
+00:09:08.240 --> 00:09:12.480
+and you make as much progress as possible to withdraw that $100, okay?
+
+135
+00:09:12.780 --> 00:09:18.040
+And then you both, on the count of three, press okay to try and get $200 collectively.
+
+136
+00:09:18.760 --> 00:09:23.820
+Does that make sense? That is not a nonsensical example because both of those machines
+
+137
+00:09:23.820 --> 00:09:26.920
+are basically very simple computers, okay?
+
+138
+00:09:26.920 --> 00:09:32.720
+That ultimately need to access the same master account balance to confirm that $100
+
+139
+00:09:32.720 --> 00:09:37.340
+is available, and in this transactional way, transactional makes sense both in terms
+
+140
+00:09:37.340 --> 00:09:39.220
+of money and also in the sense of concurrent programming.
+
+141
+00:09:39.820 --> 00:09:45.760
+You have to make sure that the $100 being identified as the account balance is maintained
+
+142
+00:09:45.760 --> 00:09:51.440
+with some atomic flavor so that if you have two people trying to withdraw
+
+143
+00:09:51.440 --> 00:09:54.740
+$100 at the same time, that only one person gets away with it.
+
+144
+00:09:54.740 --> 00:09:59.240
+That $100 account balance is the shared resource that two different processes have
+
+145
+00:09:59.240 --> 00:10:01.280
+access to. Does that make sense to people?
+
+146
+00:10:02.140 --> 00:10:07.640
+Okay? So there have to be directives that are put in place to make sure that the account
+
+147
+00:10:07.640 --> 00:10:13.440
+balance check and the withdraw are basically done either not at all or in full so
+
+148
+00:10:13.440 --> 00:10:17.380
+that it really does function truly as a transaction both in the finance and the concurrent
+
+149
+00:10:17.380 --> 00:10:19.000
+programming sense, okay?
+
+150
+00:10:19.260 --> 00:10:22.200
+If you're sloppy about it, and I don't mean sloppy, that's not a very nice thing to
+
+151
+00:10:22.200 --> 00:10:26.800
+say on the first day. If you're not careful about how you actually program using, if
+
+152
+00:10:26.800 --> 00:10:31.980
+program concurrently, you actually can come up with problems and have these data integrity
+
+153
+00:10:31.980 --> 00:10:36.780
+issues, which banks are actually very, very worried about, obviously.
+
+154
+00:10:36.940 --> 00:10:40.360
+They don't want to give out $10 million when they only have $1 million, okay?
+
+155
+00:10:40.500 --> 00:10:45.000
+Same thing with, like, airlines. It's like if they have one seat remaining on a flight
+
+156
+00:10:45.480 --> 00:10:49.080
+and two people call and try to get that seat, they will only want to give it to one
+
+157
+00:10:49.080 --> 00:10:52.260
+person. Now, it would seem they don't care about concurrent programming because they're
+
+158
+00:10:52.260 --> 00:10:55.220
+more than happy to give you a seat that doesn't exist on the plane, okay?
+
+159
+00:10:55.520 --> 00:10:58.920
+But the airline's problems are probably not related to concurrent programming, okay?
+
+160
+00:10:59.900 --> 00:11:03.580
+As far as the scheme and Python thing are concerned, once we get through concurrent
+
+161
+00:11:03.580 --> 00:11:08.700
+programming, we really switch gears and we start looking at this language called scheme.
+
+162
+00:11:09.000 --> 00:11:12.100
+You may not have heard of this. If you haven't heard of this, you may have heard of
+
+163
+00:11:12.100 --> 00:11:15.300
+a language called Lisp, which it's certainly related to.
+
+164
+00:11:16.080 --> 00:11:21.780
+This is a representative of what is called the functional paradigm, okay?
+
+165
+00:11:21.780 --> 00:11:26.680
+And there's two things about scheme and functional languages, purely functional languages
+
+166
+00:11:26.680 --> 00:11:28.980
+that are interesting in contrast to C and C++.
+
+167
+00:11:31.580 --> 00:11:36.880
+When you program using the functional paradigm, you always rely on the return value
+
+168
+00:11:36.880 --> 00:11:39.500
+of a function to move forward, okay?
+
+169
+00:11:39.900 --> 00:11:43.100
+And you program without side effects.
+
+170
+00:11:43.780 --> 00:11:47.380
+Now, that's a very weird thing to hear as an expression when you've only coded for
+
+171
+00:11:47.380 --> 00:11:52.420
+a year. But when you code in C and C++, it's very often all about side effects.
+
+172
+00:11:53.000 --> 00:11:55.340
+The return value doesn't always tell you very much.
+
+173
+00:11:55.460 --> 00:12:01.160
+It's a number or it's a Boolean. But when you pass in a data structure by reference
+
+174
+00:12:01.160 --> 00:12:05.200
+to a function and you update it so that when the function returns, the original data
+
+175
+00:12:05.200 --> 00:12:07.040
+structure has been changed, right?
+
+176
+00:12:07.560 --> 00:12:09.480
+Does that make sense? That's programming by side effect.
+
+177
+00:12:10.260 --> 00:12:14.040
+Well, the idea with scheme, and particularly the functional paradigm, is that you don't
+
+178
+00:12:14.040 --> 00:12:17.520
+program with side effects. You don't have that at all, that you always synthesize the
+
+179
+00:12:17.520 --> 00:12:21.760
+results or partial results that become larger partial results that eventually become
+
+180
+00:12:21.760 --> 00:12:26.020
+the result that you're interested in and only then are you allowed to print it to the
+
+181
+00:12:26.020 --> 00:12:29.060
+screen to see what the answer to the problem was, okay?
+
+182
+00:12:30.240 --> 00:12:34.460
+It's very difficult to explain scheme if you've never seen it before in a five -minute
+
+183
+00:12:34.460 --> 00:12:35.880
+segment of a full introduction.
+
+184
+00:12:36.300 --> 00:12:41.020
+But when you get there, we have tons of examples of the paradigm.
+
+185
+00:12:41.120 --> 00:12:43.700
+It's a very fun, neat little language to work in.
+
+186
+00:12:44.160 --> 00:12:49.630
+I think it's the easiest function, the easiest language of all four up there because
+
+187
+00:12:49.630 --> 00:12:51.070
+it's such a small language.
+
+188
+00:12:51.190 --> 00:12:54.750
+Once you get the paradigm down and you understand how to program functionally, scheme
+
+189
+00:12:54.750 --> 00:12:57.450
+is not that bad at all. It's actually very fun, okay?
+
+190
+00:12:57.870 --> 00:13:02.170
+Not that all programming is fun, but scheme is particularly fun, okay?
+
+191
+00:13:02.890 --> 00:13:09.060
+Now, I used to teach either some advanced C++ or
+
+192
+00:13:09.060 --> 00:13:11.400
+more recently some Java toward the end of the course.
+
+193
+00:13:12.260 --> 00:13:15.740
+Last quarter I decided, literally in the eighth week, that I was going to not do Java
+
+194
+00:13:15.740 --> 00:13:19.960
+because 108 is all about Java, and I felt like I was stealing the thunder from 108.
+
+195
+00:13:20.500 --> 00:13:22.140
+So I just said, you know what? I'm going to teach Python.
+
+196
+00:13:22.260 --> 00:13:25.780
+Let's see how it works out. It turned out it worked fairly well, certainly considering
+
+197
+00:13:25.780 --> 00:13:27.160
+I had never really taught it before.
+
+198
+00:13:27.740 --> 00:13:31.980
+But this language called Python, I'm suspecting most people have heard of it even if
+
+199
+00:13:31.980 --> 00:13:37.580
+they've never seen it. It seems to be the rage language at a lot of significant companies
+
+200
+00:13:37.580 --> 00:13:41.380
+in the Bay Area. They're very smart people with these companies, so when they use a
+
+201
+00:13:41.380 --> 00:13:44.060
+language and they like it, there's usually a very good reason for them liking it.
+
+202
+00:13:44.620 --> 00:13:46.400
+You've probably heard of a language called Perl.
+
+203
+00:13:47.360 --> 00:13:49.480
+It's not a very pretty language.
+
+204
+00:13:50.280 --> 00:13:54.200
+You can just think about, in some sense, Python being a more modern, object -oriented
+
+205
+00:13:54.200 --> 00:13:57.960
+version of Perl. If you don't know Perl and you don't know Python, it doesn't mean
+
+206
+00:13:57.960 --> 00:14:02.680
+anything to you. But just understand that this is the sexy little language that's been
+
+207
+00:14:02.680 --> 00:14:08.180
+around for probably 16, 17 years that's really established itself as a
+
+208
+00:14:08.180 --> 00:14:10.720
+popular language since year 2000, 2001.
+
+209
+00:14:11.180 --> 00:14:14.680
+I know a lot of people who work at Google that program in Python on a daily basis.
+
+210
+00:14:14.680 --> 00:14:19.600
+There was a subset of us at Facebook, the program in Python, every day, doing a lot
+
+211
+00:14:19.600 --> 00:14:23.420
+of distributed systems work. Just Python seems to be the way to go for that right there.
+
+212
+00:14:24.200 --> 00:14:30.080
+It actually has a lot of good libraries for dealing with web programming.
+
+213
+00:14:31.260 --> 00:14:34.560
+Web programming can seem really boring to a lot of people because it just seems like
+
+214
+00:14:34.560 --> 00:14:36.460
+it's HTML and web pages and things like that.
+
+215
+00:14:36.900 --> 00:14:38.960
+Real web programming is more sophisticated than that.
+
+216
+00:14:39.200 --> 00:14:43.560
+You dynamically generate web pages based on content and databases and things like that.
+
+217
+00:14:43.560 --> 00:14:48.040
+And Python, being a scripting language, which means it's interpreted and you can type
+
+218
+00:14:48.040 --> 00:14:51.780
+in stuff as you go and it recognizes and reads and executes the stuff as you type,
+
+219
+00:14:53.060 --> 00:14:54.840
+it's very good for that type of thing.
+
+220
+00:14:55.000 --> 00:15:01.060
+And if all goes well, meaning I have time to develop this assignment I have, this assignment
+
+221
+00:15:01.060 --> 00:15:05.800
+idea I have, you're going to write a little miniature dynamic web server in Python
+
+222
+00:15:05.800 --> 00:15:08.160
+for your final project. It won't be that sophisticated.
+
+223
+00:15:08.360 --> 00:15:11.740
+You're not going to write all of Apache. But you are going to probably write some little
+
+224
+00:15:11.740 --> 00:15:15.760
+thing where you really do have a web server behind the scenes making decisions about
+
+225
+00:15:15.760 --> 00:15:19.360
+how to construct an HTML page and serve that over to a client.
+
+226
+00:15:20.060 --> 00:15:24.440
+So it'll be an opportunity to learn Python, to learn its libraries, to see that as
+
+227
+00:15:24.440 --> 00:15:29.940
+a language because it's fairly young, it has the advantage of not bothering to
+
+228
+00:15:29.940 --> 00:15:33.020
+include C and C++'s and Java's mistakes.
+
+229
+00:15:33.380 --> 00:15:36.600
+It says, no, I'll leave that part out and I'll go with this more interesting, well
+
+230
+00:15:36.600 --> 00:15:38.880
+-formed core. It has great libraries.
+
+231
+00:15:40.020 --> 00:15:41.880
+It has object orientation.
+
+232
+00:15:42.260 --> 00:15:45.800
+You can program procedurally if you want to and just program like you're in C using
+
+233
+00:15:45.800 --> 00:15:50.360
+Python syntax. There are even functional programming aspects in the language.
+
+234
+00:15:50.840 --> 00:15:54.440
+So even though the syntax is different from Scheme, conceptually you can use Scheme
+
+235
+00:15:54.440 --> 00:15:56.860
+-like ideas in Python code if you want to.
+
+236
+00:15:58.120 --> 00:16:01.740
+I'll be able to illustrate the client -server paradigm and how it's different from
+
+237
+00:16:01.740 --> 00:16:05.800
+traditional programming. That's not so much a Python thing, but Python's a good vehicle
+
+238
+00:16:05.800 --> 00:16:11.300
+for learning that stuff. I'll show you the library so that you can parse XML
+
+239
+00:16:11.300 --> 00:16:17.300
+and HTML and you can understand the HTTP protocol and
+
+240
+00:16:17.300 --> 00:16:21.940
+all of this stuff and just to actually read blogs, to download RSS files, all of these
+
+241
+00:16:21.940 --> 00:16:24.800
+things that are very, very gracefully handled by Python programs.
+
+242
+00:16:25.480 --> 00:16:28.920
+So that's where I'm hoping to take people by week 10 of the course.
+
+243
+00:16:29.700 --> 00:16:34.160
+Does that make sense? There are a few other paradigms that aren't represented here,
+
+244
+00:16:35.300 --> 00:16:40.320
+but I think I really cover all the ones that you're likely to see for the next 15 years
+
+245
+00:16:40.320 --> 00:16:41.900
+if you go out in your coder.
+
+246
+00:16:43.020 --> 00:16:45.640
+There are a couple of languages I may briefly mention in the last day that are just
+
+247
+00:16:45.640 --> 00:16:49.920
+fun, but they all have some overlap with some language that's represented right here.
+
+248
+00:16:51.410 --> 00:16:57.020
+You guys are good? I don't like starting in on any real material
+
+249
+00:16:57.020 --> 00:16:59.700
+when I only have 10 minutes left, so I'm actually going to let you go.
+
+250
+00:16:59.940 --> 00:17:02.840
+But I recognize that Friday, I'm going to have tons of handouts for you.
+
+251
+00:17:02.840 --> 00:17:07.120
+I'm going to have an assignment. We're going to dive right into the low -level pointer
+
+252
+00:17:07.120 --> 00:17:09.920
+stuff of C and C++. So have a good week.

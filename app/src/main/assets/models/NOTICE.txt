@@ -1,0 +1,10 @@
+Bundled speech model
+====================
+
+Model: vosk-model-small-cn-0.22
+Source: https://alphacephei.com/vosk/models
+License: Apache License 2.0
+Archive SHA-256: 3AF8B0E7E0F835AE9D414CE5DF580237A3CFB08D586C9FBBB0F7FF29AD5B14BA
+
+The archive is bundled under app/src/main/assets/models and extracted only from
+the installed APK into app-private storage. No runtime model download is used.

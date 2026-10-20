@@ -1,0 +1,55 @@
+# Gradle
+.gradle/
+.kotlin/
+build/
+
+# Android Studio
+*.iml
+.idea/
+.cxx/
+captures/
+.externalNativeBuild/
+
+# Local Codex tools
+.codex/
+.merge-tmp/
+.superpowers/
+
+# Local config
+local.properties
+secrets.properties
+gradle-local.properties
+.env
+.env.*
+!.env.example
+!.env.template
+google-services.json
+
+# Keystore
+*.jks
+*.keystore
+
+# Build outputs
+*.apk
+*.aab
+BuildConfig.java
+BuildConfig.class
+*.hprof
+
+# Source-tree backups (bundled model archives under assets remain tracked)
+app/src/**/java/**/*.zip
+*.bak
+*.orig
+*.rej
+
+# Logs & OS files
+*.log
+.DS_Store
+
+# Blender authoring tools
+__pycache__/
+*.blend1
+*.blend2
+
+# Spotless
+.spotless/

@@ -1,0 +1,25 @@
+<!--
+  Copyright 2025 - 2026 PICO. All rights reserved.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+  <path
+      android:pathData="M17.762,19.937L22.195,16.133L22.195,16.133C22.615,15.773 22.826,15.592 23.003,15.588C23.158,15.584 23.306,15.652 23.403,15.772C23.516,15.91 23.516,16.187 23.516,16.74V31.123C23.516,31.713 23.516,32.008 23.398,32.148C23.296,32.269 23.142,32.334 22.984,32.324C22.802,32.313 22.589,32.109 22.163,31.701L22.163,31.701L17.708,27.434L15.6,27.434C15.04,27.434 14.76,27.434 14.546,27.325C14.358,27.23 14.205,27.077 14.109,26.888C14,26.674 14,26.395 14,25.834V21.537C14,20.977 14,20.697 14.109,20.483C14.205,20.295 14.358,20.142 14.546,20.046C14.76,19.937 15.04,19.937 15.6,19.937H15.6H17.762ZM26.361,20.804L26.75,21.444C27.188,22.164 27.44,23.009 27.44,23.91C27.44,24.789 27.201,25.613 26.784,26.32L26.403,26.966L25.111,26.204L25.492,25.558C25.777,25.076 25.94,24.513 25.94,23.91C25.94,23.292 25.768,22.715 25.469,22.224L25.079,21.583L26.361,20.804ZM29.03,19.052L28.605,18.434L27.369,19.283L27.794,19.901C28.594,21.067 29.063,22.478 29.063,24C29.063,25.45 28.638,26.798 27.906,27.93L27.499,28.56L28.758,29.375L29.166,28.745C30.049,27.377 30.563,25.747 30.563,24C30.563,22.165 29.997,20.46 29.03,19.052Z"
+      android:fillColor="#000000"
+      android:fillType="evenOdd"/>
+</vector>

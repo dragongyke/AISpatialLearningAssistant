@@ -1,0 +1,29 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.pico.spatial.tools' version '6.0.0'
+}
+
+android {
+    namespace 'com.pico.spatial.sample.spatialvideo.lectureHallEditorAsset'
+    compileSdk 35
+
+    defaultConfig {
+        minSdkVersion 26
+        targetSdkVersion 35
+    }
+
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+}
+
+dependencies {
+    implementation(platform(libs.spatial.bom))
+    implementation(libs.spatial.core)
+}
+
+spatial {
+    name = "lecture-hall-editor-asset"
+    spatialToolsVersion = 6.0
+}

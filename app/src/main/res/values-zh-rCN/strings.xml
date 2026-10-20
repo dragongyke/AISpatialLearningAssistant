@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2025 - 2026 PICO. All rights reserved.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources>
+    <string name="app_name">空间 AI 学习助手</string>
+    <string name="volume_control">音量控制</string>
+    <string name="play_pause_video">播放或暂停视频</string>
+    <string name="enter_exit_immersive_mode">进入或退出沉浸模式</string>
+    <string name="learning_workspace_title">空间 AI 学习助手</string>
+    <string name="learning_workspace_subtitle">基于时间点的视频答疑工作台</string>
+    <string name="learning_outline_title">学习大纲</string>
+    <string name="learning_ai_panel_title">AI 助教</string>
+    <string name="learning_video_stage_title">沉浸视频 Stage</string>
+    <string name="learning_video_stage_description">视频在 Full Space Stage 中渲染。你可以在周围面板中提问、复盘和生成总结，并保持与播放进度同步。</string>
+    <string name="learning_voice_question">语音提问</string>
+    <string name="learning_ask_draft">提问</string>
+    <string name="learning_question_placeholder">输入问题，或说“继续”恢复播放</string>
+    <string name="learning_resume_video">继续播放</string>
+    <string name="learning_view_reality">查看现实</string>
+    <string name="learning_return_lecture_hall">返回讲堂</string>
+    <string name="lecture_hall_attribution">虚拟环境：项目自制大学讲堂</string>
+    <string name="learning_restore_layout">恢复默认布局</string>
+    <string name="learning_save_layout">保存为默认布局</string>
+    <string name="learning_layout_adjusted">布局已调整。保存后，下次将使用当前布局。</string>
+    <string name="learning_layout_restored">已恢复保存的默认布局。</string>
+    <string name="learning_layout_saved">当前布局已保存为默认布局。</string>
+    <string name="learning_layout_save_failed">布局保存失败，请重试。</string>
+    <string name="learning_summary_folder_status">Markdown 文件夹：%1$s</string>
+    <string name="learning_auto_pause_on">自动暂停：开</string>
+    <string name="learning_auto_pause_off">自动暂停：关</string>
+    <string name="learning_generate_summary">生成总结</string>
+    <string name="learning_dismiss_summary">关闭总结</string>
+    <string name="learning_no_questions">还没有提问。观看时提问会自动生成带时间点的标记。</string>
+    <string name="learning_listening">正在聆听并转写...</string>
+    <string name="learning_analyzing_video">正在分析当前视频画面...</string>
+    <string name="learning_speaking">AI 正在语音回答...</string>
+    <string name="learning_answering">AI 正在结合当前视频上下文回答...</string>
+    <string name="learning_ready">可以随时提问</string>
+    <string name="learning_question_markers">问题时间点</string>
+    <string name="learning_summary_saved">已保存为本地 Markdown</string>
+    <string name="learning_open_history">学习历史</string>
+</resources>

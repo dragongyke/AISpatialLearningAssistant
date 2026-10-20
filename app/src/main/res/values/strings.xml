@@ -1,0 +1,54 @@
+<!--
+  Copyright 2025 - 2026 PICO. All rights reserved.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources>
+    <string name="app_name">AI Spatial Learning</string>
+    <string name="volume_control">Volume control</string>
+    <string name="play_pause_video">Play or pause video playback</string>
+    <string name="enter_exit_immersive_mode">Enter or exit immersive mode</string>
+    <string name="learning_workspace_title">AI Spatial Learning Assistant</string>
+    <string name="learning_workspace_subtitle">Timestamp-aware video Q&amp;A workspace</string>
+    <string name="learning_outline_title">Learning outline</string>
+    <string name="learning_ai_panel_title">AI coach</string>
+    <string name="learning_video_stage_title">Immersive video stage</string>
+    <string name="learning_video_stage_description">The video is rendered in the full-space stage. Use this console to ask, review, and summarize while playback stays in sync.</string>
+    <string name="learning_voice_question">Voice question</string>
+    <string name="learning_ask_draft">Ask</string>
+    <string name="learning_question_placeholder">Type a question or say “continue” to resume</string>
+    <string name="learning_resume_video">Continue video</string>
+    <string name="learning_view_reality">View reality</string>
+    <string name="learning_return_lecture_hall">Return to lecture hall</string>
+    <string name="lecture_hall_attribution">Virtual environment: project-authored academic lecture hall</string>
+    <string name="learning_restore_layout">Restore default layout</string>
+    <string name="learning_save_layout">Save as default</string>
+    <string name="learning_layout_adjusted">Layout adjusted. Save it to use this arrangement next time.</string>
+    <string name="learning_layout_restored">Saved default layout restored.</string>
+    <string name="learning_layout_saved">Current layout saved as the default.</string>
+    <string name="learning_layout_save_failed">Could not save the layout. Please retry.</string>
+    <string name="learning_summary_folder_status">Markdown folder: %1$s</string>
+    <string name="learning_auto_pause_on">Auto-pause: On</string>
+    <string name="learning_auto_pause_off">Auto-pause: Off</string>
+    <string name="learning_generate_summary">Generate summary</string>
+    <string name="learning_dismiss_summary">Close summary</string>
+    <string name="learning_no_questions">No questions yet. Ask while watching to create timestamped markers.</string>
+    <string name="learning_listening">Listening and transcribing...</string>
+    <string name="learning_answering">AI is answering with nearby video context...</string>
+    <string name="learning_analyzing_video">Analyzing nearby video frames...</string>
+    <string name="learning_speaking">AI is speaking...</string>
+    <string name="learning_ready">Ready for a question</string>
+    <string name="learning_question_markers">Question markers</string>
+    <string name="learning_summary_saved">Saved to local Markdown</string>
+    <string name="learning_open_history">Learning history</string>
+</resources>

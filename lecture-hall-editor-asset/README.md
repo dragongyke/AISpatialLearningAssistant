@@ -84,10 +84,12 @@ pico-cli editor pack --workspace-root $root `
   --target-app-root $root --bundle-name lecture-hall-editor-asset --format json
 ```
 
-Alternatively, use the existing Gradle asset task:
+Alternatively, explicitly enable the Gradle asset module. This requires matching
+PICO Editor 6.0 tools. Ordinary APK builds leave this module disabled and use the
+checked-in bundle, so they do not require a local Editor installation.
 
 ```powershell
-.\gradlew.bat :lecture-hall-editor-asset:assembleDebug
+.\gradlew.bat -PbuildSceneAssets=true :lecture-hall-editor-asset:assembleDebug
 Copy-Item lecture-hall-editor-asset\build\spatial\bundle\lecture-hall-editor-asset.bundle app\src\main\assets\lecture-hall-editor-asset.bundle
 ```
 

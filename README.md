@@ -124,14 +124,15 @@ evolved from PICO's Spatial Video sample. The installable application ID is
 - Windows development host with Android Studio
 - JDK 17 for the Gradle runtime
 - Android SDK 35
-- PICO Spatial SDK, Spatial Gradle plugin, Editor, and Emulator 6.0.0
+- PICO Spatial SDK 6.0.0 (resolved by Gradle); matching Spatial Editor tools are
+  required only when rebuilding the scene assets
 - A compatible PICO OS 6 device or PICO Emulator
 - Network access for course streaming and cloud AI services
 
 ## Clone the project
 
-Install [Git LFS](https://git-lfs.com/) before cloning; models, textures, images,
-the offline speech model, and the ready-to-use scene bundle use LFS.
+Install [Git LFS](https://git-lfs.com/) before cloning. Images, models, the offline
+speech model, and the ready-to-use scene bundle use LFS.
 
 ```powershell
 git lfs install
@@ -140,8 +141,8 @@ cd AISpatialLearningAssistant
 git lfs pull
 ```
 
-Use a Git clone instead of GitHub's source ZIP so the required LFS assets are
-downloaded reliably. Cloud API credentials and APKs are not included.
+Cloud build services must also download LFS objects before invoking Gradle. Pointer
+files are not usable images or models. API credentials and APKs are not included.
 
 ## API configuration
 
@@ -183,12 +184,17 @@ If a key is exposed, revoke/rotate it: deleting the latest file does not remove 
 
 ## Build and verify
 
-To build the application with the checked-in scene bundle, configure only the app
-module. This does not require rebuilding the environment in PICO Editor:
+Standard APK builds use the checked-in scene bundle and do not require PICO Editor
+or `--configure-on-demand`. API credentials are optional for compilation.
 
 ```powershell
-.\gradlew.bat --configure-on-demand :app:spotlessCheck :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+.\gradlew.bat clean spotlessCheck testDebugUnitTest lintDebug assembleDebug assembleRelease
 ```
+
+On Linux/macOS build hosts, use `./gradlew` instead of `.\gradlew.bat` and configure
+the Android SDK location with `ANDROID_HOME` or an untracked `local.properties`.
+Release output is unsigned until a private signing configuration is supplied; it
+does not contain provider credentials and is not a ready-to-publish cloud-AI build.
 
 Install the debug package on a connected device:
 
@@ -196,12 +202,11 @@ Install the debug package on a connected device:
 adb install -r app\build\outputs\apk\debug\app-debug.apk
 ```
 
-When the lecture hall scene changes, rebuild its asset bundle with the matching
-PICO Editor 6.0 tools installed. A newer Editor alone does not satisfy the asset
-module's `spatialToolsVersion = 6.0` setting:
+When the lecture hall scene changes, explicitly enable its authoring module and
+rebuild the asset bundle with matching PICO Editor 6.0 tools installed:
 
 ```powershell
-.\gradlew.bat :lecture-hall-editor-asset:assembleDebug
+.\gradlew.bat -PbuildSceneAssets=true :lecture-hall-editor-asset:assembleDebug
 Copy-Item lecture-hall-editor-asset\build\spatial\bundle\lecture-hall-editor-asset.bundle app\src\main\assets\lecture-hall-editor-asset.bundle
 ```
 

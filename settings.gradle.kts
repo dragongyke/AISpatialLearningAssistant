@@ -29,4 +29,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "AISpatialLearningAssistant"
 include(":app")
-include(":lecture-hall-editor-asset")
+
+// APK builds use the checked-in bundle; only scene authoring requires Spatial Editor.
+if (providers.gradleProperty("buildSceneAssets").orNull == "true") {
+    include(":lecture-hall-editor-asset")
+}

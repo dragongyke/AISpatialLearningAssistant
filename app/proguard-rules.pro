@@ -21,3 +21,14 @@
 #-renamesourcefileattribute SourceFile
 # Volcengine SpeechEngine is instantiated through the SDK's runtime loader.
 -keep class com.bytedance.speech.speechengine.SpeechEngineImpl { *; }
+
+# OkHttp 4.9.1 probes these optional TLS providers; Android uses its built-in provider.
+-dontwarn org.bouncycastle.jsse.BCSSLParameters
+-dontwarn org.bouncycastle.jsse.BCSSLSocket
+-dontwarn org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
+-dontwarn org.conscrypt.Conscrypt$Version
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.ConscryptHostnameVerifier
+-dontwarn org.openjsse.javax.net.ssl.SSLParameters
+-dontwarn org.openjsse.javax.net.ssl.SSLSocket
+-dontwarn org.openjsse.net.ssl.OpenJSSE

@@ -101,14 +101,14 @@ Spatial Video 示例演进而来。最终安装包名为
 - Windows 开发主机与 Android Studio
 - Gradle 使用 JDK 17
 - Android SDK 35
-- PICO Spatial SDK、Spatial Gradle Plugin、Editor 和 Emulator 6.0.0
+- PICO Spatial SDK 6.0.0（由 Gradle 解析）；仅重新打包场景资源时需要匹配的 Spatial Editor 工具
 - 兼容 PICO OS 6 的设备或 PICO Emulator
 - 在线课程和云端 AI 服务所需的网络连接
 
 ## 克隆项目
 
-克隆前安装 [Git LFS](https://git-lfs.com/)。模型、贴图、图片、离线语音模型和
-可直接使用的场景 Bundle 均通过 LFS 管理。
+克隆前安装 [Git LFS](https://git-lfs.com/)。图片、模型、离线语音模型和可直接使用的
+场景 Bundle 均通过 LFS 管理。
 
 ```powershell
 git lfs install
@@ -117,8 +117,8 @@ cd AISpatialLearningAssistant
 git lfs pull
 ```
 
-请使用 Git 克隆而非 GitHub 的源码 ZIP 下载，确保必需的 LFS 资源完整下载。
-仓库不包含云端 API 凭据或 APK。
+云端构建平台也需要在执行 Gradle 前下载 LFS 对象，不能将指针文件当作图片或模型使用。
+仓库不包含 API 凭据或 APK。
 
 ## API 配置
 
@@ -157,12 +157,16 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-secrets.ps1 -A
 
 ## 构建与验证
 
-使用仓库中已打包的场景 Bundle 构建应用时，只配置应用模块即可，无需通过 PICO Editor
-重新打包环境：
+普通 APK 构建直接使用仓库中已有的场景 Bundle，不依赖 PICO Editor，也不需要
+`--configure-on-demand`。编译时可以不配置 API 凭据。
 
 ```powershell
-.\gradlew.bat --configure-on-demand :app:spotlessCheck :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+.\gradlew.bat clean spotlessCheck testDebugUnitTest lintDebug assembleDebug assembleRelease
 ```
+
+Linux/macOS 构建主机使用 `./gradlew`，通过 `ANDROID_HOME` 或未纳入版本控制的
+`local.properties` 配置 Android SDK 路径。未提供私有签名配置时，Release 产物未签名；
+它不包含服务凭据，不能直接作为云端 AI 功能完整可用的正式版本发布。
 
 将 Debug APK 安装到已连接设备：
 
@@ -170,11 +174,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-secrets.ps1 -A
 adb install -r app\build\outputs\apk\debug\app-debug.apk
 ```
 
-修改大学讲堂场景后，需要安装匹配的 PICO Editor 6.0 工具，再重新构建 Asset Bundle。
-仅安装更新版本的 Editor 不能满足资产模块的 `spatialToolsVersion = 6.0` 配置：
+修改大学讲堂场景后，安装匹配的 PICO Editor 6.0 工具，显式启用场景制作模块并重新构建
+Asset Bundle：
 
 ```powershell
-.\gradlew.bat :lecture-hall-editor-asset:assembleDebug
+.\gradlew.bat -PbuildSceneAssets=true :lecture-hall-editor-asset:assembleDebug
 Copy-Item lecture-hall-editor-asset\build\spatial\bundle\lecture-hall-editor-asset.bundle app\src\main\assets\lecture-hall-editor-asset.bundle
 ```
 

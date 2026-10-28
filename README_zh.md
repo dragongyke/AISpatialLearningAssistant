@@ -122,27 +122,68 @@ git lfs pull
 
 ## API 配置
 
-云端凭据在构建时从 Gradle 属性或环境变量读取。用于本地测试时，可将以下内容写入
-`%USERPROFILE%\.gradle\gradle.properties`：
+### 电脑配置后打包
+
+不需要在头显里输入凭据。克隆项目后，首次使用时在项目根目录创建私人配置文件：
+
+```powershell
+Copy-Item ai.local.properties.example ai.local.properties
+```
+
+macOS/Linux 使用 `cp ai.local.properties.example ai.local.properties`。
+在电脑上编辑 `ai.local.properties`，填写自己的配置。不要修改已跟踪的示例文件或
+项目的 `gradle.properties`。本地文件已被 Git 忽略，强行加入暂存区也会被密钥扫描拒绝。
 
 ```properties
+ARK_API_KEY=your-ark-api-key
+ARK_TEXT_MODEL=your-text-model-or-endpoint-id
+ARK_VISION_MODEL=your-vision-model-or-endpoint-id
 VOLCENGINE_SPEECH_APP_ID=your-speech-app-id
 VOLCENGINE_SPEECH_ACCESS_TOKEN=your-speech-access-token
-ARK_API_KEY=your-ark-api-key
-ARK_VISION_MODEL=your-vision-model-or-endpoint-id
-ARK_TEXT_MODEL=your-text-model-or-endpoint-id
 ```
+
+文件使用 UTF-8 编码，值两侧不要加引号。当前主链路使用豆包，仅填写 `DEEPSEEK_API_KEY`
+不能启用当前 AI 助教。方舟配置用于问答、笔记和画面理解；语音使用独立的 App ID 和
+Access Token。模型必须已在开发者自己的账号开通，视觉模型必须支持图片输入。
+
+检查完整云端体验所需的配置，然后打包并安装私人 Debug 包：
+
+```powershell
+.\gradlew.bat checkAiConfiguration assembleDebug
+adb install -r app\build\outputs\apk\debug\app-debug.apk
+```
+
+`checkAiConfiguration` 会提示缺失字段并拒绝占位值，不打印凭据原文。它不发送 API 请求，
+不验证服务权限、额度、计费状态或网络连通性。配置修改后需要重新检查、打包和安装；
+已安装的 APK 不会自动读取电脑上的配置变化。
 
 未配置 `ARK_TEXT_MODEL` 时，Demo 会复用 `ARK_VISION_MODEL` 处理文本回答。
 当前使用 `volc.bigasr.sauc.duration` 作为 ASR Resource ID，并使用
-`volc.service_type.10029` 作为 TTS Resource ID。云端配置缺失时会明确降级：
+`volc.service_type.10029` 作为 TTS Resource ID，音色为 `zh_female_cancan_mars_bigtts`，
+开发者的语音账号需要具备对应资源权限。云端配置缺失时会明确降级：
 AI 助教使用本地字幕上下文生成备选回答，跳过方舟视觉分析，并在可用时使用内置中文
 Vosk 模型识别语音。
 
-凭据只能保存在上述用户级本地文件或环境变量中，不得写入受 Git 跟踪的源码、项目 Gradle
-文件、文档或压缩包。Debug 构建会将本机凭据写入 `BuildConfig`，因此 Debug APK 也只能
-私下测试，不得上传。Release 构建明确清空模型 Key、语音 Token 和语音 App ID；
-正式分发前需要另行实现运行时凭据配置或可信服务端代理。
+继续兼容原有的用户级 Gradle 配置：Windows 使用
+`%USERPROFILE%\.gradle\gradle.properties`，macOS/Linux 使用
+`~/.gradle/gradle.properties`。配置优先级从高到低为：显式 `-P` 参数、环境变量、
+`ai.local.properties`、Gradle 属性（包括用户级配置）。显式空值会覆盖低优先级的值。
+建议使用私人文件或保密环境变量，不要把真实 Key 写进命令行，以免进入终端历史。
+
+### 公开与云端构建
+
+普通 `assembleDebug` 和 `assembleRelease` 仍支持无密钥编译，以上严格检查仅供需要
+完整云端体验的开发者主动运行。Debug 会将配置写入 `BuildConfig`，凭据可以从 APK 中提取。
+带凭据的 APK 仅供本人测试，不得将其、本地配置、Gradle 缓存或构建输出目录上传至 GitHub
+或公开分发平台。Release 继续清空模型 Key、语音 Token 和语音 App ID。
+
+对于 Vibe Lab 等构建平台，本地私人文件不会随 Git 克隆上传。若平台支持保密环境变量和
+自定义 Debug 构建命令，可以私下配置同名字段并使用上述检查、构建命令，产物仍只能私下使用。
+目前尚未验证平台是否提供这些配置能力。如果平台只构建 Release、会公开分发 APK，或不支持
+注入密钥，这条链路不能直接提供云端 AI，需要后续增加运行时配置或可信服务端方案。
+不要为了让云端构建可用而把 Key 提交到仓库。
+
+### 凭据检查
 
 克隆后启用提交和推送检查（推送钩子保留 Git LFS 支持）：
 
@@ -163,6 +204,16 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-secrets.ps1 -A
 ```powershell
 .\gradlew.bat clean spotlessCheck testDebugUnitTest lintDebug assembleDebug assembleRelease
 ```
+
+Windows 下可运行构建配置回归测试。测试使用虚构值，不调用云端服务；如果已有
+`ai.local.properties`，会直接停止，不会覆盖个人配置：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-ai-build-config.ps1
+```
+
+覆盖本地文件加载、优先级、缺失与占位值、无密钥构建、Release 清除凭据。
+测试只生成构建配置；安装体验前应使用自己的实际配置重新打包。
 
 Linux/macOS 构建主机使用 `./gradlew`，通过 `ANDROID_HOME` 或未纳入版本控制的
 `local.properties` 配置 Android SDK 路径。未提供私有签名配置时，Release 产物未签名；

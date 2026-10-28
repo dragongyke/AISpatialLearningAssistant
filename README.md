@@ -146,29 +146,81 @@ files are not usable images or models. API credentials and APKs are not included
 
 ## API configuration
 
-Cloud credentials are read at build time from Gradle properties or environment
-variables. Put local test credentials in
-`%USERPROFILE%\.gradle\gradle.properties`:
+### Configure on your computer, then build
+
+No credential entry on the headset is needed. After cloning, create a private
+configuration file in the project root (first setup only):
+
+```powershell
+Copy-Item ai.local.properties.example ai.local.properties
+```
+
+On macOS/Linux, use `cp ai.local.properties.example ai.local.properties`.
+Edit `ai.local.properties` on your computer and fill in your own values. Do not
+edit the tracked example or the project's `gradle.properties`. The local file is
+ignored by Git, and the secret scanner rejects it if it is forcibly staged.
 
 ```properties
+ARK_API_KEY=your-ark-api-key
+ARK_TEXT_MODEL=your-text-model-or-endpoint-id
+ARK_VISION_MODEL=your-vision-model-or-endpoint-id
 VOLCENGINE_SPEECH_APP_ID=your-speech-app-id
 VOLCENGINE_SPEECH_ACCESS_TOKEN=your-speech-access-token
-ARK_API_KEY=your-ark-api-key
-ARK_VISION_MODEL=your-vision-model-or-endpoint-id
-ARK_TEXT_MODEL=your-text-model-or-endpoint-id
 ```
+
+Save as UTF-8 without surrounding quotes around values. The active assistant uses
+Doubao: setting only `DEEPSEEK_API_KEY` does not enable this path. Ark credentials
+enable answers, notes and frame understanding; speech uses a separate app ID and
+access token. The models must be enabled for your account, and the vision model
+must accept images.
+
+Validate all fields for the full cloud experience, build a private Debug APK, and
+install it:
+
+```powershell
+.\gradlew.bat checkAiConfiguration assembleDebug
+adb install -r app\build\outputs\apk\debug\app-debug.apk
+```
+
+`checkAiConfiguration` reports missing fields and rejects placeholders without
+printing their values. It does not send API requests or check service permissions,
+quota, billing or connectivity. Run it again after changing your configuration and
+rebuild/reinstall the APK; already installed packages do not pick up file changes.
 
 When `ARK_TEXT_MODEL` is omitted, the demo reuses `ARK_VISION_MODEL` for text
 answers. It currently uses `volc.bigasr.sauc.duration` for ASR and
-`volc.service_type.10029` for TTS. Missing cloud configuration degrades explicitly:
+`volc.service_type.10029` for TTS, with voice `zh_female_cancan_mars_bigtts`.
+Your speech account must authorize these resources. Missing cloud configuration degrades explicitly:
 the assistant uses a local transcript fallback, Ark vision is skipped, and speech
 recognition falls back to the bundled Chinese Vosk model where possible.
 
-Credentials belong only in the user-level file above or environment variables, never
-in tracked source, project Gradle files, documentation, or archives. Debug builds compile
-local credentials into `BuildConfig`: keep these APKs private and do not upload them.
-Release builds explicitly clear the provider keys, speech token, and speech app ID;
-cloud features therefore need a separate runtime credential/backend design before distribution.
+Existing user-level Gradle configuration still works:
+`%USERPROFILE%\.gradle\gradle.properties` on Windows or
+`~/.gradle/gradle.properties` on macOS/Linux. Precedence, from highest to lowest:
+explicit `-P` arguments, environment variables, `ai.local.properties`, then Gradle
+properties (including user-level properties). An explicitly blank value overrides
+lower-priority values. Prefer the private file or secret environment variables;
+putting actual keys in command-line arguments can expose them in shell history.
+
+### Public and cloud builds
+
+Ordinary `assembleDebug` and `assembleRelease` still work without credentials;
+the strict check above is opt-in for developers who want the full cloud experience.
+Debug embeds configured credentials in `BuildConfig`, where they can be extracted
+from the APK. Keep these APKs private; never upload them or local configuration,
+Gradle caches or build output directories to GitHub or public distribution platforms.
+Release continues to clear provider keys, speech token and speech app ID.
+
+For Vibe Lab or another build service, the private local file does not travel with
+a Git clone. If the platform supports secret environment variables and a custom
+Debug build command, inject the same fields privately and use the validation/build
+command above. Treat the resulting APK as private. Platform support for these
+settings has not been verified. A platform that only builds Release, publishes the
+APK publicly, or cannot inject secrets cannot provide cloud AI through this workflow;
+it needs a future runtime-configuration or trusted-backend solution. Never commit
+keys to make a cloud build work.
+
+### Credential checks
 
 Enable the repository's commit/push checks after cloning (the push hook retains Git LFS support):
 
@@ -190,6 +242,17 @@ or `--configure-on-demand`. API credentials are optional for compilation.
 ```powershell
 .\gradlew.bat clean spotlessCheck testDebugUnitTest lintDebug assembleDebug assembleRelease
 ```
+
+The Windows build-configuration regression test uses synthetic values, makes no
+cloud requests, and refuses to overwrite an existing `ai.local.properties`:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-ai-build-config.ps1
+```
+
+It verifies local-file loading, input precedence, missing/placeholder handling,
+keyless builds and Release credential stripping. It only generates build config;
+build an APK again with your actual configuration before installing it.
 
 On Linux/macOS build hosts, use `./gradlew` instead of `.\gradlew.bat` and configure
 the Android SDK location with `ANDROID_HOME` or an untracked `local.properties`.

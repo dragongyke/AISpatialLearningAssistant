@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +8,70 @@ plugins {
 }
 
 fun String.asBuildConfigString(): String = "\"" + replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
+val aiLocalProperties =
+    Properties().apply {
+        val text =
+            providers
+                .fileContents(rootProject.layout.projectDirectory.file("ai.local.properties"))
+                .asText
+                .orElse("")
+                .get()
+        try {
+            load(text.removePrefix("\uFEFF").reader())
+        } catch (_: IllegalArgumentException) {
+            throw GradleException("Invalid ai.local.properties syntax. Check property escaping.")
+        }
+    }
+
+// Explicit build/CI inputs override project-local values; user Gradle settings are the fallback.
+fun secretValue(name: String): String =
+    (gradle.startParameter.projectProperties[name]
+            ?: providers.environmentVariable(name).orNull
+            ?: aiLocalProperties.getProperty(name)
+            ?: providers.gradleProperty(name).orNull
+            ?: "")
+        .trim()
+
+val arkVisionModel = secretValue("ARK_VISION_MODEL")
+val arkTextModel = secretValue("ARK_TEXT_MODEL").ifBlank { arkVisionModel }
+
+tasks.register("checkAiConfiguration") {
+    group = "verification"
+    description =
+        "Check the cloud AI fields for a private Debug build without printing credentials."
+    val fields =
+        mapOf(
+            "ARK_API_KEY" to secretValue("ARK_API_KEY"),
+            "ARK_TEXT_MODEL" to arkTextModel,
+            "ARK_VISION_MODEL" to arkVisionModel,
+            "VOLCENGINE_SPEECH_APP_ID" to secretValue("VOLCENGINE_SPEECH_APP_ID"),
+            "VOLCENGINE_SPEECH_ACCESS_TOKEN" to secretValue("VOLCENGINE_SPEECH_ACCESS_TOKEN"),
+        )
+    doLast {
+        val placeholder = Regex("(?i)^(?:(?:sk-|ark-)?your[-_]|replace[-_]|example|placeholder|<)")
+        val missing =
+            fields.filterValues {
+                it.isBlank() ||
+                    placeholder.containsMatchIn(it) ||
+                    it.any { character ->
+                        character.isWhitespace() || character == '"' || character == '\''
+                    }
+            }
+        if (missing.isNotEmpty()) {
+            throw GradleException(
+                "AI configuration is incomplete. Missing/placeholder/invalid fields: " +
+                    missing.keys.joinToString() +
+                    ". Fill ai.local.properties using ai.local.properties.example. Values are not printed."
+            )
+        }
+        logger.lifecycle("AI configuration fields are complete. No cloud services were called.")
+        logger.lifecycle(
+            "Account permissions, quota and connectivity still need runtime verification."
+        )
+        logger.lifecycle("Use assembleDebug for private testing. Release strips credentials.")
+    }
+}
 
 android {
     namespace = "com.pico.spatial.sample.spatialvideo"
@@ -22,12 +88,7 @@ android {
         vectorDrawables { useSupportLibrary = true }
         ndk { abiFilters.add("arm64-v8a") }
 
-        val deepSeekApiKey =
-            providers
-                .gradleProperty("DEEPSEEK_API_KEY")
-                .orElse(providers.environmentVariable("DEEPSEEK_API_KEY"))
-                .orElse("")
-                .get()
+        val deepSeekApiKey = secretValue("DEEPSEEK_API_KEY")
         buildConfigField("String", "DEEPSEEK_API_KEY", deepSeekApiKey.asBuildConfigString())
         buildConfigField(
             "String",
@@ -35,13 +96,6 @@ android {
             "https://api.deepseek.com".asBuildConfigString()
         )
         buildConfigField("String", "DEEPSEEK_MODEL", "deepseek-v4-flash".asBuildConfigString())
-
-        fun secretValue(name: String): String =
-            providers
-                .gradleProperty(name)
-                .orElse(providers.environmentVariable(name))
-                .orElse("")
-                .get()
 
         buildConfigField(
             "String",
@@ -68,8 +122,6 @@ android {
             "VOLCENGINE_TTS_VOICE_TYPE",
             "zh_female_cancan_mars_bigtts".asBuildConfigString(),
         )
-        val arkVisionModel = secretValue("ARK_VISION_MODEL")
-        val arkTextModel = secretValue("ARK_TEXT_MODEL").ifBlank { arkVisionModel }
         buildConfigField(
             "String",
             "ARK_API_KEY",

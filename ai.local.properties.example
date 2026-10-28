@@ -1,0 +1,21 @@
+# Copy to ai.local.properties in the project root. Never commit the filled file.
+# Values use Java .properties syntax: no surrounding quotes; save as UTF-8.
+# This file configures private Debug APKs only. Release strips credentials.
+
+# Ark text answers and learning notes. Use your own enabled model/endpoint ID.
+ARK_API_KEY=
+ARK_TEXT_MODEL=
+
+# Ark video-frame understanding. Requires a vision-capable model/endpoint.
+# If ARK_TEXT_MODEL is blank, the app reuses ARK_VISION_MODEL for text answers.
+ARK_VISION_MODEL=
+
+# Doubao speech is a separate service; the Ark key does not authorize it.
+# Enable ASR resource volc.bigasr.sauc.duration and TTS resource volc.service_type.10029.
+# The current TTS voice is zh_female_cancan_mars_bigtts.
+VOLCENGINE_SPEECH_APP_ID=
+VOLCENGINE_SPEECH_ACCESS_TOKEN=
+
+# Verify and build: .\gradlew.bat checkAiConfiguration assembleDebug
+# The check validates fields, not account permissions, quota, or connectivity.
+# The active assistant uses Doubao, not DeepSeek.

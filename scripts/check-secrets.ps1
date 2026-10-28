@@ -2,8 +2,12 @@ param([switch]$Staged, [switch]$AllHistory, [switch]$SelfTest)
 
 $ErrorActionPreference = 'Stop'
 $knownSecrets = @()
-$localConfig = Join-Path $env:USERPROFILE '.gradle/gradle.properties'
-if (Test-Path -LiteralPath $localConfig) {
+$localConfigs = @(
+    (Join-Path $env:USERPROFILE '.gradle/gradle.properties'),
+    (Join-Path (Split-Path $PSScriptRoot -Parent) 'ai.local.properties')
+)
+foreach ($localConfig in $localConfigs) {
+    if (-not (Test-Path -LiteralPath $localConfig)) { continue }
     foreach ($line in Get-Content -LiteralPath $localConfig) {
         if ($line -match '^\s*(?:DEEPSEEK_API_KEY|ARK_API_KEY|VOLCENGINE_SPEECH_ACCESS_TOKEN|VOLCENGINE_SPEECH_SECRET_KEY)\s*=\s*(.+)$') {
             if ($Matches[1].Trim().Length -ge 16) { $knownSecrets += $Matches[1].Trim() }
@@ -41,13 +45,20 @@ Push-Location $root
 $process = $null
 try {
     $objects = @{}
+    $paths = New-Object 'System.Collections.Generic.HashSet[string]'
     if ($AllHistory) {
         foreach ($line in (git rev-list --objects --all)) {
-            if ($line -match '^([a-f0-9]+) (.+)$') { $objects[$Matches[1]] = $Matches[2] }
+            if ($line -match '^([a-f0-9]+) (.+)$') {
+                $objects[$Matches[1]] = $Matches[2]
+                [void]$paths.Add($Matches[2])
+            }
         }
     } else {
         foreach ($line in (git ls-files --stage)) {
-            if ($line -match '^\d+ ([a-f0-9]+) \d\t(.+)$') { $objects[$Matches[1]] = $Matches[2] }
+            if ($line -match '^\d+ ([a-f0-9]+) \d\t(.+)$') {
+                $objects[$Matches[1]] = $Matches[2]
+                [void]$paths.Add($Matches[2])
+            }
         }
     }
 
@@ -86,15 +97,18 @@ try {
     $checked = 0
     $commonGitDirectory = git rev-parse --git-common-dir
     Add-Type -AssemblyName System.IO.Compression
-    foreach ($entry in $objects.GetEnumerator()) {
-        $path = $entry.Value
-        if ($path -match '(?i)(^|/)(local.properties|secrets.properties|gradle-local.properties|\.env(?:\..+)?)$' -and $path -notmatch '\.(example|sample|template)$') {
+    # Check every filename before deduplicating blob content (a local file can match its template).
+    foreach ($path in $paths) {
+        if ($path -match '(?i)(^|/)(ai\.local\.properties|local.properties|secrets.properties|gradle-local.properties|\.env(?:\..+)?)$' -and $path -notmatch '\.(example|sample|template)$') {
             $problems.Add("$path : local configuration must not be tracked")
         }
         if ($path -match '(?i)\.(apk|aab|jks|keystore)$|(^|/)BuildConfig\.(java|class)$') {
             $problems.Add("$path : private configuration or build artifact must not be tracked")
-            continue
         }
+    }
+    foreach ($entry in $objects.GetEnumerator()) {
+        $path = $entry.Value
+        if ($path -match '(?i)\.(apk|aab|jks|keystore)$|(^|/)BuildConfig\.(java|class)$') { continue }
         if ($path -match '(?i)\.(png|jpe?g|webp|tga|ktx|mp4|bundle|usdc|usdz|fbx|glb|bin)$') { continue }
         if ($AllHistory -or $Staged -or -not (Test-Path -LiteralPath $path)) {
             $bytes = Read-Blob $entry.Key

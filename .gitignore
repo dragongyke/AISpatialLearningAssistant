@@ -16,6 +16,7 @@ captures/
 .superpowers/
 
 # Local config
+ai.local.properties
 local.properties
 secrets.properties
 gradle-local.properties

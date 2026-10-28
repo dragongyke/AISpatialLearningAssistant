@@ -42,3 +42,11 @@
 *.pdf filter=lfs diff=lfs merge=lfs -text
 *.docx filter=lfs diff=lfs merge=lfs -text
 *.xlsx filter=lfs diff=lfs merge=lfs -text
+
+# Hosted APK builders may clone Git without fetching LFS objects.
+# Keep install-time resources in ordinary Git; authoring sources above still use LFS.
+app/src/main/res/**/*.png -filter -diff -merge -text
+app/src/main/assets/**/*.png -filter -diff -merge -text
+app/src/main/assets/**/*.ktx -filter -diff -merge -text
+app/src/main/assets/**/*.bundle -filter -diff -merge -text
+app/src/main/assets/**/*.zip -filter -diff -merge -text

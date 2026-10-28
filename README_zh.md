@@ -107,18 +107,32 @@ Spatial Video 示例演进而来。最终安装包名为
 
 ## 克隆项目
 
-克隆前安装 [Git LFS](https://git-lfs.com/)。图片、模型、离线语音模型和可直接使用的
-场景 Bundle 均通过 LFS 管理。
+普通 Git 克隆即可构建 APK。运行必需的图片、离线语音模型、光照贴图和已打包场景 Bundle
+均作为真实文件保存在 Git 中，不再依赖云端构建平台额外下载 LFS 对象。
+
+```powershell
+git clone https://github.com/dragongyke/AISpatialLearningAssistant.git
+cd AISpatialLearningAssistant
+```
+
+Blender/Editor 制作源文件和设计预览仍通过 [Git LFS](https://git-lfs.com/) 管理。
+需要编辑或查看这些素材时，再安装 Git LFS 并下载：
 
 ```powershell
 git lfs install
-git clone https://github.com/dragongyke/AISpatialLearningAssistant.git
-cd AISpatialLearningAssistant
 git lfs pull
 ```
 
-云端构建平台也需要在执行 Gradle 前下载 LFS 对象，不能将指针文件当作图片或模型使用。
-仓库不包含 API 凭据或 APK。
+运行资源会使普通 Git 克隆多下载约 142 MiB。单个普通 Git 文件需保持在 GitHub 的 100 MiB
+限制以内，目前最大的场景 Bundle 约 81 MiB。除非同时提供兼容云端构建的下载流程，不要将
+`app/src/main/res` 或 `app/src/main/assets` 下的二进制运行资源改回 LFS。
+仓库不包含 API 凭据或 APK；旧提交中的运行资源仍需要 LFS。
+
+提交资源变更后，可检查 Git 中实际保存的内容，而不是只检查本地已下载的完整文件：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-runtime-assets.ps1
+```
 
 ## API 配置
 

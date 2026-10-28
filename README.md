@@ -131,18 +131,34 @@ evolved from PICO's Spatial Video sample. The installable application ID is
 
 ## Clone the project
 
-Install [Git LFS](https://git-lfs.com/) before cloning. Images, models, the offline
-speech model, and the ready-to-use scene bundle use LFS.
+Ordinary Git is enough to build an APK. The runtime images, offline speech model,
+lighting texture and ready-to-use scene bundle are stored as real Git files, not
+LFS pointers, so hosted builders do not need a separate LFS download for the app.
+
+```powershell
+git clone https://github.com/dragongyke/AISpatialLearningAssistant.git
+cd AISpatialLearningAssistant
+```
+
+Blender/Editor authoring sources and design previews still use [Git LFS](https://git-lfs.com/).
+Install Git LFS and download those files only when you need to edit or inspect them:
 
 ```powershell
 git lfs install
-git clone https://github.com/dragongyke/AISpatialLearningAssistant.git
-cd AISpatialLearningAssistant
 git lfs pull
 ```
 
-Cloud build services must also download LFS objects before invoking Gradle. Pointer
-files are not usable images or models. API credentials and APKs are not included.
+Runtime binaries add about 142 MiB to the Git checkout. Keep each ordinary Git file
+below GitHub's 100 MiB limit; currently the largest scene bundle is about 81 MiB.
+Do not move `app/src/main/res` or `app/src/main/assets` binaries back to LFS without
+also providing a compatible cloud-build download workflow. API credentials and APKs
+are not included. Older commits still require LFS to build their runtime resources.
+
+After committing asset changes, check the actual Git tree (not just hydrated local files):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-runtime-assets.ps1
+```
 
 ## API configuration
 

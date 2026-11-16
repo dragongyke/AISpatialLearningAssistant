@@ -21,6 +21,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -49,9 +50,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,6 +69,7 @@ import com.pico.spatial.sample.spatialvideo.R
 import com.pico.spatial.sample.spatialvideo.data.PlaybackManager.Companion.PLAYBACK_VOLUME_RANGE
 import com.pico.spatial.sample.spatialvideo.di.VIDEO_SESSION_SCOPE_ID
 import com.pico.spatial.sample.spatialvideo.learning.LearningChapter
+import com.pico.spatial.sample.spatialvideo.learning.LearningInteractionLatency
 import com.pico.spatial.sample.spatialvideo.learning.LearningQuestionAnswer
 import com.pico.spatial.sample.spatialvideo.learning.LearningSessionViewModel
 import com.pico.spatial.sample.spatialvideo.learning.LearningSummaryDocument
@@ -85,6 +91,7 @@ import com.pico.spatial.ui.design.TextField
 import com.pico.spatial.ui.foundation.material.backgroundMaterial
 import com.pico.spatial.ui.platform.LocalPhysicalLengthConverter
 import com.pico.spatial.ui.platform.Material
+import java.text.NumberFormat
 import org.koin.androidx.compose.getKoin
 
 @Composable
@@ -170,7 +177,7 @@ fun LearningWorkspace(modifier: Modifier = Modifier) {
 @Composable
 fun LearningPlaybackToolbarPanel(
     modifier: Modifier = Modifier,
-    layoutStatus: String? = null,
+    @StringRes layoutStatus: Int? = null,
     environmentMode: LearningEnvironmentMode = LearningEnvironmentModePolicy.initial,
     onToggleEnvironment: () -> Unit = {},
     onExit: () -> Unit = {},
@@ -207,6 +214,7 @@ fun LearningPlaybackToolbarPanel(
     }
 
     val currentChapter = learningViewModel.currentChapter(playbackTime)
+    val display = rememberCatalogDisplay()
 
     Panel(modifier = modifier.fillMaxSize(), contentPadding = 18.dp) {
         Column(
@@ -231,13 +239,13 @@ fun LearningPlaybackToolbarPanel(
                         Icon(
                             modifier = Modifier.size(32.dp),
                             painter = painterResource(R.drawable.ic_nav_back),
-                            contentDescription = "Exit learning session",
+                            contentDescription = stringResource(R.string.stage_exit_session),
                         )
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = learningState.video.title,
+                            text = display.videoTitle(learningState.video),
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
                             color = PicoTheme.colorScheme.labelPrimaryLight
@@ -245,8 +253,10 @@ fun LearningPlaybackToolbarPanel(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text =
-                                if (learningState.isCourseCompleted) "Course complete"
-                                else "${formatTime(playbackTime)}  ${currentChapter.title}",
+                                if (learningState.isCourseCompleted)
+                                    stringResource(R.string.stage_course_complete)
+                                else
+                                    "${formatTime(playbackTime)}  ${display.chapterTitle(currentChapter)}",
                             fontSize = 18.sp,
                             color = Color.White.copy(alpha = 0.68f)
                         )
@@ -261,14 +271,7 @@ fun LearningPlaybackToolbarPanel(
                                     contentColor = Color.White,
                                 ),
                         ) {
-                            Text(
-                                text =
-                                    stringResource(
-                                        if (environmentMode == LearningEnvironmentMode.VirtualHall)
-                                            R.string.learning_view_reality
-                                        else R.string.learning_return_lecture_hall
-                                    )
-                            )
+                            Text(text = stringResource(environmentMode.toggleLabelRes))
                         }
                         Button(
                             onClick = onRestoreLayout,
@@ -309,7 +312,11 @@ fun LearningPlaybackToolbarPanel(
                 }
 
                 layoutStatus?.let { message ->
-                    Text(text = message, fontSize = 16.sp, color = Color.White.copy(alpha = 0.62f))
+                    Text(
+                        text = stringResource(message),
+                        fontSize = 16.sp,
+                        color = Color.White.copy(alpha = 0.62f)
+                    )
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -319,12 +326,12 @@ fun LearningPlaybackToolbarPanel(
                     Text(
                         modifier = Modifier.weight(1f),
                         text =
-                            "Subtitle ${formatSignedOffset(learningState.subtitleOffsetMs)}" +
-                                learningState.interactionLatency
-                                    .compactLabel()
-                                    .takeIf(String::isNotBlank)
-                                    ?.let { "  ·  $it" }
-                                    .orEmpty(),
+                            listOf(
+                                    subtitleOffsetLabel(learningState.subtitleOffsetMs),
+                                    learningState.interactionLatency.stageLabel(),
+                                )
+                                .filter(String::isNotBlank)
+                                .joinToString(" · "),
                         fontSize = 15.sp,
                         color = Color.White.copy(alpha = 0.65f),
                     )
@@ -332,22 +339,22 @@ fun LearningPlaybackToolbarPanel(
                         onClick = { learningViewModel.adjustSubtitleOffset(-500L) },
                         size = ButtonDefaults.Small,
                     ) {
-                        Text("Earlier")
+                        Text(stringResource(R.string.stage_subtitle_earlier))
                     }
                     Button(
                         onClick = learningViewModel::resetSubtitleOffset,
                         size = ButtonDefaults.Small,
                     ) {
-                        Text("Reset")
+                        Text(stringResource(R.string.stage_subtitle_reset))
                     }
                     Button(
                         onClick = { learningViewModel.adjustSubtitleOffset(500L) },
                         size = ButtonDefaults.Small,
                     ) {
-                        Text("Later")
+                        Text(stringResource(R.string.stage_subtitle_later))
                     }
                 }
-                playbackError?.let { message ->
+                if (playbackError != null) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -355,7 +362,7 @@ fun LearningPlaybackToolbarPanel(
                     ) {
                         Text(
                             modifier = Modifier.weight(1f),
-                            text = message,
+                            text = stringResource(R.string.stage_playback_failed),
                             fontSize = 16.sp,
                             color = Color(0xFFFFD166),
                         )
@@ -363,7 +370,7 @@ fun LearningPlaybackToolbarPanel(
                             onClick = videoViewModel::retryPlayback,
                             size = ButtonDefaults.Small
                         ) {
-                            Text(text = "Retry")
+                            Text(text = stringResource(R.string.stage_retry))
                         }
                     }
                 }
@@ -444,6 +451,7 @@ private fun LearningOutlinePanel(
     onChapterClick: (LearningChapter) -> Unit,
     onQuestionClick: (String) -> Unit,
 ) {
+    val display = rememberCatalogDisplay()
     Panel(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             Text(
@@ -459,6 +467,7 @@ private fun LearningOutlinePanel(
                     val active = playbackTime in chapter.startMs..chapter.endMs
                     OutlineChapterItem(
                         chapter = chapter,
+                        title = display.chapterTitle(chapter),
                         active = active,
                         onClick = { onChapterClick(chapter) },
                     )
@@ -513,6 +522,7 @@ private fun LearningCenterPanel(
     onDismissSummary: () -> Unit,
     videoViewModel: VideoViewModel,
 ) {
+    val display = rememberCatalogDisplay()
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
@@ -550,21 +560,21 @@ private fun LearningCenterPanel(
             ) {
                 Column {
                     Text(
-                        text = stringResource(R.string.learning_video_stage_title),
+                        text = stringResource(R.string.stage_video_stage_title),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = PicoTheme.colorScheme.labelPrimaryLight
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = state.video.title,
+                        text = display.videoTitle(state.video),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White.copy(alpha = 0.86f)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = stringResource(R.string.learning_video_stage_description),
+                        text = stringResource(R.string.stage_video_stage_description),
                         fontSize = 15.sp,
                         lineHeight = 22.sp,
                         color = Color.White.copy(alpha = 0.64f)
@@ -573,7 +583,8 @@ private fun LearningCenterPanel(
 
                 Column {
                     Text(
-                        text = "${formatTime(playbackTime)}  ${currentChapter.title}",
+                        text =
+                            "${formatTime(playbackTime)}  ${display.chapterTitle(currentChapter)}",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = PicoTheme.colorScheme.labelPrimaryLight
@@ -658,7 +669,7 @@ private fun PlaybackControlRow(
         Text(formatTime(progress.toLong()), fontSize = 26.sp, color = Color.White)
         Spacer(modifier = Modifier.width(12.dp))
         Slider(
-            modifier = Modifier.weight(1f).height(56.dp),
+            modifier = Modifier.weight(1f).height(56.dp).stageControlLabel(R.string.stage_seek),
             value = progress,
             valueRange = 0f..duration.toFloat(),
             sliderSpec = SliderDefaults.Small,
@@ -674,12 +685,12 @@ private fun PlaybackControlRow(
         )
         Spacer(modifier = Modifier.width(16.dp))
         SymbolSlider(
-            modifier = Modifier.size(176.dp, 48.dp),
+            modifier = Modifier.size(176.dp, 48.dp).stageControlLabel(R.string.volume_control),
             icon = {
                 Icon(
                     modifier = Modifier.size(48.dp),
                     painter = painterResource(id = R.drawable.ic_volume_control),
-                    contentDescription = stringResource(R.string.volume_control)
+                    contentDescription = null
                 )
             },
             value = volume,
@@ -696,8 +707,13 @@ private fun PlaybackSpeedButton(
     speed: Float,
     onSpeedChange: (Float) -> Unit,
 ) {
+    val locale = LocalConfiguration.current.locales[0]
+    val speedLabel =
+        remember(locale, speed) { NumberFormat.getNumberInstance(locale).format(speed) }
+    val description = stringResource(R.string.stage_speed_description, speedLabel)
     Button(
-        modifier = Modifier.width(112.dp).height(64.dp),
+        modifier =
+            Modifier.width(112.dp).height(64.dp).semantics { contentDescription = description },
         onClick = {
             val currentIndex = PLAYBACK_SPEED_OPTIONS.indexOfFirst { it == speed }.coerceAtLeast(0)
             onSpeedChange(PLAYBACK_SPEED_OPTIONS[(currentIndex + 1) % PLAYBACK_SPEED_OPTIONS.size])
@@ -709,7 +725,7 @@ private fun PlaybackSpeedButton(
                 contentColor = PicoTheme.colorScheme.labelPrimaryLight,
             ),
     ) {
-        Text(text = "${speed}x", fontSize = 20.sp)
+        Text(text = stringResource(R.string.stage_speed, speedLabel), fontSize = 20.sp)
     }
 }
 
@@ -726,6 +742,8 @@ private fun AiCoachPanel(
     onTeachingModeChange: (LearningTeachingMode) -> Unit,
     showVoiceButton: Boolean = true,
 ) {
+    val voicePolicy = learningVoiceControlPolicy(state)
+    val voiceStatus = stringResource(voicePolicy.state.statusLabelRes)
     Panel(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
             Text(
@@ -735,19 +753,7 @@ private fun AiCoachPanel(
                 color = PicoTheme.colorScheme.labelPrimaryLight
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text =
-                    when {
-                        state.isListening -> stringResource(R.string.learning_listening)
-                        state.isAnalyzingVideo -> stringResource(R.string.learning_analyzing_video)
-                        state.isAnswering || state.isPreparingSpeech ->
-                            stringResource(R.string.learning_answering)
-                        state.isSpeaking -> stringResource(R.string.learning_speaking)
-                        else -> stringResource(R.string.learning_ready)
-                    },
-                fontSize = 22.sp,
-                color = Color.White.copy(alpha = 0.64f)
-            )
+            Text(text = voiceStatus, fontSize = 22.sp, color = Color.White.copy(alpha = 0.64f))
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = state.assistantStatusMessage,
@@ -762,7 +768,7 @@ private fun AiCoachPanel(
                 selected = state.teachingMode,
                 onSelected = onTeachingModeChange,
             )
-            state.interactionLatency.compactLabel().takeIf(String::isNotBlank)?.let { latency ->
+            state.interactionLatency.stageLabel().takeIf(String::isNotBlank)?.let { latency ->
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = latency,
@@ -822,9 +828,12 @@ private fun AiCoachPanel(
             if (showVoiceButton) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Button(
-                    modifier = Modifier.fillMaxWidth().height(76.dp),
+                    modifier =
+                        Modifier.fillMaxWidth().height(76.dp).semantics {
+                            stateDescription = voiceStatus
+                        },
                     onClick = onAskVoice,
-                    enabled = learningVoiceControlPolicy(state).isEnabled,
+                    enabled = voicePolicy.isEnabled,
                     leadingIcon = {
                         Icon(
                             modifier = Modifier.size(30.dp),
@@ -850,7 +859,10 @@ private fun AiCoachPanel(
             TextField(
                 value = state.draftedQuestion,
                 onValueChange = onDraftChange,
-                modifier = Modifier.fillMaxWidth().height(84.dp),
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .height(84.dp)
+                        .stageControlLabel(R.string.stage_question_field),
                 placeholder = {
                     Text(
                         text = stringResource(R.string.learning_question_placeholder),
@@ -875,7 +887,7 @@ private fun AiCoachPanel(
             if (state.recognizedQuestion.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(14.dp))
                 Text(
-                    text = "\"${state.recognizedQuestion}\"",
+                    text = state.recognizedQuestion,
                     fontSize = 22.sp,
                     lineHeight = 32.sp,
                     color = PicoTheme.colorScheme.labelPrimaryLight
@@ -924,7 +936,7 @@ private fun AiCoachPanel(
                                 .padding(18.dp)
                     ) {
                         Text(
-                            text = "AI 助教",
+                            text = stringResource(R.string.learning_ai_panel_title),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFFFD99A),
@@ -983,12 +995,14 @@ private fun TeachingModeSelector(
             ) {
                 Text(
                     text =
-                        when (mode) {
-                            LearningTeachingMode.Concise -> "Brief"
-                            LearningTeachingMode.DeepDive -> "Deep"
-                            LearningTeachingMode.Example -> "Example"
-                            LearningTeachingMode.Socratic -> "Guide"
-                        },
+                        stringResource(
+                            when (mode) {
+                                LearningTeachingMode.Concise -> R.string.stage_mode_concise
+                                LearningTeachingMode.DeepDive -> R.string.stage_mode_deep_dive
+                                LearningTeachingMode.Example -> R.string.stage_mode_example
+                                LearningTeachingMode.Socratic -> R.string.stage_mode_socratic
+                            }
+                        ),
                     fontSize = 15.sp,
                 )
             }
@@ -996,16 +1010,29 @@ private fun TeachingModeSelector(
     }
 }
 
-private fun formatSignedOffset(offsetMs: Long): String =
-    when {
-        offsetMs > 0L -> "+${"%.1f".format(offsetMs / 1_000f)}s"
-        offsetMs < 0L -> "${"%.1f".format(offsetMs / 1_000f)}s"
-        else -> "0.0s"
-    }
+@Composable
+private fun subtitleOffsetLabel(offsetMs: Long): String =
+    stringResource(
+        if (offsetMs > 0L) R.string.stage_subtitle_offset_positive
+        else R.string.stage_subtitle_offset,
+        offsetMs / 1_000.0,
+    )
+
+@Composable
+private fun LearningInteractionLatency.stageLabel(): String =
+    listOfNotNull(
+            asrFirstPartialMs?.let { stringResource(R.string.stage_latency_asr, it) },
+            visionMs?.let { stringResource(R.string.stage_latency_vision, it) },
+            llmFirstTokenMs?.let { stringResource(R.string.stage_latency_ai, it) },
+            ttsFirstAudioMs?.let { stringResource(R.string.stage_latency_voice, it) },
+            responseFirstAudioMs?.let { stringResource(R.string.stage_latency_reply, it) },
+        )
+        .joinToString(" · ")
 
 @Composable
 private fun OutlineChapterItem(
     chapter: LearningChapter,
+    title: String,
     active: Boolean,
     onClick: () -> Unit,
 ) {
@@ -1021,7 +1048,7 @@ private fun OutlineChapterItem(
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(text = formatTime(chapter.startMs), fontSize = 19.sp)
-            Text(text = chapter.title, fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+            Text(text = title, fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -1185,14 +1212,14 @@ private fun SummaryDocumentPanel(
                         onClick = { openSummaryDocument(context, summary.savedPath) },
                         size = ButtonDefaults.Small,
                     ) {
-                        Text(text = "Open")
+                        Text(text = stringResource(R.string.stage_open))
                     }
                     Button(
                         enabled = isUserAccessible,
                         onClick = { shareSummaryDocument(context, summary.savedPath) },
                         size = ButtonDefaults.Small,
                     ) {
-                        Text(text = "Share")
+                        Text(text = stringResource(R.string.stage_share))
                     }
                     Button(onClick = onDismiss, size = ButtonDefaults.Small) {
                         Text(text = stringResource(R.string.learning_dismiss_summary))
@@ -1217,26 +1244,21 @@ private fun SessionGuidancePanel(modifier: Modifier) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
             Column {
                 Text(
-                    text = "MVP flow",
+                    text = stringResource(R.string.stage_session_guide),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = PicoTheme.colorScheme.labelPrimaryLight
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text =
-                        "1. Watch the video in the immersive stage.\n" +
-                            "2. Ask a voice question to pause playback.\n" +
-                            "3. Review the timestamped AI answer.\n" +
-                            "4. Generate a Markdown learning summary.",
+                    text = stringResource(R.string.stage_session_steps),
                     fontSize = 14.sp,
                     lineHeight = 22.sp,
                     color = Color.White.copy(alpha = 0.68f)
                 )
             }
             Text(
-                text =
-                    "Doubao answers use the course transcript, learning history, and visual context when the question depends on the current frame.",
+                text = stringResource(R.string.stage_session_context),
                 fontSize = 13.sp,
                 lineHeight = 19.sp,
                 color = Color.White.copy(alpha = 0.5f)
@@ -1281,7 +1303,11 @@ private fun shareSummaryDocument(context: Context, savedPath: String) {
             .setType("text/markdown")
             .putExtra(Intent.EXTRA_STREAM, android.net.Uri.parse(savedPath))
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    runCatching { context.startActivity(Intent.createChooser(intent, "Share learning summary")) }
+    runCatching {
+        context.startActivity(
+            Intent.createChooser(intent, context.getString(R.string.stage_share_summary))
+        )
+    }
 }
 
 @Composable

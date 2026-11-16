@@ -18,6 +18,7 @@ package com.pico.spatial.sample.spatialvideo.learning
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import com.pico.spatial.sample.spatialvideo.R
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
@@ -66,13 +67,14 @@ class VoskSpeechQuestionTranscriber(private val context: Context) : SpeechQuesti
         get() = modelInstaller.modelDirectory.takeIf(VoskModelLayout::isComplete)
 
     val modelHint: String
-        get() = "The bundled Chinese speech model is being prepared. Try voice input again shortly."
+        get() = context.getString(R.string.learning_status_offline_preparing)
 
     override val isReady: Boolean
         get() = modelDirectory != null
 
     override val readinessMessage: String
-        get() = if (isReady) "Bundled offline ASR is ready." else modelHint
+        get() =
+            if (isReady) context.getString(R.string.learning_status_offline_ready) else modelHint
 
     suspend fun ensureModelInstalled(): Result<File> = modelInstaller.ensureInstalled()
 
@@ -87,7 +89,8 @@ class VoskSpeechQuestionTranscriber(private val context: Context) : SpeechQuesti
                 ?: modelInstaller.ensureInstalled().getOrNull()
                 ?: return SpeechTranscriptionResult(
                     text = "",
-                    statusMessage = "The bundled ASR model could not be installed.",
+                    statusMessage =
+                        context.getString(R.string.learning_status_offline_install_failed),
                 )
         return runCatching {
                 withContext(Dispatchers.IO) {
@@ -109,11 +112,10 @@ class VoskSpeechQuestionTranscriber(private val context: Context) : SpeechQuesti
                     }
                 }
             }
-            .getOrElse { error ->
+            .getOrElse {
                 SpeechTranscriptionResult(
                     text = "",
-                    statusMessage =
-                        "ASR failed: ${error.message.orEmpty().lineSequence().firstOrNull().orEmpty().take(120)}",
+                    statusMessage = context.getString(R.string.learning_status_asr_failed),
                 )
             }
     }
@@ -158,37 +160,36 @@ class VoskSpeechQuestionTranscriber(private val context: Context) : SpeechQuesti
 
                 override fun onFinalResult(hypothesis: String?) {
                     val finalText = parseSpeechText(hypothesis, "text").ifBlank { latestText }
-                    finish(
-                        finalText,
-                        if (finalText.isBlank()) "No speech recognized." else "Transcribed."
-                    )
+                    finish(finalText, transcriptionStatus(finalText))
                 }
 
                 override fun onError(exception: Exception?) {
-                    finish("", "ASR failed: ${exception?.message.orEmpty()}")
+                    finish("", context.getString(R.string.learning_status_asr_failed))
                 }
 
                 override fun onTimeout() {
-                    finish(
-                        latestText,
-                        if (latestText.isBlank()) "No speech recognized." else "Transcribed."
-                    )
+                    finish(latestText, transcriptionStatus(latestText))
                 }
             }
 
-        continuation.invokeOnCancellation { finish(latestText, "Speech recognition cancelled.") }
+        continuation.invokeOnCancellation {
+            finish(latestText, context.getString(R.string.learning_status_asr_cancelled))
+        }
         speechService.startListening(listener)
         timeoutRunnable = Runnable {
             if (!completed.get()) {
                 speechService.stop()
-                finish(
-                    latestText,
-                    if (latestText.isBlank()) "No speech recognized." else "Transcribed."
-                )
+                finish(latestText, transcriptionStatus(latestText))
             }
         }
         handler.postDelayed(requireNotNull(timeoutRunnable), maxListenMs)
     }
+
+    private fun transcriptionStatus(text: String): String =
+        context.getString(
+            if (text.isBlank()) R.string.learning_status_asr_not_recognized
+            else R.string.learning_status_offline_transcribed
+        )
 
     private companion object {
         const val DEFAULT_MAX_LISTEN_MS = 6_500L

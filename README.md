@@ -21,6 +21,8 @@ record tied to the video timeline.
   button reopens it after it is closed.
 - Direct launch into the learning catalog; the obsolete sample launcher is not part of
   this application.
+- Catalog, history, note controls and Stage panels follow the headset language (English
+  or Simplified Chinese). Original captions and saved notes keep their own language.
 
 ### Full Space learning
 
@@ -42,8 +44,8 @@ record tied to the video timeline.
   a brief pinch starts a question, while pinch-and-move repositions it without asking.
   Gaze highlighting and state-dependent light/core animations distinguish availability,
   listening, analysis, answering, and speech. No separate voice drag bar is required.
-  A carved walnut and aged-brass pedestal matches the library; gathering light filaments
-  and rotating runes make the waiting state distinct from idle and spoken replies.
+  The crystal floats without a stand. Cyan, rose and gold light trails move inside its
+  shell, gather while the assistant is thinking, and pulse during spoken replies.
 - On entry and layout restore, the outline and coach centers align with the video. The
   toolbar stays below the subtitles; floor-aware placement keeps every panel and handle at
   least 12 cm above the floor, raising the layout only when needed.
@@ -99,7 +101,7 @@ record tied to the video timeline.
 ## Technology
 
 - Kotlin and Jetpack Compose
-- PICO Spatial SDK BOM 6.0.0
+- PICO Spatial SDK BOM 6.2.8
 - PICO Spatial UI WindowContainer, Stage, Entity, and asset bundle APIs
 - PICO CypressMediaPlayer-based network playback
 - Volcengine Ark Doubao Seed streaming chat and conditional vision APIs
@@ -124,10 +126,37 @@ evolved from PICO's Spatial Video sample. The installable application ID is
 - Windows development host with Android Studio
 - JDK 17 for the Gradle runtime
 - Android SDK 35
-- PICO Spatial SDK 6.0.0 (resolved by Gradle); matching Spatial Editor tools are
+- PICO Spatial SDK 6.2.8 (resolved by Gradle); matching Spatial Editor 6.2 tools are
   required only when rebuilding the scene assets
-- A compatible PICO OS 6 device or PICO Emulator
+- A PICO OS 6 v6.2 device or matching PICO Emulator (SDK 6.2.8 does not support v6.1)
 - Network access for course streaming and cloud AI services
+
+### PICO toolchain versions
+
+The CLI and SDK use independent version numbers. This project targets:
+
+| Component | Version |
+| --- | --- |
+| Public PICO CLI (`@picoxr/pico-cli`) | `0.7.0` |
+| Spatial SDK BOM (`com.pico.spatial:bom`) | `6.2.8` |
+| Scene Gradle plugin (`com.pico.spatial.tools`) | `6.2.2` |
+| Scene tool compatibility line (`spatialToolsVersion`) | `6.2` |
+
+Install the CLI from public npm using Node.js 20 or newer:
+
+```powershell
+npm install -g @picoxr/pico-cli@0.7.0 --registry=https://registry.npmjs.org
+pico-cli --version
+pico-cli project detect --project . --format json
+```
+
+The CLI is optional for ordinary APK builds. Its `0.7.0` version is not a Spatial
+SDK BOM version. Check the public [BOM metadata](https://artifact.bytedance.com/repository/Volcengine/com/pico/spatial/bom/maven-metadata.xml)
+and [Gradle plugin metadata](https://artifact.bytedance.com/repository/Volcengine/com/pico/spatial/tools/com.pico.spatial.tools.gradle.plugin/maven-metadata.xml)
+separately when upgrading. The official [SDK/runtime compatibility table](https://developer-cn.picoxr.com/document/spatial-sdk/create-your-first-spatial-app/)
+requires PICO OS 6 v6.2 for this SDK. Compilation alone does not establish runtime
+compatibility. The existing scene bundle is retained: newer runtimes support older
+resource formats, but its load/render behavior still needs headset verification.
 
 ## Clone the project
 
@@ -282,7 +311,7 @@ adb install -r app\build\outputs\apk\debug\app-debug.apk
 ```
 
 When the lecture hall scene changes, explicitly enable its authoring module and
-rebuild the asset bundle with matching PICO Editor 6.0 tools installed:
+rebuild the asset bundle with matching PICO Editor 6.2 tools installed:
 
 ```powershell
 .\gradlew.bat -PbuildSceneAssets=true :lecture-hall-editor-asset:assembleDebug

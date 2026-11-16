@@ -1,7 +1,6 @@
 package com.pico.spatial.sample.spatialvideo.ui
 
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -34,233 +33,194 @@ internal data class LearningOrbMesh(
     val positions: List<LearningOrbPoint>,
     val normals: List<LearningOrbPoint>,
     val triangleIndices: List<Int>,
+    val uv: List<Pair<Float, Float>> = emptyList(),
 )
 
+internal data class LearningOrbSweep(val filaments: LearningOrbMesh, val veils: LearningOrbMesh)
+
 internal object LearningCrystalOrbMeshes {
-    fun pedestalWood(): LearningOrbMesh =
-        Builder()
-            .apply {
-                // A stepped, fluted ogee profile gives the plinth a turned-wood silhouette.
-                lathe(
-                    listOf(
-                        0.070f to -0.153f,
-                        0.076f to -0.150f,
-                        0.076f to -0.146f,
-                        0.070f to -0.143f,
-                        0.070f to -0.140f,
-                        0.060f to -0.137f,
-                        0.044f to -0.133f,
-                        0.033f to -0.129f,
-                        0.029f to -0.123f,
-                        0.030f to -0.117f,
-                        0.042f to -0.111f,
-                        0.053f to -0.107f,
+    // The same sphere resource is instanced for the polished shell and the smaller smoked glass.
+    fun shell(): LearningOrbMesh {
+        val sides = 48
+        val rows = 20
+        val normals = mutableListOf(LearningOrbPoint(0f, 1f, 0f))
+        val indices = mutableListOf<Int>()
+        for (row in 1 until rows) {
+            val latitude = PI * row / rows
+            repeat(sides) { side ->
+                val theta = side * 2 * PI / sides
+                normals +=
+                    LearningOrbPoint(
+                        (sin(latitude) * cos(theta)).toFloat(),
+                        cos(latitude).toFloat(),
+                        (sin(latitude) * sin(theta)).toFloat()
                     )
-                )
-                repeat(4) { support ->
-                    tube(supportPath(support), 10) { t -> 0.007f - t * 0.0035f }
-                }
             }
-            .build()
-
-    fun pedestalBrass(): LearningOrbMesh =
-        Builder()
-            .apply {
-                ring(0.074f, -0.145f, 0.0015f)
-                ring(0.061f, -0.137f, 0.0014f)
-                ring(0.064f, -0.104f, 0.0024f)
-                repeat(4) { support ->
-                    // Fine raised brass follows the carved support rather than forming a metal
-                    // cylinder.
-                    tube(
-                        supportPath(support).map { p ->
-                            val angle = support * PI / 2.0
-                            p +
-                                LearningOrbPoint(
-                                    (cos(angle) * 0.005f).toFloat(),
-                                    0.001f,
-                                    (sin(angle) * 0.005f).toFloat()
-                                )
-                        },
-                        6
-                    ) {
-                        0.00115f
-                    }
-                    val scroll =
-                        (0..24).map { step ->
-                            val t = step / 24f
-                            val angle = -PI / 2.0 + t * PI * 1.7
-                            val radius = 0.012f * (1f - 0.72f * t)
-                            radial(
-                                0.082f + cos(angle).toFloat() * radius,
-                                -0.119f + sin(angle).toFloat() * radius,
-                                support * PI / 2.0
-                            )
-                        }
-                    tube(scroll, 6) { t -> 0.0018f - t * 0.0008f }
-                }
-            }
-            .build()
-
-    fun waitingSwirl(): LearningOrbMesh =
-        Builder()
-            .apply {
-                repeat(2) { strand ->
-                    val path =
-                        (0..64).map { step ->
-                            val t = step / 64f
-                            val radius = 0.087f - t * 0.036f
-                            radial(radius, -0.044f + t * 0.088f, strand * PI + t * PI * 2.3)
-                        }
-                    tube(path, 6) { t -> 0.0009f + sin(t * PI).toFloat() * 0.0012f }
-                }
-            }
-            .build()
-
-    fun waitingRunes(): LearningOrbMesh =
-        Builder()
-            .apply {
-                repeat(12) { rune ->
-                    val angle = rune * PI / 6.0
-                    fun point(tangent: Float, radius: Float): LearningOrbPoint =
-                        radial(radius, 0f, angle) +
-                            LearningOrbPoint(
-                                (-sin(angle) * tangent).toFloat(),
-                                0f,
-                                (cos(angle) * tangent).toFloat()
-                            )
-                    tube(listOf(point(0f, 0.128f), point(0f, 0.143f)), 6) { 0.001f }
-                    val sign = if (rune % 2 == 0) 1f else -1f
-                    tube(
-                        listOf(point(0f, 0.141f), point(sign * 0.005f, 0.136f), point(0f, 0.132f)),
-                        6
-                    ) {
-                        0.00085f
-                    }
-                    tube(listOf(point(-0.004f, 0.132f), point(0.004f, 0.132f)), 6) { 0.00085f }
-                }
-            }
-            .build()
-
-    private fun supportPath(index: Int): List<LearningOrbPoint> =
-        (0..32).map { step ->
-            val t = step / 32f
-            val u = 1f - t
-            val radius =
-                u * u * u * 0.047f +
-                    3f * u * u * t * 0.115f +
-                    3f * u * t * t * 0.067f +
-                    t * t * t * 0.101f
-            val height =
-                u * u * u * -0.137f +
-                    3f * u * u * t * -0.137f +
-                    3f * u * t * t * -0.110f +
-                    t * t * t * -0.066f
-            radial(radius, height, index * PI / 2.0)
         }
+        val south = normals.size
+        normals += LearningOrbPoint(0f, -1f, 0f)
+        for (side in 0 until sides) {
+            val a = 1 + side
+            val b = 1 + (side + 1) % sides
+            indices.addAll(listOf(0, b, a))
+            for (row in 0 until rows - 2) {
+                val left = a + row * sides
+                val right = b + row * sides
+                indices.addAll(
+                    listOf(left, right, left + sides, right, right + sides, left + sides)
+                )
+            }
+            indices.addAll(listOf(a + (rows - 2) * sides, b + (rows - 2) * sides, south))
+        }
+        return LearningOrbMesh(
+            normals.map { it * LearningCrystalOrbGeometry.shellRadiusMeters },
+            normals,
+            indices
+        )
+    }
 
-    private fun radial(radius: Float, y: Float, angle: Double) =
-        LearningOrbPoint(cos(angle).toFloat() * radius, y, sin(angle).toFloat() * radius)
+    fun sweep(stream: LearningCrystalOrbStream): LearningOrbSweep {
+        val threads = Builder(textured = false)
+        val silk = Builder(textured = true)
+        repeat(3) { branch ->
+            val phase = stream.ordinal * 2.16 + branch * 2.64
+            val tilt =
+                when (stream) {
+                    LearningCrystalOrbStream.Cyan -> -0.53
+                    LearningCrystalOrbStream.Magenta -> 0.92
+                    LearningCrystalOrbStream.Gold -> -1.14
+                } + 0.65 * branch
+            val rim = branch == 2
+            val bank = if (rim) 1.14 else 0.31 * (stream.ordinal - 1) - 0.73 * branch
+            val steps = if (rim) 54 else 76
+            val path =
+                (0..steps).map { sample ->
+                    val t = sample.toDouble() / steps
+                    val angle =
+                        phase +
+                            (if (branch == 1) -1 else 1) *
+                                ((if (rim) 1.57 else 2.56) * PI * t + 0.33 * sin(2 * PI * t))
+                    val latitude =
+                        (t - 0.5) * (if (rim) 0.5 else 1.78) +
+                            0.45 * sin(angle + phase) +
+                            0.13 * sin(2 * angle)
+                    // Each current leaves the rim, dives toward the center and resurfaces.
+                    val dip = (1 + cos(angle - phase + 1.0)) * 0.5
+                    // Reserve room for the banked ribbon edges and the hovered detail transform.
+                    val radius =
+                        if (rim) 0.106 - 0.006 * dip
+                        else 0.107 - 0.002 * stream.ordinal - 0.004 * branch - 0.055 * dip * dip
+                    val x = radius * cos(latitude) * cos(angle)
+                    val y = radius * sin(latitude)
+                    val z = radius * cos(latitude) * sin(angle)
+                    val by = y * cos(bank) - z * sin(bank)
+                    LearningOrbPoint(
+                        (x * cos(tilt) - by * sin(tilt)).toFloat(),
+                        (x * sin(tilt) + by * cos(tilt)).toFloat(),
+                        (y * sin(bank) + z * cos(bank)).toFloat()
+                    )
+                }
+            // Use the radial direction to transport the ribbon across the sphere, not a
+            // camera-facing quad. The tapered edges and narrow hot strands have real thickness.
+            val sections =
+                path.mapIndexed { i, center ->
+                    val t = i.toDouble() / steps
+                    val tangent =
+                        (path[(i + 1).coerceAtMost(steps)] - path[(i - 1).coerceAtLeast(0)])
+                            .normalized()
+                    val side = tangent.cross(center).normalized()
+                    val normal = side.cross(tangent)
+                    val twist = 0.62 * sin(phase + t * 2 * PI)
+                    val widthAxis = side * cos(twist).toFloat() + normal * sin(twist).toFloat()
+                    val envelope = sin(t * PI).toFloat()
+                    Section(
+                        center,
+                        widthAxis,
+                        widthAxis.cross(tangent),
+                        0.00036f +
+                            envelope * (0.0103f + 0.0048f * sin(t * 3 * PI + phase).toFloat()),
+                        0.00028f + 0.00064f * envelope
+                    )
+                }
+            silk.tube(sections, 4)
+            threads.tube(
+                sections.mapIndexed { i, sec ->
+                    val t = i.toDouble() / steps
+                    val crest = (0.18 + 0.64 * sin(phase + t * 3 * PI)).toFloat()
+                    val width =
+                        (0.000055 + sin(PI * t) * 0.00110 * (0.63 + 0.50 * sin(phase + 3 * PI * t)))
+                            .toFloat()
+                    sec.copy(
+                        center = sec.center + sec.side * (sec.width * crest) + sec.up * sec.depth,
+                        width = width,
+                        depth = width * 0.72f
+                    )
+                },
+                4
+            )
+        }
+        return LearningOrbSweep(threads.build(), silk.build())
+    }
 
-    private class Builder {
+    private data class Section(
+        val center: LearningOrbPoint,
+        val side: LearningOrbPoint,
+        val up: LearningOrbPoint,
+        val width: Float,
+        val depth: Float
+    )
+
+    private class Builder(private val textured: Boolean) {
         private val positions = mutableListOf<LearningOrbPoint>()
         private val indices = mutableListOf<Int>()
+        private val normals = mutableListOf<LearningOrbPoint>()
+        private val uv = mutableListOf<Pair<Float, Float>>()
 
-        fun lathe(profile: List<Pair<Float, Float>>) {
-            val sides = 64
-            val rings =
-                profile.map { (radius, y) ->
-                    List(sides) { side ->
-                        val angle = side * 2.0 * PI / sides
-                        radial(radius * (1f + 0.016f * cos(angle * 12).toFloat()), y, angle)
-                    }
-                }
-            surface(rings)
-            cap(rings.first(), LearningOrbPoint(0f, profile.first().second, 0f), false)
-            cap(rings.last(), LearningOrbPoint(0f, profile.last().second, 0f), true)
-        }
-
-        fun ring(radius: Float, y: Float, thickness: Float) {
-            tube((0..64).map { radial(radius, y, it * PI / 32.0) }, 8, capped = false) { thickness }
-        }
-
-        fun tube(
-            path: List<LearningOrbPoint>,
-            sides: Int,
-            capped: Boolean = true,
-            radius: (Float) -> Float
-        ) {
-            val tangents =
-                path.indices.map { index ->
-                    (path[(index + 1).coerceAtMost(path.lastIndex)] -
-                            path[(index - 1).coerceAtLeast(0)])
-                        .normalized()
-                }
-            // One frame reference for the entire curve prevents cross-section flips near vertical.
-            val reference =
-                listOf(
-                        LearningOrbPoint(1f, 0f, 0f),
-                        LearningOrbPoint(0f, 1f, 0f),
-                        LearningOrbPoint(0f, 0f, 1f)
-                    )
-                    .minBy { axis -> tangents.maxOf { abs(it.dot(axis)) } }
-            val rings =
-                path.mapIndexed { index, point ->
-                    val tangent = tangents[index]
-                    val side = tangent.cross(reference).normalized()
-                    val up = side.cross(tangent)
-                    val thickness = radius(index.toFloat() / path.lastIndex)
-                    List(sides) { spoke ->
-                        val angle = spoke * 2.0 * PI / sides
-                        point +
-                            (side * cos(angle).toFloat() + up * sin(angle).toFloat()) * thickness
-                    }
-                }
-            surface(rings)
-            if (capped) {
-                cap(rings.first(), path.first(), false)
-                cap(rings.last(), path.last(), true)
-            }
-        }
-
-        private fun surface(rings: List<List<LearningOrbPoint>>) {
+        fun tube(sections: List<Section>, sides: Int) {
             val start = positions.size
-            val sides = rings.first().size
-            rings.forEach(positions::addAll)
-            repeat(rings.size - 1) { row ->
-                repeat(sides) { side ->
+            for ((row, section) in sections.withIndex()) {
+                for (spoke in 0 until sides) {
+                    val angle = spoke * 2 * PI / sides
+                    val c = cos(angle).toFloat()
+                    val s = sin(angle).toFloat()
+                    positions +=
+                        section.center +
+                            section.side * (section.width * c) +
+                            section.up * (section.depth * s)
+                    normals +=
+                        (section.side * (c / section.width) + section.up * (s / section.depth))
+                            .normalized()
+                    if (textured) uv += row.toFloat() / sections.lastIndex to 0.5f + 0.5f * c
+                }
+            }
+            for (row in 0 until sections.lastIndex) {
+                for (side in 0 until sides) {
                     val a = start + row * sides + side
                     val b = start + row * sides + (side + 1) % sides
                     indices.addAll(listOf(a, a + sides, b, b, a + sides, b + sides))
                 }
             }
-        }
-
-        private fun cap(ring: List<LearningOrbPoint>, center: LearningOrbPoint, top: Boolean) {
-            val start = positions.size
-            positions += ring
-            val middle = positions.size
-            positions += center
-            repeat(ring.size) { side ->
-                val a = start + side
-                val b = start + (side + 1) % ring.size
-                indices.addAll(if (top) listOf(middle, b, a) else listOf(middle, a, b))
+            for (end in listOf(false, true)) {
+                val ring = if (end) sections.lastIndex else 0
+                val section = sections[ring]
+                val normal = section.up.cross(section.side) * (if (end) 1f else -1f)
+                val cap = positions.size
+                positions += section.center
+                normals += normal
+                if (textured) uv += (if (end) 1f else 0f) to 0.5f
+                for (side in 0 until sides) {
+                    positions += positions[start + ring * sides + side]
+                    normals += normal
+                    if (textured) uv += uv[start + ring * sides + side]
+                }
+                for (side in 0 until sides) {
+                    val a = cap + 1 + side
+                    val b = cap + 1 + (side + 1) % sides
+                    indices.addAll(if (end) listOf(cap, b, a) else listOf(cap, a, b))
+                }
             }
         }
 
-        fun build(): LearningOrbMesh {
-            val normals = MutableList(positions.size) { LearningOrbPoint(0f, 0f, 0f) }
-            indices.chunked(3).forEach { (a, b, c) ->
-                val normal = (positions[b] - positions[a]).cross(positions[c] - positions[a])
-                normals[a] = normals[a] + normal
-                normals[b] = normals[b] + normal
-                normals[c] = normals[c] + normal
-            }
-            return LearningOrbMesh(
-                positions.toList(),
-                normals.map { it.normalized() },
-                indices.toList()
-            )
-        }
+        fun build() = LearningOrbMesh(positions, normals, indices, uv)
     }
 }

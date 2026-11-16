@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stage_exit_session">退出学习</string>
+    <string name="stage_course_complete">课程已完成</string>
+    <string name="stage_video_stage_title">沉浸式视频</string>
+    <string name="stage_video_stage_description">观看视频时，可以在周围的面板中提问、回顾回答或生成学习总结。</string>
+    <string name="stage_subtitle_offset">字幕偏移：%1$.1f 秒</string>
+    <string name="stage_subtitle_offset_positive">字幕偏移：+%1$.1f 秒</string>
+    <string name="stage_subtitle_earlier">提前</string>
+    <string name="stage_subtitle_reset">重置</string>
+    <string name="stage_subtitle_later">延后</string>
+    <string name="stage_transcript">课程字幕</string>
+    <string name="stage_transcript_estimated">时间为估算值</string>
+    <string name="stage_latency_asr">识别 %1$d 毫秒</string>
+    <string name="stage_latency_vision">视觉 %1$d 毫秒</string>
+    <string name="stage_latency_ai">AI %1$d 毫秒</string>
+    <string name="stage_latency_voice">语音 %1$d 毫秒</string>
+    <string name="stage_latency_reply">响应 %1$d 毫秒</string>
+    <string name="stage_playback_failed">视频播放失败，请重试。</string>
+    <string name="stage_retry">重试</string>
+    <string name="stage_play">播放视频</string>
+    <string name="stage_pause">暂停视频</string>
+    <string name="stage_preparing">正在准备视频</string>
+    <string name="stage_seek">播放进度</string>
+    <string name="stage_enter_immersive">进入沉浸模式</string>
+    <string name="stage_exit_immersive">退出沉浸模式</string>
+    <string name="stage_speed">%1$s×</string>
+    <string name="stage_speed_description">播放速度：%1$s 倍</string>
+    <string name="stage_question_field">你的问题</string>
+    <string name="stage_voice_unavailable">语音输入不可用</string>
+    <string name="stage_ask_by_voice">用语音提问</string>
+    <string name="stage_drag_video">移动视频画面</string>
+    <string name="stage_drag_outline">移动学习大纲</string>
+    <string name="stage_drag_toolbar">移动播放控件</string>
+    <string name="stage_drag_ai_coach">移动 AI 助教面板</string>
+    <string name="stage_drag_voice">移动语音控件</string>
+    <string name="stage_mode_concise">简明</string>
+    <string name="stage_mode_deep_dive">深入</string>
+    <string name="stage_mode_example">举例</string>
+    <string name="stage_mode_socratic">启发</string>
+    <string name="stage_open">打开</string>
+    <string name="stage_share">分享</string>
+    <string name="stage_share_summary">分享学习总结</string>
+    <string name="stage_session_guide">学习指南</string>
+    <string name="stage_session_steps">1. 在沉浸空间观看视频。\n2. 用语音提问。\n3. 回到提问时的视频位置，查看 AI 的回答。\n4. 生成 Markdown 格式的学习总结。</string>
+    <string name="stage_session_context">豆包会结合课程字幕和学习记录回答问题。如果问题涉及当前画面，也会参考附近的视频帧。</string>
+</resources>

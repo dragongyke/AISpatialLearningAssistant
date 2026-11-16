@@ -15,6 +15,8 @@
  */
 package com.pico.spatial.sample.spatialvideo.ui
 
+import androidx.annotation.StringRes
+import com.pico.spatial.sample.spatialvideo.R
 import com.pico.spatial.sample.spatialvideo.learning.LearningUiState
 
 internal enum class LearningVoiceControlState {
@@ -25,6 +27,18 @@ internal enum class LearningVoiceControlState {
     Speaking,
     Unavailable,
 }
+
+@get:StringRes
+internal val LearningVoiceControlState.statusLabelRes: Int
+    get() =
+        when (this) {
+            LearningVoiceControlState.Ready -> R.string.learning_ready
+            LearningVoiceControlState.Listening -> R.string.learning_listening
+            LearningVoiceControlState.Analyzing -> R.string.learning_analyzing_video
+            LearningVoiceControlState.Answering -> R.string.learning_answering
+            LearningVoiceControlState.Speaking -> R.string.learning_speaking
+            LearningVoiceControlState.Unavailable -> R.string.stage_voice_unavailable
+        }
 
 internal data class LearningVoiceControlPolicy(
     val isEnabled: Boolean,

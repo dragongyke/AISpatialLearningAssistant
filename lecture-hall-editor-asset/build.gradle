@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
-    id 'com.pico.spatial.tools' version '6.0.0'
+    id 'com.pico.spatial.tools' version '6.2.2'
 }
 
 android {
@@ -25,5 +25,5 @@ dependencies {
 
 spatial {
     name = "lecture-hall-editor-asset"
-    spatialToolsVersion = 6.0
+    spatialToolsVersion = 6.2
 }

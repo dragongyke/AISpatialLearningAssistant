@@ -17,6 +17,8 @@ Space 中选择公开课程，进入 Full Space 讲堂观看视频，随时通�
 - 使用独立的历史学习 WindowContainer，显示观看进度、最近学习时间、续播位置，
   并将每个课程与对应纪要关联。关闭后可通过课程主窗口右上角的“学习历史”按钮重新打开。
 - 应用启动后直接进入课程目录，不再包含旧示例启动页。
+- 课程、历史、笔记操作和 Stage 面板跟随头显系统显示简体中文或英文，无需在应用里切换。
+  原视频字幕和已保存的学习笔记保留原文；助教按本轮问题的语言作答，而非按界面语言作答。
 
 ### Full Space 学习
 
@@ -32,7 +34,7 @@ Space 中选择公开课程，进入 Full Space 讲堂观看视频，随时通�
   视频拖动条位于字幕下方。水晶球使用独立的 3D 碰撞区域：短 pinch 发起提问，
   pinch 后移动可以拖动，拖动结束不会误触发提问，不再需要语音拖动条。
   凝视高亮与光核动画分别反馈可用、聆听、分析、回答和朗读状态。
-  底座采用雕刻胡桃木与旧黄铜造型；等待回答时出现汇聚光丝和旋转符文，区别于待机与朗读。
+  水晶球悬空且没有底座。透明球壳内的青蓝、玫红和金色光丝在等待回答时汇聚，在朗读时脉动。
 - 进入场景和恢复布局时，左右面板中心与视频对齐，播控保持在字幕下方；
   根据完整面板和拖动条的最低边缘计算高度，至少离地 12 cm，仅在必要时抬高整体布局。
 - 默认加载使用 Blender 制作的学院图书馆环境，包含双层藏书架、中央拱廊、阅览桌椅和烘焙光照。
@@ -76,7 +78,7 @@ Space 中选择公开课程，进入 Full Space 讲堂观看视频，随时通�
 ## 技术栈
 
 - Kotlin 与 Jetpack Compose
-- PICO Spatial SDK BOM 6.0.0
+- PICO Spatial SDK BOM 6.2.8
 - PICO Spatial UI WindowContainer、Stage、Entity 和 Asset Bundle API
 - 基于 PICO CypressMediaPlayer 的网络视频播放
 - 火山方舟豆包 Seed 流式对话与按需视觉模型 API
@@ -101,9 +103,35 @@ Spatial Video 示例演进而来。最终安装包名为
 - Windows 开发主机与 Android Studio
 - Gradle 使用 JDK 17
 - Android SDK 35
-- PICO Spatial SDK 6.0.0（由 Gradle 解析）；仅重新打包场景资源时需要匹配的 Spatial Editor 工具
-- 兼容 PICO OS 6 的设备或 PICO Emulator
+- PICO Spatial SDK 6.2.8（由 Gradle 解析）；仅重新打包场景资源时需要匹配的 Spatial Editor 6.2 工具
+- PICO OS 6 v6.2 设备或匹配的 PICO Emulator（SDK 6.2.8 不支持 v6.1）
 - 在线课程和云端 AI 服务所需的网络连接
+
+### PICO 工具链版本
+
+CLI 和 SDK 使用独立的版本号。本项目采用以下组合：
+
+| 组件 | 版本 |
+| --- | --- |
+| 公共版 PICO CLI（`@picoxr/pico-cli`） | `0.7.0` |
+| Spatial SDK BOM（`com.pico.spatial:bom`） | `6.2.8` |
+| 场景 Gradle 插件（`com.pico.spatial.tools`） | `6.2.2` |
+| 场景工具兼容版本线（`spatialToolsVersion`） | `6.2` |
+
+使用 Node.js 20 或更新版本，从公共 npm 安装 CLI：
+
+```powershell
+npm install -g @picoxr/pico-cli@0.7.0 --registry=https://registry.npmjs.org
+pico-cli --version
+pico-cli project detect --project . --format json
+```
+
+普通 APK 构建不依赖 CLI。CLI 的 `0.7.0` 不是 Spatial SDK BOM 的版本号；升级时应分别核对
+公共 [BOM 元数据](https://artifact.bytedance.com/repository/Volcengine/com/pico/spatial/bom/maven-metadata.xml)
+和 [Gradle 插件元数据](https://artifact.bytedance.com/repository/Volcengine/com/pico/spatial/tools/com.pico.spatial.tools.gradle.plugin/maven-metadata.xml)。
+根据官方 [SDK 与运行时兼容表](https://developer-cn.picoxr.com/document/spatial-sdk/create-your-first-spatial-app/)，
+本版需要 PICO OS 6 v6.2；编译通过不等于真机兼容性已验证。已有场景 Bundle 保持不变：
+新运行时支持旧资源格式，但其加载和渲染效果仍需在头显中验证。
 
 ## 克隆项目
 
@@ -239,7 +267,7 @@ Linux/macOS 构建主机使用 `./gradlew`，通过 `ANDROID_HOME` 或未纳入�
 adb install -r app\build\outputs\apk\debug\app-debug.apk
 ```
 
-修改大学讲堂场景后，安装匹配的 PICO Editor 6.0 工具，显式启用场景制作模块并重新构建
+修改大学讲堂场景后，安装匹配的 PICO Editor 6.2 工具，显式启用场景制作模块并重新构建
 Asset Bundle：
 
 ```powershell

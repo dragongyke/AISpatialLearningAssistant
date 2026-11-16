@@ -56,7 +56,7 @@ class LearningCrystalOrbVisualsTest {
                 assertTrue(frame.coreScale in 0.85f..1.3f)
                 assertTrue(frame.visualScale in 0.9f..1.06f)
                 assertTrue(frame.shellOpacity in 0.08f..0.35f)
-                assertTrue(frame.orbitSpeedDegrees in 0f..30f)
+                assertTrue(frame.swirlSpeedDegrees in 0f..90f)
                 assertTrue(frame.glow in 0f..1f)
                 assertTrue(
                     LearningCrystalOrbGeometry.maxVisualRadiusMeters * frame.visualScale < 0.2f
@@ -97,7 +97,7 @@ class LearningCrystalOrbVisualsTest {
     }
 
     @Test
-    fun colliderCoversTheCrystalAndItsSmallBaseInsideTheLocalEnvelope() {
+    fun colliderCoversTheFloatingShellInsideTheLocalEnvelope() {
         assertTrue(LearningCrystalOrbGeometry.shellRadiusMeters in 0.115f..0.125f)
         assertTrue(
             LearningCrystalOrbGeometry.colliderRadiusMeters >=

@@ -1,5 +1,6 @@
 package com.pico.spatial.sample.spatialvideo.ui
 
+import android.graphics.Bitmap
 import androidx.annotation.MainThread
 import com.pico.spatial.core.container.SpatialViewContent
 import com.pico.spatial.core.ecs.CollisionComponent
@@ -18,14 +19,13 @@ import com.pico.spatial.core.ecs.resource.PhysicallyBasedMaterial
 import com.pico.spatial.core.ecs.resource.PhysicsMaterialResource
 import com.pico.spatial.core.ecs.resource.Resource
 import com.pico.spatial.core.ecs.resource.ShapeResource
+import com.pico.spatial.core.ecs.resource.TextureResource
 import com.pico.spatial.core.ecs.resource.UnlitMaterial
 import com.pico.spatial.core.math.Color4
 import com.pico.spatial.core.math.EulerAngles
+import com.pico.spatial.core.math.Vector2
 import com.pico.spatial.core.math.Vector3
 import java.io.Closeable
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
 
 /**
  * Native SDK6 orb. Construct, attach, update and close on the spatial UI/main thread. The caller
@@ -42,23 +42,19 @@ internal class LearningCrystalOrbRenderer() : Closeable {
     private var attachedParent: Entity? = null
     private var closed = false
     private lateinit var shellMaterial: PhysicallyBasedMaterial
-    private lateinit var coreMaterial: PhysicallyBasedMaterial
-    private lateinit var haloMaterial: UnlitMaterial
-    private lateinit var starMaterial: UnlitMaterial
-    private lateinit var waitingMaterial: UnlitMaterial
-    private lateinit var speakingMaterial: UnlitMaterial
+    private lateinit var innerMaterial: PhysicallyBasedMaterial
+    private lateinit var innerTransform: TransformComponent
     private lateinit var detailTransform: TransformComponent
-    private lateinit var coreTransform: TransformComponent
-    private lateinit var haloTransform: TransformComponent
-    private lateinit var innerOrbitTransform: TransformComponent
-    private lateinit var waitingEntity: Entity
-    private lateinit var swirlTransform: TransformComponent
-    private lateinit var runeTransform: TransformComponent
-    private lateinit var speakingEntity: Entity
-    private lateinit var speakingTransform: TransformComponent
-    private val orbitTransforms = mutableListOf<TransformComponent>()
+
+    private data class StreamResources(
+        val stream: LearningCrystalOrbStream,
+        val transform: TransformComponent,
+        val threads: PhysicallyBasedMaterial,
+        val veil: UnlitMaterial,
+    )
+
+    private val currents = mutableListOf<StreamResources>()
     private var previousTimeSeconds: Double? = null
-    private var orbitDegrees = 0f
     private var swirlDegrees = 0f
 
     init {
@@ -114,50 +110,22 @@ internal class LearningCrystalOrbRenderer() : Closeable {
                 previousTimeSeconds?.let { (validTime - it).coerceIn(0.0, 0.1) } ?: 0.0
             } else 0.0
         previousTimeSeconds = validTime
-        orbitDegrees =
-            (orbitDegrees + frame.orbitSpeedDegrees * dt.toFloat()) %
-                LearningCrystalOrbMotion.orbitRepeatDegrees
         swirlDegrees =
             (swirlDegrees + frame.swirlSpeedDegrees * dt.toFloat()) %
                 LearningCrystalOrbMotion.swirlRepeatDegrees
 
         detailTransform.setScaleVector(Vector3.ONE * frame.visualScale)
-        coreTransform.setScaleVector(Vector3.ONE * frame.coreScale)
-        coreTransform.setEulerAngles(EulerAngles(12f, -orbitDegrees * 0.6f, 18f))
-        haloTransform.setScaleVector(Vector3.ONE * (0.98f + (frame.coreScale - 1f) * 0.4f))
-        innerOrbitTransform.setEulerAngles(EulerAngles(62f, orbitDegrees * 0.8f, 26f))
-        waitingEntity.enabled = frame.waitingGlow > 0f
-        swirlTransform.setEulerAngles(EulerAngles(18f, swirlDegrees, -12f))
-        swirlTransform.setScaleVector(Vector3.ONE * frame.gatheringScale)
-        runeTransform.setEulerAngles(EulerAngles(18f, -swirlDegrees * 0.35f, 12f))
-        speakingEntity.enabled = frame.speakingGlow > 0f
-        speakingTransform.setScaleVector(Vector3.ONE * frame.speakingScale)
-        orbitTransforms.forEachIndexed { index, transform ->
-            transform.setEulerAngles(
-                if (index == 0) EulerAngles(54f, orbitDegrees, 18f)
-                else EulerAngles(-38f, -orbitDegrees * 0.72f, 66f)
-            )
-        }
-        val tint = frame.tint
+        innerTransform.setScaleVector(Vector3.ONE * frame.innerScale)
         shellMaterial.setOpacity(frame.shellOpacity)
-        shellMaterial.setBaseColor(
-            Color4(
-                0.64f + tint.red * 0.25f,
-                0.68f + tint.green * 0.22f,
-                0.76f + tint.blue * 0.2f,
-                1f
-            )
-        )
-        shellMaterial.setEmissiveColor(tint.color(frame.glow * 0.045f))
-        coreMaterial.setBaseColor(tint.color(0.3f))
-        coreMaterial.setEmissiveColor(tint.color(frame.glow))
-        haloMaterial.setBaseColor(tint.color(frame.glow))
-        haloMaterial.setOpacity(0.06f + frame.glow * 0.12f)
-        starMaterial.setBaseColor(tint.color(0.25f + frame.glow * 0.75f))
-        waitingMaterial.setBaseColor(tint.color(0.9f))
-        waitingMaterial.setOpacity(frame.waitingGlow)
-        speakingMaterial.setBaseColor(tint.color(0.9f))
-        speakingMaterial.setOpacity(frame.speakingGlow)
+        shellMaterial.setBaseColor(frame.shellTint.color(1f))
+        innerMaterial.setBaseColor(frame.innerTint.color(1f))
+        innerMaterial.setEmissiveColor(frame.innerTint.color(frame.glow * 0.35f))
+        for ((stream, transform, threads, veil) in currents) {
+            transform.setEulerAngles(EulerAngles(0f, swirlDegrees * stream.speedRatio, 0f))
+            transform.setScaleVector(Vector3.ONE * frame.sweepScale)
+            threads.setEmissiveColor(stream.tint.color(frame.threadLight))
+            veil.setOpacity(frame.veilOpacity)
+        }
     }
 
     /** Detaches/destroys only this hierarchy and releases every owned native resource once. */
@@ -191,7 +159,7 @@ internal class LearningCrystalOrbRenderer() : Closeable {
         }
         entities.clear()
         resources.clear()
-        orbitTransforms.clear()
+        currents.clear()
         content = null
         attachedParent = null
         previousTimeSeconds = null
@@ -205,16 +173,13 @@ internal class LearningCrystalOrbRenderer() : Closeable {
             own(PhysicallyBasedMaterial.create(BlendingMode.TRANSPARENT)).apply {
                 setRoughness(0.08f)
                 setMetallic(0.08f)
+                setEmissiveColor(Color4(0.028f, 0.046f, 0.085f, 1f))
                 setCullingMode(MaterialCullingMode.BACK)
                 setDepthWrite(false)
                 setDepthTest(true)
             }
-        root.components.set(
-            ModelComponent(
-                own(MeshResource.createSphere(LearningCrystalOrbGeometry.shellRadiusMeters)),
-                shellMaterial
-            )
-        )
+        val globe = mesh("GlassSurface", LearningCrystalOrbMeshes.shell())
+        root.components.set(ModelComponent(globe, shellMaterial))
         root.components.set(
             CollisionComponent(
                 collisionShape =
@@ -245,136 +210,41 @@ internal class LearningCrystalOrbRenderer() : Closeable {
 
         val details = node("Details", root)
         detailTransform = details.transform
-        coreMaterial = pbr(Color4(0.12f, 0.24f, 0.32f, 1f), 0.16f, 0.18f)
-        haloMaterial =
-            own(UnlitMaterial.create(BlendingMode.ADD)).apply {
+        innerMaterial =
+            own(PhysicallyBasedMaterial.create(BlendingMode.TRANSPARENT)).apply {
+                setOpacity(LearningCrystalOrbGeometry.innerGlassOpacity)
+                setRoughness(0.24f)
+                setMetallic(0.15f)
                 setDepthWrite(false)
                 setDepthTest(true)
                 setCullingMode(MaterialCullingMode.BACK)
             }
-        starMaterial = own(UnlitMaterial.create(BlendingMode.OPAQUE))
-        val brass = pbr(Color4(0.42f, 0.27f, 0.10f, 1f), 0.42f, 0.72f)
-        val patinatedBrass = pbr(Color4(0.19f, 0.22f, 0.15f, 1f), 0.52f, 0.58f)
-        val walnut = pbr(Color4(0.075f, 0.030f, 0.018f, 1f), 0.46f, 0f)
-        waitingMaterial = signalMaterial()
-        speakingMaterial = signalMaterial()
+        innerTransform = model("InnerGlass", details.entity, globe, innerMaterial).transform
 
-        val core = node("LuminousCore", details.entity)
-        coreTransform = core.transform
-        model("Heart", core.entity, own(MeshResource.createSphere(0.036f)), coreMaterial)
-        val crystalTip = own(MeshResource.createCone(0.048f, 0.027f))
-        model("UpperCrystal", core.entity, crystalTip, coreMaterial, Vector3(0f, 0.024f, 0f))
-        model(
-            "LowerCrystal",
-            core.entity,
-            crystalTip,
-            coreMaterial,
-            Vector3(0f, -0.024f, 0f),
-            EulerAngles(180f, 0f, 0f)
-        )
-        haloTransform =
-            model(
-                    "InnerLight",
-                    details.entity,
-                    own(MeshResource.createSphere(0.078f)),
-                    haloMaterial
+        // Two batches per color, independent of strand count. Reuse all native resources on update.
+        for (stream in LearningCrystalOrbStream.entries) {
+            val sweep = LearningCrystalOrbMeshes.sweep(stream)
+            val current = node(stream.name, details.entity)
+            val threadMaterial = pbr(stream.tint.color(0.34f), 0.22f, 0.18f)
+            val bitmap =
+                Bitmap.createBitmap(
+                    LearningCrystalOrbCaustics.pixels(stream),
+                    LearningCrystalOrbCaustics.width,
+                    LearningCrystalOrbCaustics.height,
+                    Bitmap.Config.ARGB_8888
                 )
-                .transform
-        val innerOrbit = node("InnerOrbit", details.entity)
-        innerOrbitTransform = innerOrbit.transform
-        model(
-            "LightFilament",
-            innerOrbit.entity,
-            own(MeshResource.createTorus(0.087f, 0.085f)),
-            starMaterial
-        )
-        model(
-            "InnerMeridian",
-            innerOrbit.entity,
-            own(MeshResource.createTorus(0.065f, 0.0638f)),
-            patinatedBrass,
-            rotation = EulerAngles(72f, 25f, 12f)
-        )
-
-        val starMesh = own(MeshResource.createSphere(0.0028f))
-        repeat(2) { index ->
-            val orbit = node("Orbit$index", details.entity)
-            orbitTransforms += orbit.transform
-            val radius = if (index == 0) 0.145f else 0.153f
-            model(
-                "OrbitRing$index",
-                orbit.entity,
-                own(MeshResource.createTorus(radius, radius - 0.002f)),
-                if (index == 0) brass else patinatedBrass
-            )
-            repeat(2) { star ->
-                val angle = star * PI + index * PI / 2.0
-                val center =
-                    Vector3(
-                        (cos(angle) * (radius - 0.001f)).toFloat(),
-                        0f,
-                        (sin(angle) * (radius - 0.001f)).toFloat()
-                    )
-                val sparkle = node("Star$index$star", orbit.entity, center)
-                for (scale in
-                    listOf(
-                        Vector3(2.6f, 0.6f, 0.6f),
-                        Vector3(0.6f, 2.6f, 0.6f),
-                        Vector3(0.6f, 0.6f, 2.6f)
-                    )) {
-                    model("StarRay", sparkle.entity, starMesh, starMaterial)
-                        .transform
-                        .setScaleVector(scale)
+            val texture = own(TextureResource.create(bitmap))
+            val veilMaterial =
+                signalMaterial().apply {
+                    setBaseColor(Color4(1f, 1f, 1f, 1f))
+                    setBaseColorTexture(texture)
                 }
-            }
+            val veins = "${stream.name}Filaments"
+            val veil = "${stream.name}Veils"
+            model(veins, current.entity, mesh(veins, sweep.filaments), threadMaterial)
+            model(veil, current.entity, mesh(veil, sweep.veils), veilMaterial)
+            currents += StreamResources(stream, current.transform, threadMaterial, veilMaterial)
         }
-
-        model(
-            "CarvedWalnut",
-            details.entity,
-            mesh("Walnut", LearningCrystalOrbMeshes.pedestalWood()),
-            walnut
-        )
-        model(
-            "AgedBrassInlay",
-            details.entity,
-            mesh("Brass", LearningCrystalOrbMeshes.pedestalBrass()),
-            brass
-        )
-
-        val waiting = node("Waiting", details.entity)
-        waitingEntity = waiting.entity
-        swirlTransform =
-            model(
-                    "GatheringFilaments",
-                    waiting.entity,
-                    mesh("Swirl", LearningCrystalOrbMeshes.waitingSwirl()),
-                    waitingMaterial
-                )
-                .transform
-        runeTransform =
-            model(
-                    "OrbitingRunes",
-                    waiting.entity,
-                    mesh("Runes", LearningCrystalOrbMeshes.waitingRunes()),
-                    waitingMaterial
-                )
-                .transform
-
-        val speaking = node("Speaking", details.entity, rotation = EulerAngles(16f, 0f, 0f))
-        speakingEntity = speaking.entity
-        speakingTransform = speaking.transform
-        val speakingRing = own(MeshResource.createTorus(0.134f, 0.1315f))
-        model("VoiceResonance", speaking.entity, speakingRing, speakingMaterial)
-        model(
-                "VoiceEcho",
-                speaking.entity,
-                speakingRing,
-                speakingMaterial,
-                rotation = EulerAngles(24f, 0f, 0f)
-            )
-            .transform
-            .setScaleVector(Vector3.ONE * 0.86f)
     }
 
     private data class Part(val entity: Entity, val transform: TransformComponent)
@@ -427,6 +297,7 @@ internal class LearningCrystalOrbRenderer() : Closeable {
                     positions = geometry.positions.map { Vector3(it.x, it.y, it.z) },
                     triangleIndices = geometry.triangleIndices,
                     normals = geometry.normals.map { Vector3(it.x, it.y, it.z) },
+                    uv0 = geometry.uv.takeIf { it.isNotEmpty() }?.map { (u, v) -> Vector2(u, v) },
                 ),
                 name = "LearningCrystalOrb_$name",
             )

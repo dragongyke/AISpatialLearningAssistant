@@ -6,12 +6,31 @@ import org.junit.Test
 
 class LearningCrystalOrbRefinementTest {
     @Test
-    fun counterRotatingDetailsCompleteWholeTurnsBeforeTheirClockWraps() {
-        for (ratio in listOf(1f, -0.6f, 0.8f, -0.72f)) {
-            assertEquals(0f, (LearningCrystalOrbMotion.orbitRepeatDegrees * ratio) % 360f, 0.001f)
+    fun filamentsFlowAtRestAndGatherThroughoutBothThinkingStates() {
+        repeat(100) { tick ->
+            val time = tick / 10.0
+            val idle = learningCrystalOrbFrame(LearningVoiceControlState.Ready, false, false, time)
+            assertTrue("Idle filaments must flow", idle.swirlSpeedDegrees > 0f)
+            for (state in
+                listOf(LearningVoiceControlState.Analyzing, LearningVoiceControlState.Answering)) {
+                val thinking = learningCrystalOrbFrame(state, false, false, time)
+                assertTrue(thinking.swirlSpeedDegrees >= idle.swirlSpeedDegrees * 4f)
+                assertTrue(
+                    "Streams must gather inward",
+                    thinking.gatheringScale < idle.gatheringScale
+                )
+            }
         }
-        for (ratio in listOf(1f, -0.35f)) {
-            assertEquals(0f, (LearningCrystalOrbMotion.swirlRepeatDegrees * ratio) % 360f, 0.001f)
+    }
+
+    @Test
+    fun counterRotatingDetailsCompleteWholeTurnsBeforeTheirClockWraps() {
+        for (stream in LearningCrystalOrbStream.entries) {
+            assertEquals(
+                0f,
+                (LearningCrystalOrbMotion.swirlRepeatDegrees * stream.speedRatio) % 360f,
+                0.001f
+            )
         }
     }
 
@@ -22,16 +41,24 @@ class LearningCrystalOrbRefinementTest {
             val waiting =
                 state == LearningVoiceControlState.Analyzing ||
                     state == LearningVoiceControlState.Answering
-            assertEquals(waiting, frame.waitingGlow > 0f)
-            assertEquals(waiting, frame.swirlSpeedDegrees > 0f)
-            assertEquals(state == LearningVoiceControlState.Speaking, frame.speakingGlow > 0f)
+            assertEquals(waiting, frame.gatheringScale < 1f)
+            assertEquals(
+                state != LearningVoiceControlState.Unavailable,
+                frame.swirlSpeedDegrees > 0f
+            )
+            assertEquals(state == LearningVoiceControlState.Speaking, frame.speakingScale < 1f)
+            assertTrue(frame.veilOpacity > 0f && frame.threadLight > 0f)
         }
         val quiet =
             learningCrystalOrbFrame(LearningVoiceControlState.Speaking, false, false, 0.0, 0f)
         val loud =
             learningCrystalOrbFrame(LearningVoiceControlState.Speaking, false, false, 0.0, 1f)
         assertTrue(loud.speakingScale > quiet.speakingScale)
-        assertTrue(loud.speakingGlow > quiet.speakingGlow)
+        assertTrue(loud.threadLight > quiet.threadLight)
+        assertTrue(loud.veilOpacity > quiet.veilOpacity)
+        val breathing =
+            learningCrystalOrbFrame(LearningVoiceControlState.Speaking, false, false, 0.45)
+        assertTrue(breathing.sweepScale > quiet.sweepScale)
     }
 
     @Test
@@ -44,11 +71,10 @@ class LearningCrystalOrbRefinementTest {
             var previous = start
             repeat(1200) { tick ->
                 val frame = learningCrystalOrbFrame(state, false, false, tick / 60.0)
-                assertTrue(frame.waitingGlow in 0f..1f)
-                assertTrue(frame.speakingGlow in 0f..1f)
+                assertTrue(frame.veilOpacity in 0f..1f)
                 assertTrue(frame.gatheringScale in 0.75f..1.1f)
                 assertTrue(frame.speakingScale in 0.8f..1.16f)
-                assertTrue(kotlin.math.abs(frame.waitingGlow - previous.waitingGlow) < 0.02f)
+                assertTrue(kotlin.math.abs(frame.veilOpacity - previous.veilOpacity) < 0.02f)
                 assertTrue(kotlin.math.abs(frame.gatheringScale - previous.gatheringScale) < 0.02f)
                 assertTrue(kotlin.math.abs(frame.speakingScale - previous.speakingScale) < 0.02f)
                 previous = frame
@@ -74,8 +100,8 @@ class LearningCrystalOrbRefinementTest {
                     waiting.coreScale > idle.coreScale + 0.02f
                 )
                 assertTrue(
-                    "Waiting orbits must be unmistakably active",
-                    waiting.orbitSpeedDegrees >= idle.orbitSpeedDegrees * 4f
+                    "Thinking filaments must be unmistakably active",
+                    waiting.swirlSpeedDegrees >= idle.swirlSpeedDegrees * 4f
                 )
             }
         }

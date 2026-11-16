@@ -48,6 +48,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
@@ -145,7 +149,7 @@ fun ImmersiveScene() {
             LearningStageDimensions.StandaloneDragBarSurfaceWidth,
             LearningStageDimensions.DragBarHeight,
         )
-    var layoutStatus by remember { mutableStateOf<String?>(null) }
+    var layoutStatus by remember { mutableStateOf<Int?>(null) }
     val dragRuntime = remember { StagePanelDragRuntime(dragState) }
     val voiceOrbInput = remember { StageVoiceOrbInput(dragState) }
     val currentVoicePolicy by rememberUpdatedState(learningVoiceControlPolicy(learningState))
@@ -172,10 +176,7 @@ fun ImmersiveScene() {
             playbackTime,
             learningState.subtitleOffsetMs,
         )
-    val layoutAdjustedMessage = stringResource(R.string.learning_layout_adjusted)
-    val layoutRestoredMessage = stringResource(R.string.learning_layout_restored)
-    val layoutSavedMessage = stringResource(R.string.learning_layout_saved)
-    val layoutSaveFailedMessage = stringResource(R.string.learning_layout_save_failed)
+    val askByVoiceLabel = stringResource(R.string.stage_ask_by_voice)
     val windowCoordinator =
         remember(spatialNavigator) {
             LearningWindowCoordinator(
@@ -218,7 +219,7 @@ fun ImmersiveScene() {
     }
 
     fun finishPanelDrag() {
-        layoutStatus = layoutAdjustedMessage
+        layoutStatus = R.string.learning_layout_adjusted
     }
 
     fun restoreCourseCatalog() {
@@ -273,7 +274,11 @@ fun ImmersiveScene() {
                         currentVoicePolicy.state,
                         hovered = false,
                         pressed = voiceOrbInput.isPressed,
-                        timeSeconds = frame / 1_000_000_000.0
+                        timeSeconds = frame / 1_000_000_000.0,
+                        audioLevel =
+                            if (currentVoicePolicy.state == LearningVoiceControlState.Speaking)
+                                learningViewModel.voicePlaybackLevel
+                            else null,
                     )
                 }
             }
@@ -302,28 +307,40 @@ fun ImmersiveScene() {
 
     SpatialView(
         modifier =
-            Modifier.fillMaxSize().pointerInput(context, dragRuntime, voiceOrbInput) {
-                try {
-                    detectSpatialPointerEvent(
-                        context = context,
-                        targetedToEntity =
-                            TargetEntity.any {
-                                dragRuntime.isHandle(it) || voiceOrbInput.isTarget(it)
-                            },
-                    ) { events ->
-                        val orbConsumed =
-                            voiceOrbInput.onEvents(sceneInputOwner, events) {
-                                if (currentlyOnstage && currentVoicePolicy.isEnabled)
+            Modifier.fillMaxSize()
+                .semantics {
+                    if (currentlyOnstage && currentVoicePolicy.isEnabled) {
+                        customActions =
+                            listOf(
+                                CustomAccessibilityAction(askByVoiceLabel) {
                                     currentVoiceAction()
-                            }
-                        val panelConsumed = dragRuntime.onEvents(sceneInputOwner, events)
-                        orbConsumed || panelConsumed
+                                    true
+                                }
+                            )
                     }
-                } finally {
-                    dragRuntime.cancel(sceneInputOwner)
-                    voiceOrbInput.reset()
                 }
-            },
+                .pointerInput(context, dragRuntime, voiceOrbInput) {
+                    try {
+                        detectSpatialPointerEvent(
+                            context = context,
+                            targetedToEntity =
+                                TargetEntity.any {
+                                    dragRuntime.isHandle(it) || voiceOrbInput.isTarget(it)
+                                },
+                        ) { events ->
+                            val orbConsumed =
+                                voiceOrbInput.onEvents(sceneInputOwner, events) {
+                                    if (currentlyOnstage && currentVoicePolicy.isEnabled)
+                                        currentVoiceAction()
+                                }
+                            val panelConsumed = dragRuntime.onEvents(sceneInputOwner, events)
+                            orbConsumed || panelConsumed
+                        }
+                    } finally {
+                        dragRuntime.cancel(sceneInputOwner)
+                        voiceOrbInput.reset()
+                    }
+                },
         update = { _, _ ->
             val currentLayout = dragState.snapshot()
             videoViewModel.videoPanel.applyPose(currentLayout.video)
@@ -409,14 +426,14 @@ fun ImmersiveScene() {
                                 dragState.setFloorLimits(geometry.minimumCenterY(sceneRootPose.y))
                             }
                             dragState.replace(restored)
-                            layoutStatus = layoutRestoredMessage
+                            layoutStatus = R.string.learning_layout_restored
                         },
                         onSaveLayout = {
                             layoutStatus =
                                 if (layoutStore.save(dragState.snapshot())) {
-                                    layoutSavedMessage
+                                    R.string.learning_layout_saved
                                 } else {
-                                    layoutSaveFailedMessage
+                                    R.string.learning_layout_save_failed
                                 }
                         },
                     )
@@ -780,9 +797,20 @@ private fun LearningPanelDragBar(
     val owner = remember(panel) { Any() }
     val widthPixels = with(density) { width.toPx() }
     val heightPixels = with(density) { LearningStageDimensions.DragBarHeight.toPx() }
+    val handleDescription =
+        stringResource(
+            when (panel) {
+                LearningPanel.Video -> R.string.stage_drag_video
+                LearningPanel.Outline -> R.string.stage_drag_outline
+                LearningPanel.Toolbar -> R.string.stage_drag_toolbar
+                LearningPanel.AiCoach -> R.string.stage_drag_ai_coach
+                LearningPanel.VoiceControl -> R.string.stage_drag_voice
+            }
+        )
     Box(
         modifier =
             Modifier.size(width, LearningStageDimensions.DragBarHeight)
+                .semantics { contentDescription = handleDescription }
                 .pointerInput(context, dragRuntime, panel, widthPixels, heightPixels) {
                     try {
                         detectSpatialPointerEvent(context = context) { events ->
@@ -845,7 +873,11 @@ private fun LearningSubtitlePanel(segment: TranscriptSegment?) {
         if (segment != null) {
             Column {
                 Text(
-                    text = TranscriptCueSelector.sourceLabel(segment),
+                    text =
+                        stringResource(
+                            if (segment.timingIsEstimated) R.string.stage_transcript_estimated
+                            else R.string.stage_transcript
+                        ),
                     fontSize = 15.sp,
                     lineHeight = 18.sp,
                     color = Color.White.copy(alpha = 0.62f),

@@ -21,6 +21,7 @@ import com.bytedance.speech.speechengine.SpeechEngine
 import com.bytedance.speech.speechengine.SpeechEngineDefines
 import com.bytedance.speech.speechengine.SpeechEngineGenerator
 import com.pico.spatial.sample.spatialvideo.BuildConfig
+import com.pico.spatial.sample.spatialvideo.R
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.resume
@@ -54,7 +55,7 @@ internal class PreferredSpeechQuestionTranscriber(
     override val readinessMessage: String
         get() =
             if (online.isReady) {
-                "Doubao online bilingual speech recognition is ready."
+                online.readinessMessage
             } else {
                 offline.readinessMessage
             }
@@ -83,9 +84,9 @@ internal class DoubaoSpeechQuestionTranscriber(
     override val readinessMessage: String
         get() =
             if (isReady) {
-                "Doubao online bilingual speech recognition is ready."
+                application.getString(R.string.learning_status_asr_online_ready)
             } else {
-                "Doubao ASR is not configured; the bundled offline model will be used."
+                application.getString(R.string.learning_status_asr_online_unconfigured)
             }
 
     override suspend fun prepare(): Result<Unit> =
@@ -130,15 +131,15 @@ internal class DoubaoSpeechQuestionTranscriber(
                     text = latestText.get(),
                     statusMessage =
                         if (latestText.get().isBlank()) {
-                            "Doubao ASR timed out without recognizing speech."
+                            application.getString(R.string.learning_status_asr_timeout)
                         } else {
-                            "Doubao ASR transcribed the latest speech."
+                            application.getString(R.string.learning_status_asr_latest)
                         },
                 )
         } catch (error: Exception) {
             SpeechTranscriptionResult(
                 text = "",
-                statusMessage = "Doubao ASR failed: ${error.safeSpeechMessage()}",
+                statusMessage = application.getString(R.string.learning_status_asr_failed),
             )
         } finally {
             runCatching {
@@ -270,28 +271,31 @@ internal class DoubaoSpeechQuestionTranscriber(
                     complete(
                         text,
                         if (text.isBlank()) {
-                            "Doubao ASR did not recognize speech."
+                            application.getString(R.string.learning_status_asr_not_recognized)
                         } else {
-                            "Doubao online bilingual ASR transcribed the question."
+                            application.getString(R.string.learning_status_asr_transcribed)
                         },
                     )
                 }
                 SpeechEngineDefines.MESSAGE_TYPE_ENGINE_ERROR ->
-                    complete("", "Doubao ASR engine error: ${payload.take(160)}")
+                    complete("", application.getString(R.string.learning_status_asr_engine_failed))
                 SpeechEngineDefines.MESSAGE_TYPE_ENGINE_STOP ->
                     complete(
                         latestText.get(),
                         if (latestText.get().isBlank()) {
-                            "Doubao ASR stopped without recognizing speech."
+                            application.getString(R.string.learning_status_asr_stopped)
                         } else {
-                            "Doubao online bilingual ASR transcribed the question."
+                            application.getString(R.string.learning_status_asr_transcribed)
                         },
                     )
             }
         }
         val startCode = engine.sendDirective(handle, SpeechEngineDefines.DIRECTIVE_START_ENGINE, "")
         if (startCode != SpeechEngineDefines.ERR_NO_ERROR) {
-            complete("", "Doubao ASR failed to start (${startCode}).")
+            complete(
+                "",
+                application.getString(R.string.learning_status_asr_start_failed, startCode)
+            )
         }
     }
 
@@ -358,6 +362,3 @@ internal object DoubaoSpeechResultParser {
             else -> null
         }
 }
-
-private fun Throwable.safeSpeechMessage(): String =
-    message.orEmpty().lineSequence().firstOrNull().orEmpty().take(120).ifBlank { "unknown error" }

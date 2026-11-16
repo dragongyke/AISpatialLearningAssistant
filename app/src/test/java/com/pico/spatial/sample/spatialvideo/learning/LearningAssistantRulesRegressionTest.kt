@@ -81,7 +81,7 @@ class LearningAssistantRulesRegressionTest {
                 LearningChapter("first", "First", 28_000L, 60_000L, "First"),
                 LearningChapter("second", "Second", 60_000L, 120_000L, "Second"),
             )
-        val engine = DeepSeekLearningAssistantEngine(apiKey = "")
+        val engine = DeepSeekLearningAssistantEngine(testStatusStrings, apiKey = "")
 
         assertEquals("first", engine.findChapter(0L, chapters).id)
     }
@@ -93,7 +93,7 @@ class LearningAssistantRulesRegressionTest {
                 LearningChapter("first", "First", 0L, 60_000L, "First"),
                 LearningChapter("last", "Last", 60_000L, 120_000L, "Last"),
             )
-        val engine = DeepSeekLearningAssistantEngine(apiKey = "")
+        val engine = DeepSeekLearningAssistantEngine(testStatusStrings, apiKey = "")
 
         assertEquals("last", engine.findChapter(180_000L, chapters).id)
     }
@@ -125,6 +125,46 @@ class LearningAssistantRulesRegressionTest {
     fun learnerLanguagePolicyFollowsChineseAndEnglishQuestions() {
         assertEquals(LearningLanguage.Chinese, LearningLanguagePolicy.detect("这个公式是什么意思？"))
         assertEquals(LearningLanguage.English, LearningLanguagePolicy.detect("Why is this convex?"))
+        assertEquals(LearningLanguage.English, LearningLanguagePolicy.detect("What does 梯度 mean?"))
+        assertEquals(
+            LearningLanguage.Chinese,
+            LearningLanguagePolicy.detect("gradient descent 怎么用？")
+        )
+    }
+
+    @Test
+    fun termsAtTheStartOrMiddleDoNotChooseTheReplyLanguage() {
+        assertEquals(LearningLanguage.Chinese, LearningLanguagePolicy.detect("do while 循环怎么用？"))
+        assertTrue(
+            LearningLanguagePolicy.replyInstruction("do while 循环怎么用？").contains("Reply in Chinese")
+        )
+        assertEquals(
+            LearningLanguage.English,
+            LearningLanguagePolicy.detect("I'm stuck on 梯度, could you explain it again?")
+        )
+    }
+
+    @Test
+    fun cloudLanguageInstructionDoesNotForceEnglishForOtherLanguages() {
+        val instruction =
+            LearningAssistantText.answerUserPrompt(
+                "Pourquoi cette fonction est-elle convexe ?",
+                0,
+                emptyList(),
+                emptyList(),
+                LearningUiState(),
+                null
+            )
+        assertFalse(instruction.contains("Reply in English"))
+        assertTrue(instruction.contains("current question", ignoreCase = true))
+        assertTrue(
+            LearningAssistantText.answerSystemPrompt(question = "What does “变量” mean?")
+                .contains("Reply in English")
+        )
+        assertTrue(
+            LearningAssistantText.answerSystemPrompt(question = "gradient descent 怎么用？")
+                .contains("Reply in Chinese")
+        )
     }
 
     @Test
@@ -140,7 +180,7 @@ class LearningAssistantRulesRegressionTest {
             )
 
         assertTrue(prompt.contains("Do not claim to see", ignoreCase = true))
-        assertTrue(prompt.contains("Reply in Chinese", ignoreCase = true))
+        assertTrue(prompt.contains("language of the current question", ignoreCase = true))
         assertTrue(prompt.contains("guiding question", ignoreCase = true))
     }
 
@@ -166,5 +206,6 @@ class LearningAssistantRulesRegressionTest {
         assertTrue(english.contains("For your question"))
         assertFalse(english.contains("关于"))
         assertTrue(chinese.contains("关于"))
+        assertFalse(chinese.contains("There is not enough"))
     }
 }

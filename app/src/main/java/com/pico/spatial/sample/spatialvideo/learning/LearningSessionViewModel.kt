@@ -21,6 +21,7 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pico.spatial.sample.spatialvideo.R
 import com.pico.spatial.sample.spatialvideo.data.PlaybackState
 import com.pico.spatial.sample.spatialvideo.ui.VideoViewModel
 import kotlinx.coroutines.CancellationException
@@ -41,7 +42,8 @@ class LearningSessionViewModel(
     private val context: Context,
 ) : ViewModel() {
     private val appContext = context.applicationContext
-    private val assistant: LearningAssistantEngine = DoubaoLearningAssistantEngine()
+    private val status = appContext.learningStatusStrings()
+    private val assistant: LearningAssistantEngine = DoubaoLearningAssistantEngine(status)
     private val summaryStore = LearningSummaryStore(appContext)
     private val historyStore = LearningHistoryStore(appContext)
     private val sessionStore = LearningSessionStore(appContext)
@@ -57,11 +59,14 @@ class LearningSessionViewModel(
         DoubaoVideoVisualContextAnalyzer(appContext)
     private val answerSpeaker: SpeechAnswerSpeaker =
         PreferredSpeechAnswerSpeaker(
-            streaming = DoubaoBidirectionalSpeechAnswerSpeaker(),
+            streaming = DoubaoBidirectionalSpeechAnswerSpeaker(status),
             fallback = DoubaoSpeechAnswerSpeaker(appContext),
         )
     private var interactionJob: Job? = null
     private var speechJob: Job? = null
+    internal val voicePlaybackLevel: Float?
+        get() = answerSpeaker.playbackLevel
+
     private val interactionTracker = LearningInteractionTracker()
     private val latencyTracker = LearningInteractionLatencyTracker(SystemClock::elapsedRealtime)
     private val noteWriteCoordinator = LearningNoteWriteCoordinator()
@@ -88,7 +93,13 @@ class LearningSessionViewModel(
         )
     val uiState: StateFlow<LearningUiState> = _uiState.asStateFlow()
 
+    private val statusLocale =
+        LearningStatusLocaleObserver(appContext.resources.configuration.locales) {
+            _uiState.update { it.withCurrentStatus() }
+        }
+
     init {
+        appContext.registerComponentCallbacks(statusLocale)
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
@@ -102,9 +113,7 @@ class LearningSessionViewModel(
                     asrStatusMessage =
                         installResult.fold(
                             onSuccess = { speechQuestionTranscriber.readinessMessage },
-                            onFailure = { error ->
-                                "Speech model setup failed: ${error.safeStatusMessage()}"
-                            },
+                            onFailure = { status(R.string.learning_status_asr_setup_failed) },
                         ),
                     isAsrReady = installResult.isSuccess,
                     isAsrInstalling = false,
@@ -190,7 +199,7 @@ class LearningSessionViewModel(
 
     fun onSpeechPermissionDenied() {
         _uiState.update {
-            it.copy(asrStatusMessage = "Microphone permission is required for voice questions.")
+            it.copy(asrStatusMessage = status(R.string.learning_status_microphone_required))
         }
     }
 
@@ -236,13 +245,14 @@ class LearningSessionViewModel(
                 isListening = true,
                 recognizedQuestion = "",
                 summaryDocument = null,
-                asrStatusMessage = "Listening...",
+                asrStatusMessage = status(R.string.learning_status_listening),
                 interactionLatency = latencyTracker.snapshot(),
             )
         }
         interactionJob =
             viewModelScope.launch {
                 try {
+                    val asrLocales = statusLocale.locales
                     val result =
                         speechQuestionTranscriber.transcribeOnce { partial ->
                             if (isCurrentInteraction(interactionId, version, videoId)) {
@@ -250,7 +260,8 @@ class LearningSessionViewModel(
                                 _uiState.update {
                                     it.copy(
                                         recognizedQuestion = partial,
-                                        asrStatusMessage = "Recognizing...",
+                                        asrStatusMessage =
+                                            status(R.string.learning_status_recognizing),
                                         interactionLatency = latencyTracker.snapshot(),
                                     )
                                 }
@@ -259,11 +270,12 @@ class LearningSessionViewModel(
                     if (!isCurrentInteraction(interactionId, version, videoId)) return@launch
                     latencyTracker.markAsrFinal()
                     val question = result.text.trim()
+                    val asrMessage = statusLocale.recognitionMessage(asrLocales, result, status)
                     if (question.isBlank()) {
                         _uiState.update {
                             it.copy(
                                 recognizedQuestion = "",
-                                asrStatusMessage = result.statusMessage,
+                                asrStatusMessage = asrMessage,
                             )
                         }
                         return@launch
@@ -271,7 +283,7 @@ class LearningSessionViewModel(
                     _uiState.update {
                         it.copy(
                             recognizedQuestion = question,
-                            asrStatusMessage = result.statusMessage,
+                            asrStatusMessage = asrMessage,
                             interactionLatency = latencyTracker.snapshot(),
                         )
                     }
@@ -292,7 +304,7 @@ class LearningSessionViewModel(
                 } catch (error: Exception) {
                     if (isCurrentInteraction(interactionId, version, videoId)) {
                         _uiState.update {
-                            it.copy(asrStatusMessage = "ASR failed: ${error.safeStatusMessage()}")
+                            it.copy(asrStatusMessage = status(R.string.learning_status_asr_failed))
                         }
                     }
                 } finally {
@@ -362,7 +374,7 @@ class LearningSessionViewModel(
                         _uiState.update {
                             it.copy(
                                 assistantStatusMessage =
-                                    "Question failed: ${error.safeStatusMessage()}",
+                                    status(R.string.learning_status_question_failed),
                             )
                         }
                     }
@@ -404,9 +416,9 @@ class LearningSessionViewModel(
                 streamingAnswerText = "",
                 visionStatusMessage =
                     if (needsVisualContext) {
-                        "Analyzing nearby video frames..."
+                        status(R.string.learning_status_vision_analyzing)
                     } else {
-                        "This question can be answered from the course context without visual analysis."
+                        status(R.string.learning_status_vision_unneeded)
                     },
                 summaryDocument = null,
                 nextSuggestedQuestionIndex =
@@ -415,6 +427,7 @@ class LearningSessionViewModel(
             )
         }
 
+        val captureLocales = statusLocale.locales
         val visualCapture =
             if (needsVisualContext) {
                 latencyTracker.beginVision()
@@ -429,15 +442,17 @@ class LearningSessionViewModel(
             } else {
                 VisualFrameCaptureResult(
                     frames = emptyList(),
-                    statusMessage =
-                        "Answered from transcript and learning history; visual analysis was skipped.",
+                    statusMessage = status(R.string.learning_status_vision_skipped),
                 )
             }
         if (!isCurrentInteraction(interactionId, version, videoId)) return
         _uiState.update {
             it.copy(
                 isAnalyzingVideo = false,
-                visionStatusMessage = visualCapture.statusMessage,
+                visionStatusMessage =
+                    statusLocale.messageFor(captureLocales, visualCapture.statusMessage) {
+                        visualContextAnalyzer.readinessMessage
+                    },
                 interactionLatency = latencyTracker.snapshot(),
             )
         }
@@ -451,6 +466,7 @@ class LearningSessionViewModel(
             speechChannel?.let { channel ->
                 viewModelScope.launch {
                     try {
+                        val speechLocales = statusLocale.locales
                         SpeechAnswerQueue(answerSpeaker)
                             .play(
                                 sentences = channel,
@@ -459,7 +475,12 @@ class LearningSessionViewModel(
                                 },
                                 onFirstSentence = {
                                     latencyTracker.beginTts()
-                                    _uiState.update { it.copy(ttsStatusMessage = "正在准备语音回答...") }
+                                    _uiState.update {
+                                        it.copy(
+                                            ttsStatusMessage =
+                                                status(R.string.learning_status_voice_preparing)
+                                        )
+                                    }
                                 },
                                 onPlaybackStarted = {
                                     if (isCurrentInteraction(interactionId, version, videoId)) {
@@ -472,7 +493,8 @@ class LearningSessionViewModel(
                                             it.copy(
                                                 isPreparingSpeech = false,
                                                 isSpeaking = true,
-                                                ttsStatusMessage = "豆包正在朗读回答...",
+                                                ttsStatusMessage =
+                                                    status(R.string.learning_status_voice_speaking),
                                                 interactionLatency = latencyTracker.snapshot()
                                             )
                                         }
@@ -480,7 +502,15 @@ class LearningSessionViewModel(
                                 },
                                 onResult = { result ->
                                     _uiState.update {
-                                        it.copy(ttsStatusMessage = result.statusMessage)
+                                        it.copy(
+                                            ttsStatusMessage =
+                                                statusLocale.messageFor(
+                                                    speechLocales,
+                                                    result.statusMessage
+                                                ) {
+                                                    answerSpeaker.readinessMessage
+                                                }
+                                        )
                                     }
                                 },
                             )
@@ -491,7 +521,7 @@ class LearningSessionViewModel(
                             _uiState.update {
                                 it.copy(
                                     ttsStatusMessage =
-                                        "Speech playback failed: ${error.safeStatusMessage()}"
+                                        status(R.string.learning_status_voice_playback_failed)
                                 )
                             }
                         }
@@ -507,6 +537,7 @@ class LearningSessionViewModel(
             }
         var streamedAnswer = ""
         latencyTracker.beginLlm()
+        val answerLocales = statusLocale.locales
         val result =
             try {
                 assistant.answer(
@@ -557,7 +588,10 @@ class LearningSessionViewModel(
                 streamingAnswerText = "",
                 questionAnswers = updatedAnswers,
                 selectedQuestionId = result.questionAnswer.id,
-                assistantStatusMessage = result.statusMessage,
+                assistantStatusMessage =
+                    statusLocale.messageFor(answerLocales, result.statusMessage) {
+                        assistantReadinessMessage()
+                    },
                 interactionLatency = latencyTracker.snapshot(),
             )
         }
@@ -639,7 +673,8 @@ class LearningSessionViewModel(
                         notePreviewMarkdown = note.getOrDefault(""),
                         isLoadingNotePreview = false,
                         notePreviewStatusMessage =
-                            note.exceptionOrNull()?.safeStatusMessage().orEmpty(),
+                            if (note.isFailure) status(R.string.learning_status_note_load_failed)
+                            else "",
                     )
                 } else {
                     current
@@ -660,7 +695,7 @@ class LearningSessionViewModel(
                 isEditingNotePreview = true,
                 noteEditDraft = it.notePreviewMarkdown,
                 noteEditOriginal = it.notePreviewMarkdown,
-                notePreviewStatusMessage = "Editing Markdown",
+                notePreviewStatusMessage = status(R.string.learning_status_note_editing),
             )
         }
     }
@@ -674,7 +709,7 @@ class LearningSessionViewModel(
             it.copy(
                 isEditingNotePreview = false,
                 noteEditDraft = "",
-                notePreviewStatusMessage = "Changes discarded",
+                notePreviewStatusMessage = status(R.string.learning_status_note_discarded),
             )
         }
     }
@@ -691,7 +726,7 @@ class LearningSessionViewModel(
         _uiState.update {
             it.copy(
                 isLoadingNotePreview = true,
-                notePreviewStatusMessage = "Saving...",
+                notePreviewStatusMessage = status(R.string.learning_status_note_saving),
                 isGeneratingSummary = summaryTaskTracker.isRunning(it.video.id),
             )
         }
@@ -735,7 +770,7 @@ class LearningSessionViewModel(
                             isLoadingNotePreview = false,
                             isEditingNotePreview = false,
                             noteEditDraft = "",
-                            notePreviewStatusMessage = "Saved",
+                            notePreviewStatusMessage = status(R.string.learning_status_note_saved),
                             isGeneratingSummary =
                                 if (current.video.id == videoId) false
                                 else current.isGeneratingSummary,
@@ -748,7 +783,8 @@ class LearningSessionViewModel(
                 _uiState.update {
                     it.copy(
                         isLoadingNotePreview = false,
-                        notePreviewStatusMessage = "Save failed: ${error.safeStatusMessage()}",
+                        notePreviewStatusMessage =
+                            status(R.string.learning_status_note_save_failed),
                         isGeneratingSummary =
                             if (it.video.id == videoId) false else it.isGeneratingSummary,
                     )
@@ -758,7 +794,9 @@ class LearningSessionViewModel(
     }
 
     fun onLearningNoteCopied() {
-        _uiState.update { it.copy(notePreviewStatusMessage = "Markdown copied") }
+        _uiState.update {
+            it.copy(notePreviewStatusMessage = status(R.string.learning_status_note_copied))
+        }
     }
 
     fun reorganizeOpenLearningNote() {
@@ -769,7 +807,7 @@ class LearningSessionViewModel(
         _uiState.update {
             it.copy(
                 notePreviewStatus = LearningNoteStatus.Organizing,
-                notePreviewStatusMessage = "AI is reorganizing this note...",
+                notePreviewStatusMessage = status(R.string.learning_status_note_organizing),
             )
         }
         startFinalSummary(state, persisted.progressMs, showDocument = false)
@@ -854,7 +892,7 @@ class LearningSessionViewModel(
         _uiState.update {
             it.copy(
                 summaryDirectoryLabel = summaryStore.directoryLabel,
-                assistantStatusMessage = "Markdown summaries will be saved to the selected folder.",
+                assistantStatusMessage = status(R.string.learning_status_note_folder),
             )
         }
     }
@@ -949,7 +987,7 @@ class LearningSessionViewModel(
                             historyRecords = history,
                             assistantStatusMessage =
                                 if (current.video.id == state.video.id) {
-                                    "实时笔记保存失败：${error.safeStatusMessage()}"
+                                    status(R.string.learning_status_note_live_failed)
                                 } else {
                                     current.assistantStatusMessage
                                 },
@@ -1038,8 +1076,15 @@ class LearningSessionViewModel(
                         )
                     }
 
+                    val summaryLocales = statusLocale.locales
                     val result = assistant.generateSummary(state, liveDraft.markdown, progressMs)
-                    check(result.mode != AssistantResponseMode.Error) { result.statusMessage }
+                    if (result.mode == AssistantResponseMode.Error) {
+                        throw SummaryGenerationFailure(
+                            statusLocale.messageFor(summaryLocales, result.statusMessage) {
+                                status(R.string.learning_status_note_summary_failed)
+                            }
+                        )
+                    }
                     val noteStatus =
                         if (result.mode == AssistantResponseMode.Live) LearningNoteStatus.Ready
                         else LearningNoteStatus.Draft
@@ -1073,6 +1118,8 @@ class LearningSessionViewModel(
                             summaryUpdatedAtMs = finalDocument.createdAtMs,
                         )
                     _uiState.update { current ->
+                        val message =
+                            statusLocale.messageFor(summaryLocales, result.statusMessage) { "" }
                         current.copy(
                             historyRecords = readyHistory,
                             summaryDocument =
@@ -1091,11 +1138,12 @@ class LearningSessionViewModel(
                                 if (current.notePreviewVideoId == videoId) noteStatus
                                 else current.notePreviewStatus,
                             notePreviewStatusMessage =
-                                if (current.notePreviewVideoId == videoId) result.statusMessage
+                                if (current.notePreviewVideoId == videoId) message
                                 else current.notePreviewStatusMessage,
                             summaryDirectoryLabel = summaryStore.directoryLabel,
                             assistantStatusMessage =
-                                if (current.video.id == videoId) result.statusMessage
+                                if (current.video.id == videoId)
+                                    message.ifEmpty { assistantReadinessMessage() }
                                 else current.assistantStatusMessage,
                         )
                     }
@@ -1103,6 +1151,9 @@ class LearningSessionViewModel(
                     throw cancelled
                 } catch (error: Exception) {
                     if (!noteWriteCoordinator.isCurrent(writeToken)) return@launch
+                    val failureMessage =
+                        (error as? SummaryGenerationFailure)?.status
+                            ?: status(R.string.learning_status_note_summary_failed)
                     val failedHistory =
                         historyStore.upsert(
                             video = state.video,
@@ -1115,9 +1166,12 @@ class LearningSessionViewModel(
                             notePreviewStatus =
                                 if (current.notePreviewVideoId == videoId) LearningNoteStatus.Failed
                                 else current.notePreviewStatus,
+                            notePreviewStatusMessage =
+                                if (current.notePreviewVideoId == videoId) failureMessage
+                                else current.notePreviewStatusMessage,
                             assistantStatusMessage =
                                 if (current.video.id == videoId) {
-                                    "学习笔记整理失败：${error.safeStatusMessage()}"
+                                    failureMessage
                                 } else {
                                     current.assistantStatusMessage
                                 },
@@ -1162,31 +1216,54 @@ class LearningSessionViewModel(
         _uiState.update { it.copy(isPreparingSpeech = false, isSpeaking = false) }
     }
 
+    private fun assistantReadinessMessage() =
+        status(
+            if (assistant.isConfigured) R.string.learning_status_assistant_ready
+            else R.string.learning_status_assistant_unconfigured
+        )
+
+    private fun LearningUiState.withCurrentStatus(): LearningUiState =
+        copy(
+            assistantStatusMessage = assistantReadinessMessage(),
+            asrStatusMessage =
+                when {
+                    !isListening -> speechQuestionTranscriber.readinessMessage
+                    recognizedQuestion.isEmpty() -> status(R.string.learning_status_listening)
+                    else -> status(R.string.learning_status_recognizing)
+                },
+            visionStatusMessage =
+                if (isAnalyzingVideo) status(R.string.learning_status_vision_analyzing)
+                else visualContextAnalyzer.readinessMessage,
+            ttsStatusMessage =
+                when {
+                    isSpeaking -> status(R.string.learning_status_voice_speaking)
+                    isPreparingSpeech -> status(R.string.learning_status_voice_preparing)
+                    else -> answerSpeaker.readinessMessage
+                },
+            notePreviewStatusMessage = "",
+        )
+
     private fun createLearningState(
         courseVideo: LearningCourseVideo,
         persisted: PersistedLearningSession,
     ): LearningUiState {
         val video = courseVideo.toLearningVideo()
         return LearningUiState(
-            video = video,
-            chapters = courseVideo.chapters,
-            transcriptSegments = transcriptRepository.load(video),
-            historyRecords = historyStore.loadRecords(),
-            questionAnswers = persisted.questionAnswers,
-            selectedQuestionId = persisted.questionAnswers.lastOrNull()?.id,
-            assistantStatusMessage =
-                if (assistant.isConfigured) "豆包 AI 助教已就绪。" else "豆包模型尚未配置，暂时使用本地课程内容回答。",
-            asrStatusMessage = speechQuestionTranscriber.readinessMessage,
-            visionStatusMessage = visualContextAnalyzer.readinessMessage,
-            ttsStatusMessage = answerSpeaker.readinessMessage,
-            isVisionConfigured = visualContextAnalyzer.isConfigured,
-            isTtsConfigured = answerSpeaker.isConfigured,
-            summaryDirectoryLabel = summaryStore.directoryLabel,
-            isAssistantConfigured = assistant.isConfigured,
-            isAsrReady = speechQuestionTranscriber.isReady,
-            teachingMode = persisted.teachingMode,
-            subtitleOffsetMs = persisted.subtitleOffsetMs,
-        )
+                video = video,
+                chapters = courseVideo.chapters,
+                transcriptSegments = transcriptRepository.load(video),
+                historyRecords = historyStore.loadRecords(),
+                questionAnswers = persisted.questionAnswers,
+                selectedQuestionId = persisted.questionAnswers.lastOrNull()?.id,
+                isVisionConfigured = visualContextAnalyzer.isConfigured,
+                isTtsConfigured = answerSpeaker.isConfigured,
+                summaryDirectoryLabel = summaryStore.directoryLabel,
+                isAssistantConfigured = assistant.isConfigured,
+                isAsrReady = speechQuestionTranscriber.isReady,
+                teachingMode = persisted.teachingMode,
+                subtitleOffsetMs = persisted.subtitleOffsetMs,
+            )
+            .withCurrentStatus()
     }
 
     private fun persistCurrentSession(
@@ -1232,6 +1309,7 @@ class LearningSessionViewModel(
     ): Boolean = interactionTracker.isCurrent(interactionId) && isCurrentSession(version, videoId)
 
     override fun onCleared() {
+        appContext.unregisterComponentCallbacks(statusLocale)
         persistCurrentSession()
         stopSpokenAnswer()
         interactionTracker.invalidate()
@@ -1252,5 +1330,4 @@ private fun LearningUiState.isBusy(): Boolean =
 private fun LearningUiState.canBargeIn(): Boolean =
     !isListening && (isAnalyzingVideo || isAnswering || isPreparingSpeech || isSpeaking)
 
-private fun Throwable.safeStatusMessage(): String =
-    message.orEmpty().lineSequence().firstOrNull().orEmpty().take(120).ifBlank { "unknown error" }
+private class SummaryGenerationFailure(val status: String) : Exception(status)

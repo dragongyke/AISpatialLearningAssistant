@@ -1,5 +1,6 @@
 package com.pico.spatial.sample.spatialvideo.learning
 
+import com.pico.spatial.sample.spatialvideo.R
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.util.concurrent.CopyOnWriteArrayList
@@ -64,10 +65,14 @@ class DoubaoBidirectionalSpeechAnswerSpeakerTest {
         val server = MockWebServer()
         val received = CopyOnWriteArrayList<String>()
         val allTextSent = CompletableDeferred<Unit>()
+        val sessionParams = CopyOnWriteArrayList<JSONObject>()
         val audioStarted = CompletableDeferred<Unit>()
         val releaseAudio = CompletableDeferred<Unit>()
         val output = HeldOutput(audioStarted, releaseAudio)
-        server.enqueue(MockResponse().withWebSocketUpgrade(replyingServer(received, allTextSent)))
+        server.enqueue(
+            MockResponse()
+                .withWebSocketUpgrade(replyingServer(received, allTextSent, sessionParams))
+        )
         try {
             val speaker = speaker(server, output)
             val input = Channel<String>(Channel.UNLIMITED)
@@ -85,6 +90,9 @@ class DoubaoBidirectionalSpeechAnswerSpeakerTest {
                 playback.isCompleted
             )
             assertEquals(listOf("First sentence. ", "Second sentence. "), received)
+            val additions = JSONObject(sessionParams.single().getString("additions"))
+            assertTrue(additions.getBoolean("enable_auto_language_recognition"))
+            assertFalse(additions.has("explicit_language"))
             releaseAudio.complete(Unit)
             withTimeout(5_000) { playback.join() }
             assertEquals(1, firstText)
@@ -128,7 +136,10 @@ class DoubaoBidirectionalSpeechAnswerSpeakerTest {
         try {
             val result = withTimeout(5_000) { speaker(server, output).speak("Hello.") }
             assertFalse(result.wasPlayed)
-            assertTrue(result.statusMessage.contains("text"))
+            assertEquals(
+                testStatusStrings(R.string.learning_status_voice_connection_failed),
+                result.statusMessage,
+            )
             assertTrue(output.closed)
         } finally {
             server.shutdown()
@@ -137,6 +148,7 @@ class DoubaoBidirectionalSpeechAnswerSpeakerTest {
 
     private fun speaker(server: MockWebServer, output: PcmSpeechOutput) =
         DoubaoBidirectionalSpeechAnswerSpeaker(
+            testStatusStrings,
             configuration =
                 DoubaoStreamingTtsConfiguration(
                     "test-app",
@@ -150,7 +162,8 @@ class DoubaoBidirectionalSpeechAnswerSpeakerTest {
 
     private fun replyingServer(
         received: MutableList<String>,
-        allTextSent: CompletableDeferred<Unit>
+        allTextSent: CompletableDeferred<Unit>,
+        sessionParams: MutableList<JSONObject>? = null,
     ) =
         object : WebSocketListener() {
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
@@ -161,6 +174,7 @@ class DoubaoBidirectionalSpeechAnswerSpeakerTest {
                         val params =
                             JSONObject(frame.payload.toString(Charsets.UTF_8))
                                 .getJSONObject("req_params")
+                        sessionParams?.add(params)
                         assertEquals(
                             "pcm",
                             params.getJSONObject("audio_params").getString("format")

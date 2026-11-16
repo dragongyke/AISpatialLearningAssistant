@@ -21,6 +21,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Base64
 import com.pico.spatial.sample.spatialvideo.BuildConfig
+import com.pico.spatial.sample.spatialvideo.R
 import java.io.File
 import java.io.IOException
 import java.util.UUID
@@ -47,6 +48,9 @@ internal data class SpeechPlaybackResult(
 )
 
 internal interface SpeechAnswerSpeaker {
+    val playbackLevel: Float?
+        get() = null
+
     val isConfigured: Boolean
     val readinessMessage: String
 
@@ -165,9 +169,9 @@ internal class DoubaoSpeechAnswerSpeaker(
     override val readinessMessage: String
         get() =
             if (isConfigured) {
-                "Doubao voice reply is ready."
+                appContext.getString(R.string.learning_status_voice_ready)
             } else {
-                "Doubao TTS is not configured; AI replies will remain text-only."
+                appContext.getString(R.string.learning_status_voice_unconfigured)
             }
 
     override suspend fun speak(
@@ -177,7 +181,10 @@ internal class DoubaoSpeechAnswerSpeaker(
         if (!isConfigured) return SpeechPlaybackResult(readinessMessage, wasPlayed = false)
         val spokenText = SpeechTextSanitizer.forPlayback(text)
         if (spokenText.isBlank()) {
-            return SpeechPlaybackResult("The AI answer contained no speakable text.", false)
+            return SpeechPlaybackResult(
+                appContext.getString(R.string.learning_status_voice_empty),
+                false
+            )
         }
         return try {
             val audio = requestAudio(spokenText)
@@ -189,7 +196,10 @@ internal class DoubaoSpeechAnswerSpeaker(
                 }
             try {
                 playFile(audioFile, onPlaybackStarted)
-                SpeechPlaybackResult("Doubao finished speaking the AI answer.", true)
+                SpeechPlaybackResult(
+                    appContext.getString(R.string.learning_status_voice_finished),
+                    true
+                )
             } finally {
                 withContext(Dispatchers.IO) { audioFile.delete() }
             }
@@ -197,7 +207,7 @@ internal class DoubaoSpeechAnswerSpeaker(
             throw cancelled
         } catch (error: Exception) {
             SpeechPlaybackResult(
-                "Doubao TTS failed: ${error.safeTtsMessage()}",
+                appContext.getString(R.string.learning_status_voice_playback_failed),
                 wasPlayed = false,
             )
         }
@@ -324,6 +334,3 @@ internal class DoubaoSpeechAnswerSpeaker(
         val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
     }
 }
-
-private fun Throwable.safeTtsMessage(): String =
-    message.orEmpty().lineSequence().firstOrNull().orEmpty().take(120).ifBlank { "unknown error" }

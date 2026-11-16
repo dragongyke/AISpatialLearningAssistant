@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.progressSemantics
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -51,6 +52,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -66,7 +73,6 @@ import com.pico.spatial.sample.spatialvideo.STAGE_ID
 import com.pico.spatial.sample.spatialvideo.di.VIDEO_SESSION_SCOPE_ID
 import com.pico.spatial.sample.spatialvideo.learning.CourseAvailability
 import com.pico.spatial.sample.spatialvideo.learning.LearningCourseCatalog
-import com.pico.spatial.sample.spatialvideo.learning.LearningCourseFilter
 import com.pico.spatial.sample.spatialvideo.learning.LearningCourseVideo
 import com.pico.spatial.sample.spatialvideo.learning.LearningHistoryRecord
 import com.pico.spatial.sample.spatialvideo.learning.LearningNoteBlock
@@ -85,8 +91,6 @@ import com.pico.spatial.ui.platform.Material
 import com.pico.spatial.ui.platform.containers.LocalSpatialNavigator
 import com.pico.spatial.ui.platform.containers.OpenStageResult
 import com.pico.spatial.ui.platform.containers.StageStyle
-import java.text.DateFormat
-import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getKoin
@@ -101,8 +105,11 @@ fun CourseCatalogScreen(modifier: Modifier = Modifier) {
     var selectedCategory by remember { mutableStateOf("All") }
     var searchQuery by remember { mutableStateOf("") }
     val learningState by learningViewModel.uiState.collectAsStateWithLifecycle()
+    val display = rememberCatalogDisplay()
     val videos =
-        LearningCourseFilter.filter(LearningCourseCatalog.videos, selectedCategory, searchQuery)
+        remember(display, selectedCategory, searchQuery) {
+            display.filterCourses(selectedCategory, searchQuery)
+        }
 
     val windowCoordinator = rememberLearningWindowCoordinator()
 
@@ -182,6 +189,9 @@ fun LearningNoteWindow(modifier: Modifier = Modifier) {
         remember(scope) { scope.get<LearningSessionViewModel>() }
     val state by learningViewModel.uiState.collectAsStateWithLifecycle()
     val clipboard = LocalClipboardManager.current
+    val display = rememberCatalogDisplay()
+    val searchLabel = stringResource(R.string.catalog_note_search)
+    val editorLabel = stringResource(R.string.catalog_note_editor)
     val coroutineScope = rememberCoroutineScope()
     val windowCoordinator = rememberLearningWindowCoordinator()
     val blocks =
@@ -196,14 +206,18 @@ fun LearningNoteWindow(modifier: Modifier = Modifier) {
         CatalogPanel(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Text(
-                    text = "LEARNING NOTE",
+                    text = stringResource(R.string.catalog_note_heading),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = ACADEMIC_CARDINAL,
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = state.notePreviewTitle.ifBlank { "Select a course note" },
+                    modifier = Modifier.semantics { heading() },
+                    text =
+                        display
+                            .videoTitle(state.notePreviewVideoId, state.notePreviewTitle)
+                            .ifBlank { stringResource(R.string.catalog_note_select) },
                     fontSize = 28.sp,
                     lineHeight = 34.sp,
                     fontWeight = FontWeight.Bold,
@@ -231,23 +245,26 @@ fun LearningNoteWindow(modifier: Modifier = Modifier) {
                     TextField(
                         value = state.noteSearchQuery,
                         onValueChange = learningViewModel::updateNoteSearchQuery,
-                        modifier = Modifier.weight(1f).height(48.dp),
-                        placeholder = { Text(text = "Search note") },
+                        modifier =
+                            Modifier.weight(1f).height(48.dp).semantics {
+                                contentDescription = searchLabel
+                            },
+                        placeholder = { Text(text = searchLabel) },
                         singleLine = true,
                     )
                     if (state.isEditingNotePreview) {
                         Button(onClick = learningViewModel::saveEditedLearningNote) {
-                            Text(text = "Save")
+                            Text(text = stringResource(R.string.catalog_note_save))
                         }
                         Button(onClick = learningViewModel::cancelEditingLearningNote) {
-                            Text(text = "Cancel")
+                            Text(text = stringResource(R.string.catalog_note_cancel))
                         }
                     } else {
                         Button(
                             enabled = state.notePreviewMarkdown.isNotBlank(),
                             onClick = learningViewModel::beginEditingLearningNote,
                         ) {
-                            Text(text = "Edit")
+                            Text(text = stringResource(R.string.catalog_note_edit))
                         }
                         Button(
                             enabled = state.notePreviewMarkdown.isNotBlank(),
@@ -256,26 +273,31 @@ fun LearningNoteWindow(modifier: Modifier = Modifier) {
                                 learningViewModel.onLearningNoteCopied()
                             },
                         ) {
-                            Text(text = "Copy")
+                            Text(text = stringResource(R.string.catalog_note_copy))
                         }
                         Button(
                             enabled = state.notePreviewVideoId != null,
                             onClick = learningViewModel::reorganizeOpenLearningNote,
                         ) {
-                            Text(text = "Reorganize")
+                            Text(text = stringResource(R.string.catalog_note_reorganize))
                         }
                     }
                 }
                 state.notePreviewStatusMessage.takeIf(String::isNotBlank)?.let { message ->
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = message, fontSize = 12.sp, color = ACADEMIC_CARDINAL)
+                    Text(
+                        text = message,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                        fontSize = 12.sp,
+                        color = ACADEMIC_CARDINAL,
+                    )
                 }
                 Spacer(modifier = Modifier.height(14.dp))
 
                 when {
                     state.isLoadingNotePreview -> {
                         Text(
-                            text = "Loading note...",
+                            text = stringResource(R.string.catalog_note_loading),
                             fontSize = 16.sp,
                             color = ACADEMIC_MUTED,
                         )
@@ -284,19 +306,30 @@ fun LearningNoteWindow(modifier: Modifier = Modifier) {
                         TextField(
                             value = state.noteEditDraft,
                             onValueChange = learningViewModel::updateNoteEditDraft,
-                            modifier = Modifier.fillMaxWidth().weight(1f),
-                            placeholder = { Text(text = "Markdown note") },
+                            modifier =
+                                Modifier.fillMaxWidth().weight(1f).semantics {
+                                    contentDescription = editorLabel
+                                },
+                            placeholder = { Text(text = editorLabel) },
                             singleLine = false,
                         )
                     }
                     blocks.isEmpty() -> {
-                        Text(
-                            text =
-                                "The note will appear here while you study. It updates during the session and is reorganized by AI after you leave the Stage.",
-                            fontSize = 17.sp,
-                            lineHeight = 25.sp,
-                            color = ACADEMIC_MUTED,
-                        )
+                        val noMatches =
+                            state.noteSearchQuery.isNotBlank() &&
+                                state.notePreviewMarkdown.isNotBlank()
+                        if (noMatches || state.notePreviewStatusMessage.isBlank()) {
+                            Text(
+                                text =
+                                    stringResource(
+                                        if (noMatches) R.string.catalog_note_no_results
+                                        else R.string.catalog_note_empty
+                                    ),
+                                fontSize = 17.sp,
+                                lineHeight = 25.sp,
+                                color = ACADEMIC_MUTED,
+                            )
+                        }
                     }
                     else -> {
                         Column(
@@ -320,7 +353,7 @@ fun LearningNoteWindow(modifier: Modifier = Modifier) {
                             state.notePreviewPath?.let { path ->
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Text(
-                                    text = "Markdown: $path",
+                                    text = stringResource(R.string.catalog_note_path, path),
                                     fontSize = 11.sp,
                                     lineHeight = 16.sp,
                                     color = ACADEMIC_MUTED,
@@ -343,6 +376,7 @@ private fun LearningNoteBlockView(
         when (block) {
             is LearningNoteBlock.Heading ->
                 Text(
+                    modifier = Modifier.semantics { heading() },
                     text = block.text,
                     fontSize =
                         when (block.level) {
@@ -402,7 +436,10 @@ private fun LearningNoteBlockView(
                         contentColor = ACADEMIC_WALNUT,
                     ),
             ) {
-                Text(text = "Play ${formatTime(timestampMs)}", fontSize = 12.sp)
+                Text(
+                    text = stringResource(R.string.catalog_note_play, formatTime(timestampMs)),
+                    fontSize = 12.sp
+                )
             }
         }
     }
@@ -467,10 +504,12 @@ private fun CourseCatalogSurface(
     onRetryAvailability: (String) -> Unit,
     onOpenHistory: () -> Unit,
 ) {
+    val display = rememberCatalogDisplay()
+    val searchLabel = stringResource(R.string.catalog_search)
     Box(modifier = modifier.background(CATALOG_BACKGROUND).padding(28.dp)) {
         Column(modifier = Modifier.fillMaxSize()) {
             Text(
-                text = "THE LEARNING COMMONS",
+                text = stringResource(R.string.catalog_commons),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = ACADEMIC_CARDINAL,
@@ -481,8 +520,8 @@ private fun CourseCatalogSurface(
                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
             ) {
                 Text(
-                    modifier = Modifier.weight(1f),
-                    text = "AI Spatial Learning",
+                    modifier = Modifier.weight(1f).semantics { heading() },
+                    text = stringResource(R.string.app_name),
                     fontSize = 34.sp,
                     fontWeight = FontWeight.Bold,
                     color = ACADEMIC_INK,
@@ -508,7 +547,7 @@ private fun CourseCatalogSurface(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Choose a Stanford Engineering Everywhere lecture to start learning.",
+                text = stringResource(R.string.catalog_intro),
                 fontSize = 16.sp,
                 lineHeight = 22.sp,
                 color = ACADEMIC_MUTED,
@@ -534,6 +573,8 @@ private fun CourseCatalogSurface(
                 ) {
                     LearningCourseCatalog.categories.forEach { category ->
                         Button(
+                            modifier =
+                                Modifier.semantics { selected = category == selectedCategory },
                             onClick = { onCategorySelected(category) },
                             size = ButtonDefaults.Regular,
                             colors =
@@ -546,15 +587,18 @@ private fun CourseCatalogSurface(
                                         else ACADEMIC_INK,
                                 ),
                         ) {
-                            Text(text = category)
+                            Text(text = display.categoryTitle(category))
                         }
                     }
                 }
                 TextField(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
-                    modifier = Modifier.width(300.dp).height(52.dp),
-                    placeholder = { Text(text = "Search courses") },
+                    modifier =
+                        Modifier.width(300.dp).height(52.dp).semantics {
+                            contentDescription = searchLabel
+                        },
+                    placeholder = { Text(text = searchLabel) },
                     singleLine = true,
                 )
             }
@@ -567,19 +611,28 @@ private fun CourseCatalogSurface(
                             itemSpacing = COURSE_CARD_SPACING.value,
                         )
                         .dp
-                LazyRow(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(end = 1.dp),
-                    horizontalArrangement = Arrangement.spacedBy(COURSE_CARD_SPACING),
-                ) {
-                    items(items = videos, key = { it.id }) { video ->
-                        CourseVideoCard(
-                            modifier = Modifier.width(cardWidth).fillParentMaxHeight(),
-                            video = video,
-                            availability = availability[video.id] ?: CourseAvailability.Unknown,
-                            onStart = { onStart(video) },
-                            onRetryAvailability = { onRetryAvailability(video.id) },
-                        )
+                if (videos.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.catalog_no_courses),
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                        fontSize = 16.sp,
+                        color = ACADEMIC_MUTED,
+                    )
+                } else {
+                    LazyRow(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(end = 1.dp),
+                        horizontalArrangement = Arrangement.spacedBy(COURSE_CARD_SPACING),
+                    ) {
+                        items(items = videos, key = { it.id }) { video ->
+                            CourseVideoCard(
+                                modifier = Modifier.width(cardWidth).fillParentMaxHeight(),
+                                video = video,
+                                availability = availability[video.id] ?: CourseAvailability.Unknown,
+                                onStart = { onStart(video) },
+                                onRetryAvailability = { onRetryAvailability(video.id) },
+                            )
+                        }
                     }
                 }
             }
@@ -597,14 +650,15 @@ private fun LearningHistoryPanel(
     CatalogPanel(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
             Text(
-                text = "Learning history",
+                modifier = Modifier.semantics { heading() },
+                text = stringResource(R.string.learning_open_history),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = ACADEMIC_INK,
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Watched videos and their matching Markdown notes.",
+                text = stringResource(R.string.catalog_history_description),
                 fontSize = 13.sp,
                 lineHeight = 19.sp,
                 color = ACADEMIC_MUTED,
@@ -612,7 +666,7 @@ private fun LearningHistoryPanel(
             Spacer(modifier = Modifier.height(14.dp))
             if (records.isEmpty()) {
                 Text(
-                    text = "No learning history yet.",
+                    text = stringResource(R.string.catalog_history_empty),
                     fontSize = 14.sp,
                     lineHeight = 20.sp,
                     color = ACADEMIC_MUTED,
@@ -641,6 +695,7 @@ private fun HistoryRecordItem(
     onContinue: () -> Unit,
     onOpenSummary: (LearningHistoryRecord) -> Unit,
 ) {
+    val display = rememberCatalogDisplay()
     Column(
         modifier =
             Modifier.fillMaxWidth()
@@ -650,7 +705,7 @@ private fun HistoryRecordItem(
                 .padding(14.dp)
     ) {
         Text(
-            text = record.videoTitle,
+            text = display.videoTitle(record.videoId, record.videoTitle),
             fontSize = 15.sp,
             lineHeight = 20.sp,
             fontWeight = FontWeight.SemiBold,
@@ -659,7 +714,12 @@ private fun HistoryRecordItem(
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text =
-                "${record.category}  ${formatTime(record.progressMs)} / ${formatTime(record.durationMs)}",
+                stringResource(
+                    R.string.catalog_history_progress,
+                    display.categoryTitle(record.category),
+                    formatTime(record.progressMs),
+                    formatTime(record.durationMs),
+                ),
             fontSize = 12.sp,
             color = ACADEMIC_CARDINAL,
         )
@@ -671,6 +731,7 @@ private fun HistoryRecordItem(
             modifier =
                 Modifier.fillMaxWidth()
                     .height(5.dp)
+                    .progressSemantics(progress)
                     .clip(RoundedCornerShape(3.dp))
                     .background(ACADEMIC_WALNUT.copy(alpha = 0.12f))
         ) {
@@ -681,7 +742,11 @@ private fun HistoryRecordItem(
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "Last studied ${formatHistoryDate(record.lastWatchedAtMs)}",
+            text =
+                stringResource(
+                    R.string.catalog_last_studied,
+                    display.historyDate(record.lastWatchedAtMs)
+                ),
             fontSize = 11.sp,
             color = ACADEMIC_MUTED,
         )
@@ -707,7 +772,7 @@ private fun HistoryRecordItem(
                     contentColor = Color.White,
                 ),
         ) {
-            Text(text = "Continue")
+            Text(text = stringResource(R.string.catalog_continue))
         }
         Spacer(modifier = Modifier.height(8.dp))
         Button(
@@ -719,19 +784,22 @@ private fun HistoryRecordItem(
                     contentColor = ACADEMIC_WALNUT,
                 ),
         ) {
-            Text(text = "Learning note")
+            Text(text = stringResource(R.string.catalog_note))
         }
     }
 }
 
+@Composable
 private fun noteStatusLabel(status: LearningNoteStatus): String =
-    when (status) {
-        LearningNoteStatus.NotStarted -> "Note starts updating after learning begins"
-        LearningNoteStatus.Draft -> "Live note"
-        LearningNoteStatus.Organizing -> "AI is organizing the final note"
-        LearningNoteStatus.Ready -> "AI note ready"
-        LearningNoteStatus.Failed -> "Final organization failed; live note is still available"
-    }
+    stringResource(
+        when (status) {
+            LearningNoteStatus.NotStarted -> R.string.catalog_note_not_started
+            LearningNoteStatus.Draft -> R.string.catalog_note_draft
+            LearningNoteStatus.Organizing -> R.string.catalog_note_organizing
+            LearningNoteStatus.Ready -> R.string.catalog_note_ready
+            LearningNoteStatus.Failed -> R.string.catalog_note_failed
+        }
+    )
 
 @Composable
 private fun CourseVideoCard(
@@ -741,6 +809,7 @@ private fun CourseVideoCard(
     onStart: () -> Unit,
     onRetryAvailability: () -> Unit,
 ) {
+    val display = rememberCatalogDisplay()
     CatalogPanel(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
             Image(
@@ -751,14 +820,14 @@ private fun CourseVideoCard(
             )
             Spacer(modifier = Modifier.height(14.dp))
             Text(
-                text = video.category,
+                text = display.categoryTitle(video.category),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = COURSE_ACCENT,
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = video.courseTitle,
+                text = display.courseTitle(video),
                 fontSize = 22.sp,
                 lineHeight = 28.sp,
                 fontWeight = FontWeight.Bold,
@@ -766,7 +835,7 @@ private fun CourseVideoCard(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = video.lectureTitle,
+                text = display.lectureTitle(video),
                 fontSize = 17.sp,
                 lineHeight = 23.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -776,7 +845,13 @@ private fun CourseVideoCard(
             Text(
                 modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
                 text =
-                    "${video.description}\n\nProvider: ${video.provider}\nDuration: ${formatTime(video.durationMs)}\nLicense: ${video.licenseNote}",
+                    stringResource(
+                        R.string.catalog_course_details,
+                        display.description(video),
+                        video.provider,
+                        formatTime(video.durationMs),
+                        display.licenseNote(video),
+                    ),
                 fontSize = 14.sp,
                 lineHeight = 21.sp,
                 color = ACADEMIC_MUTED,
@@ -807,7 +882,7 @@ private fun CourseVideoCard(
                     )
                 },
             ) {
-                Text(text = "Start learning")
+                Text(text = stringResource(R.string.catalog_start))
             }
             if (availability == CourseAvailability.Unavailable) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -820,7 +895,7 @@ private fun CourseVideoCard(
                             contentColor = ACADEMIC_WALNUT,
                         ),
                 ) {
-                    Text(text = "Retry source")
+                    Text(text = stringResource(R.string.catalog_retry))
                 }
             }
         }
@@ -857,16 +932,16 @@ private val COURSE_ACCENT = ACADEMIC_CARDINAL
 private val COURSE_PANEL_BORDER = ACADEMIC_BRASS.copy(alpha = 0.60f)
 private val COURSE_CARD_SPACING = 18.dp
 
+@Composable
 private fun courseAvailabilityLabel(status: CourseAvailability): String =
-    when (status) {
-        CourseAvailability.Unknown -> "Source not checked"
-        CourseAvailability.Checking -> "Checking video source..."
-        CourseAvailability.Available -> "Video source available"
-        CourseAvailability.Unavailable -> "Video source unavailable"
-    }
-
-private fun formatHistoryDate(timestampMs: Long): String =
-    DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(timestampMs))
+    stringResource(
+        when (status) {
+            CourseAvailability.Unknown -> R.string.catalog_source_unknown
+            CourseAvailability.Checking -> R.string.catalog_source_checking
+            CourseAvailability.Available -> R.string.catalog_source_available
+            CourseAvailability.Unavailable -> R.string.catalog_source_unavailable
+        }
+    )
 
 private fun courseThumbnail(videoId: String): Int =
     when (videoId) {

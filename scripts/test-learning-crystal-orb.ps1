@@ -41,6 +41,11 @@ if ($PreviewDirectory) {
 }
 
 if ($CompileRenderer) {
+    $sdk = @($env:ANDROID_HOME, $env:ANDROID_SDK_ROOT, (Join-Path $env:LOCALAPPDATA 'Android/Sdk')) |
+        Where-Object { $_ -and (Test-Path (Join-Path $_ 'platforms/android-35/android.jar')) } |
+        Select-Object -First 1
+    if (-not $sdk) { throw 'Renderer compilation requires Android SDK platform 35.' }
+    $classpath += Join-Path $sdk 'platforms/android-35/android.jar'
     $classpath += CachedJar 'androidx.annotation/annotation-jvm/1.9.1' 'annotation-jvm-1.9.1.jar'
     $transforms = Join-Path $HOME '.gradle/caches/8.13/transforms'
     $classpath += @(Get-ChildItem -LiteralPath $transforms -Recurse -Filter '*-api.jar' |

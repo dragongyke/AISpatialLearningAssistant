@@ -15,6 +15,7 @@
  */
 package com.pico.spatial.sample.spatialvideo.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -125,7 +127,7 @@ fun PlaybackToolbar() {
 
             // Playback time slider
             Slider(
-                modifier = Modifier.size(504.dp, 32.dp),
+                modifier = Modifier.size(504.dp, 32.dp).stageControlLabel(R.string.stage_seek),
                 value = videoProgress,
                 valueRange = 0f..duration.toFloat(),
                 sliderSpec = SliderDefaults.Small,
@@ -145,12 +147,12 @@ fun PlaybackToolbar() {
 
             // Volume slider
             SymbolSlider(
-                modifier = Modifier.size(204.dp, 48.dp),
+                modifier = Modifier.size(204.dp, 48.dp).stageControlLabel(R.string.volume_control),
                 icon = {
                     Icon(
                         modifier = Modifier.size(48.dp),
                         painter = painterResource(id = R.drawable.ic_volume_control),
-                        contentDescription = stringResource(R.string.volume_control)
+                        contentDescription = null
                     )
                 },
                 value = volume,
@@ -172,7 +174,17 @@ fun PlayPauseButton(viewModel: VideoViewModel, modifier: Modifier = Modifier) {
     val videoState by viewModel.videoState.collectAsStateWithLifecycle()
 
     IconButton(
-        modifier = modifier.semantics { contentDescription = "play_pause_button" },
+        modifier =
+            modifier
+                .testTag("play_pause_button")
+                .stageControlLabel(
+                    when (videoState) {
+                        PlaybackState.PLAYING -> R.string.stage_pause
+                        PlaybackState.PREPARING -> R.string.stage_preparing
+                        PlaybackState.ERROR -> R.string.stage_retry
+                        else -> R.string.stage_play
+                    }
+                ),
         colors =
             IconButtonDefaults.iconButtonColors(
                 containerColor = Color.Transparent,
@@ -190,7 +202,7 @@ fun PlayPauseButton(viewModel: VideoViewModel, modifier: Modifier = Modifier) {
         Icon(
             modifier = Modifier.size(48.dp),
             painter = painterResource(iconRes),
-            contentDescription = stringResource(R.string.play_pause_video)
+            contentDescription = null
         )
     }
 }
@@ -202,7 +214,12 @@ fun ImmersiveButton(viewModel: VideoViewModel) {
     val spatialNavigator = LocalSpatialNavigator.current
 
     IconButton(
-        modifier = Modifier.semantics { contentDescription = "immersive_button" },
+        modifier =
+            Modifier.testTag("immersive_button")
+                .stageControlLabel(
+                    if (isFullSpace) R.string.stage_exit_immersive
+                    else R.string.stage_enter_immersive
+                ),
         colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Transparent),
         onClick = {
             coroutineScope.launch(Dispatchers.Main.immediate) {
@@ -222,9 +239,15 @@ fun ImmersiveButton(viewModel: VideoViewModel) {
         Image(
             modifier = Modifier.size(48.dp),
             painter = painterResource(R.drawable.ic_immersive_mode),
-            contentDescription = stringResource(R.string.enter_exit_immersive_mode)
+            contentDescription = null
         )
     }
+}
+
+@Composable
+internal fun Modifier.stageControlLabel(@StringRes labelRes: Int): Modifier {
+    val label = stringResource(labelRes)
+    return semantics { contentDescription = label }
 }
 
 @Composable

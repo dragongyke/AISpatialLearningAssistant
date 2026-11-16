@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stage_exit_session">Exit learning session</string>
+    <string name="stage_course_complete">Course complete</string>
+    <string name="stage_video_stage_title">Immersive video</string>
+    <string name="stage_video_stage_description">Watch the video and use the surrounding panels to ask questions, review answers, or generate a summary.</string>
+    <string name="stage_subtitle_offset">Subtitles: %1$.1f s</string>
+    <string name="stage_subtitle_offset_positive">Subtitles: +%1$.1f s</string>
+    <string name="stage_subtitle_earlier">Earlier</string>
+    <string name="stage_subtitle_reset">Reset</string>
+    <string name="stage_subtitle_later">Later</string>
+    <string name="stage_transcript">Transcript</string>
+    <string name="stage_transcript_estimated">Estimated timing</string>
+    <string name="stage_latency_asr">ASR %1$d ms</string>
+    <string name="stage_latency_vision">Vision %1$d ms</string>
+    <string name="stage_latency_ai">AI %1$d ms</string>
+    <string name="stage_latency_voice">Voice %1$d ms</string>
+    <string name="stage_latency_reply">Reply %1$d ms</string>
+    <string name="stage_playback_failed">Video playback failed. Please retry.</string>
+    <string name="stage_retry">Retry</string>
+    <string name="stage_play">Play video</string>
+    <string name="stage_pause">Pause video</string>
+    <string name="stage_preparing">Preparing video</string>
+    <string name="stage_seek">Playback position</string>
+    <string name="stage_enter_immersive">Enter immersive mode</string>
+    <string name="stage_exit_immersive">Exit immersive mode</string>
+    <string name="stage_speed">%1$s×</string>
+    <string name="stage_speed_description">Playback speed: %1$s×</string>
+    <string name="stage_question_field">Your question</string>
+    <string name="stage_voice_unavailable">Voice input unavailable</string>
+    <string name="stage_ask_by_voice">Ask a question by voice</string>
+    <string name="stage_drag_video">Move video screen</string>
+    <string name="stage_drag_outline">Move learning outline</string>
+    <string name="stage_drag_toolbar">Move playback controls</string>
+    <string name="stage_drag_ai_coach">Move AI coach panel</string>
+    <string name="stage_drag_voice">Move voice control</string>
+    <string name="stage_mode_concise">Brief</string>
+    <string name="stage_mode_deep_dive">In depth</string>
+    <string name="stage_mode_example">Example</string>
+    <string name="stage_mode_socratic">Guided</string>
+    <string name="stage_open">Open</string>
+    <string name="stage_share">Share</string>
+    <string name="stage_share_summary">Share learning summary</string>
+    <string name="stage_session_guide">Session guide</string>
+    <string name="stage_session_steps">1. Watch the video in the immersive stage.\n2. Ask a question by voice.\n3. Review the answer at its place in the video.\n4. Generate a Markdown learning summary.</string>
+    <string name="stage_session_context">Doubao uses the course transcript and learning history to answer. For questions about what is on screen, it also uses nearby video frames.</string>
+</resources>

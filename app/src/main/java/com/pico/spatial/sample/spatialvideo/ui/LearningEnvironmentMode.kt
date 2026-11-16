@@ -1,8 +1,11 @@
 package com.pico.spatial.sample.spatialvideo.ui
 
-enum class LearningEnvironmentMode {
-    VirtualHall,
-    Reality,
+import androidx.annotation.StringRes
+import com.pico.spatial.sample.spatialvideo.R
+
+enum class LearningEnvironmentMode(@StringRes val toggleLabelRes: Int) {
+    VirtualHall(R.string.learning_view_reality),
+    Reality(R.string.learning_return_lecture_hall),
 }
 
 object LearningEnvironmentModePolicy {

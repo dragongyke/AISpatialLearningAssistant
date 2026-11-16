@@ -15,6 +15,7 @@
  */
 package com.pico.spatial.sample.spatialvideo.ui
 
+import com.pico.spatial.sample.spatialvideo.R
 import com.pico.spatial.sample.spatialvideo.learning.LearningUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -22,6 +23,24 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LearningVoiceControlPolicyTest {
+    @Test
+    fun unavailableMicIsNotAnnouncedAsReadyForVoiceInput() {
+        val policy = learningVoiceControlPolicy(LearningUiState(isAsrReady = false))
+
+        assertFalse(policy.isEnabled)
+        assertEquals(R.string.stage_voice_unavailable, policy.state.statusLabelRes)
+    }
+
+    @Test
+    fun audibleSpeechUsesSpeakingLabelEvenWhileTheAnswerIsStreaming() {
+        val policy =
+            learningVoiceControlPolicy(
+                LearningUiState(isAsrReady = true, isAnswering = true, isSpeaking = true)
+            )
+
+        assertEquals(R.string.learning_speaking, policy.state.statusLabelRes)
+    }
+
     @Test
     fun finishedTextStillShowsWaitingUntilSpeechIsAudible() {
         assertEquals(

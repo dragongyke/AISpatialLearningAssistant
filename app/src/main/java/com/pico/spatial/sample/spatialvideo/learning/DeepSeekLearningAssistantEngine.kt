@@ -16,6 +16,7 @@
 package com.pico.spatial.sample.spatialvideo.learning
 
 import com.pico.spatial.sample.spatialvideo.BuildConfig
+import com.pico.spatial.sample.spatialvideo.R
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.math.max
@@ -48,6 +49,7 @@ interface LearningAssistantEngine {
 }
 
 class DeepSeekLearningAssistantEngine(
+    private val status: LearningStatusStrings,
     private val apiKey: String = BuildConfig.DEEPSEEK_API_KEY,
     private val baseUrl: String = BuildConfig.DEEPSEEK_BASE_URL,
     private val model: String = BuildConfig.DEEPSEEK_MODEL,
@@ -70,7 +72,8 @@ class DeepSeekLearningAssistantEngine(
         val result =
             if (isConfigured) {
                 requestDeepSeek(
-                    systemPrompt = LearningAssistantText.answerSystemPrompt(state.teachingMode),
+                    systemPrompt =
+                        LearningAssistantText.answerSystemPrompt(state.teachingMode, question),
                     userPrompt =
                         LearningAssistantText.answerUserPrompt(
                             question = question,
@@ -97,15 +100,12 @@ class DeepSeekLearningAssistantEngine(
                         context = context,
                         previousAnswers = previousAnswers,
                         state = state,
-                        prefix =
-                            "DeepSeek API Key is not configured yet. Add DEEPSEEK_API_KEY to Gradle properties or the build environment to enable live AI answers.",
                     )
                     .let {
                         AssistantTextResult(
                             text = it,
                             mode = AssistantResponseMode.Fallback,
-                            statusMessage =
-                                "DeepSeek is not configured; local transcript fallback was used.",
+                            statusMessage = status(R.string.learning_status_deepseek_local),
                         )
                     }
             }
@@ -147,7 +147,7 @@ class DeepSeekLearningAssistantEngine(
                 AssistantTextResult(
                     text = fallback(),
                     mode = AssistantResponseMode.Fallback,
-                    statusMessage = "DeepSeek is not configured; local summary fallback was used.",
+                    statusMessage = status(R.string.learning_status_deepseek_summary_local),
                 )
             }
         return LearningAssistantSummary(result.text, result.mode, result.statusMessage)
@@ -219,14 +219,13 @@ class DeepSeekLearningAssistantEngine(
                 AssistantTextResult(
                     text = content,
                     mode = AssistantResponseMode.Live,
-                    statusMessage = "DeepSeek answered with transcript context.",
+                    statusMessage = status(R.string.learning_status_deepseek_completed),
                 )
             } catch (error: Exception) {
                 AssistantTextResult(
                     text = fallback(),
                     mode = AssistantResponseMode.Error,
-                    statusMessage =
-                        "DeepSeek was unavailable (${error.safeMessage()}); local transcript fallback was used.",
+                    statusMessage = status(R.string.learning_status_deepseek_unavailable),
                 )
             } finally {
                 connection?.disconnect()
@@ -239,9 +238,6 @@ private data class AssistantTextResult(
     val mode: AssistantResponseMode,
     val statusMessage: String,
 )
-
-private fun Throwable.safeMessage(): String =
-    message.orEmpty().lineSequence().firstOrNull().orEmpty().take(120).ifBlank { "unknown error" }
 
 object LearningAssistantText {
     fun isResumeIntent(text: String): Boolean {
@@ -290,16 +286,22 @@ object LearningAssistantText {
             }
     }
 
-    fun answerSystemPrompt(mode: LearningTeachingMode = LearningTeachingMode.Concise): String =
+    fun answerSystemPrompt(
+        mode: LearningTeachingMode = LearningTeachingMode.Concise,
+        question: String = ""
+    ): String =
         """
         You are a warm, patient AI learning companion speaking with one learner while they watch an educational video.
-        Reply in the learner's language and write for natural spoken conversation, not a report.
+        Use the language of the learner's current question, even if the video, interface or earlier turns use another language.
+        For mixed-language questions, follow the surrounding sentence, not a quoted term, code sample or proper name.
+        Write for natural spoken conversation, not a report.
         Start directly with the useful answer, acknowledge confusion without sounding scripted, and explain one step at a time.
         Prefer two to four short paragraphs. Use a simple analogy or example when it genuinely helps.
         Ground factual claims in the supplied video context. Mention evidence sources only when context conflicts or is uncertain.
         Never use labels such as "Short answer", "Context used", or "Evidence source".
         End with a brief check-in only when it helps the learner decide whether to continue.
         ${LearningTeachingModePolicy.instruction(mode)}
+        ${LearningLanguagePolicy.replyInstruction(question)}
         """
             .trimIndent()
 
@@ -315,7 +317,9 @@ object LearningAssistantText {
         appendLine("Provider: ${state.video.provider}")
         appendLine("Current timestamp: ${formatTime(timestampMs)}")
         appendLine("Question: $question")
-        appendLine(LearningLanguagePolicy.instruction(question))
+        appendLine(
+            "Answer in the language of the current question; preserve technical terms and quoted evidence."
+        )
         appendLine(LearningTeachingModePolicy.instruction(state.teachingMode))
         appendLine()
         appendLine("Visual evidence from nearby video frames:")
@@ -356,6 +360,7 @@ object LearningAssistantText {
         appendLine("- Sound like a supportive tutor speaking naturally, not a report.")
         appendLine("- Keep the first response concise and easy to listen to.")
         appendLine("- Avoid professional financial, medical, or legal advice.")
+        appendLine(LearningLanguagePolicy.replyInstruction(question))
     }
 
     fun summarySystemPrompt(): String =
@@ -409,25 +414,26 @@ object LearningAssistantText {
         context: List<TranscriptSegment>,
         previousAnswers: List<LearningQuestionAnswer>,
         state: LearningUiState,
-        prefix: String? = null,
     ): String = buildString {
         val language = LearningLanguagePolicy.detect(question)
-        if (!prefix.isNullOrBlank()) {
-            appendLine(prefix)
-            appendLine()
-        }
         val primarySegment = context.minByOrNull { kotlin.math.abs(timestampMs - it.startMs) }
-        append(
-            primarySegment?.summary
-                ?: "There is not enough processed video context around this timestamp."
-        )
-        appendLine()
-        appendLine()
         if (language == LearningLanguage.Chinese) {
-            appendLine("关于“$question”，可以结合视频这一段这样理解：")
+            appendLine("关于“$question”，我目前只能参考本地课程内容。")
+            if (primarySegment == null) {
+                append("这个时间点附近没有可用的字幕，暂时无法根据视频可靠地回答。")
+                return@buildString
+            }
             append("相关片段：")
         } else {
-            appendLine("For your question, here is how to understand it from this video moment:")
+            appendLine(
+                "For your question, I can only refer to the local course material right now."
+            )
+            if (primarySegment == null) {
+                append(
+                    "There is no transcript near this point, so I can’t reliably answer from the video."
+                )
+                return@buildString
+            }
             append("Relevant segment: ")
         }
         append(formatTime(context.minOfOrNull { it.startMs } ?: max(0L, timestampMs - 60_000L)))
@@ -438,10 +444,9 @@ object LearningAssistantText {
                     ?: min(timestampMs + 30_000L, state.video.durationMs)
             )
         )
-        appendLine(".")
-        if (context.isNotEmpty()) {
-            appendLine(context.joinToString(" ") { it.text })
-        }
+        appendLine()
+        append(if (language == LearningLanguage.Chinese) "原字幕：" else "Original transcript: ")
+        appendLine(primarySegment.text)
         if (previousAnswers.isNotEmpty()) {
             appendLine()
             if (language == LearningLanguage.Chinese) {
@@ -506,16 +511,52 @@ object LearningAssistantText {
 
 object LearningLanguagePolicy {
     private val chineseCharacter = Regex("[\\u3400-\\u9FFF]")
+    private val quotedTerm = Regex("""“[^”]*”|"[^"]*"|`[^`]*`""")
+    private val englishQuestion =
+        Regex(
+            """^(?:what|why|how|where|when|which|is|are|can|could|would|does|do|explain|please|tell)\b""",
+            RegexOption.IGNORE_CASE
+        )
+    private val englishWord = Regex("[a-zA-Z]+")
+    private val englishFrame =
+        Regex(
+            """\b(?:i|we|me|you|the|this|that|it|what|why|how|does|do|could|would|mean|explain|please)\b""",
+            RegexOption.IGNORE_CASE
+        )
+    private val chineseQuestion = Regex("什么|怎么|怎样|如何|为何|为什么|请问|解释|意思|吗|呢|請問|為什麼")
 
-    fun detect(text: String): LearningLanguage =
-        if (chineseCharacter.containsMatchIn(text)) LearningLanguage.Chinese
-        else LearningLanguage.English
+    private fun sentence(text: String) =
+        quotedTerm.replace(text, " ").trim().ifEmpty { text.trim() }
 
-    fun instruction(text: String): String =
-        when (detect(text)) {
-            LearningLanguage.Chinese -> "Reply in Chinese and keep technical terms accurate."
-            LearningLanguage.English -> "Reply in English and keep technical terms accurate."
+    private fun confidentLanguage(text: String): LearningLanguage? {
+        val sentence = sentence(text)
+        val hasEnglishFrame = englishFrame.findAll(sentence).take(2).count() == 2
+        if (chineseQuestion.containsMatchIn(sentence) && !hasEnglishFrame)
+            return LearningLanguage.Chinese
+        if (
+            hasEnglishFrame ||
+                (englishQuestion.containsMatchIn(sentence) &&
+                    englishWord.findAll(sentence).take(2).count() == 2)
+        )
+            return LearningLanguage.English
+        if (chineseQuestion.containsMatchIn(sentence)) return LearningLanguage.Chinese
+        return null
+    }
+
+    fun replyInstruction(text: String): String =
+        when (confidentLanguage(text)) {
+            LearningLanguage.English ->
+                "Reply in English. Keep the explanation in English even when quoting a term from another language."
+            LearningLanguage.Chinese -> "Reply in Chinese. Keep technical terms and quotes intact."
+            null ->
+                "Identify the language of the current question and answer in that language, not the language of the transcript or earlier turns."
         }
+
+    // The offline tutor has two templates; the cloud tutor is not limited to these.
+    fun detect(text: String): LearningLanguage =
+        confidentLanguage(text)
+            ?: if (chineseCharacter.containsMatchIn(sentence(text))) LearningLanguage.Chinese
+            else LearningLanguage.English
 }
 
 object LearningTeachingModePolicy {

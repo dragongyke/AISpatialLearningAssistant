@@ -2,6 +2,7 @@ package com.pico.spatial.sample.spatialvideo.learning
 
 import android.util.Log
 import com.pico.spatial.sample.spatialvideo.BuildConfig
+import com.pico.spatial.sample.spatialvideo.R
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
@@ -32,6 +33,7 @@ internal data class DoubaoAssistantConfiguration(
 }
 
 internal class DoubaoLearningAssistantEngine(
+    private val status: LearningStatusStrings,
     private val configuration: DoubaoAssistantConfiguration = DoubaoAssistantConfiguration(),
     private val client: OkHttpClient =
         OkHttpClient.Builder()
@@ -75,7 +77,8 @@ internal class DoubaoLearningAssistantEngine(
         val result =
             if (isConfigured) {
                 requestStreamingCompletion(
-                    systemPrompt = LearningAssistantText.answerSystemPrompt(state.teachingMode),
+                    systemPrompt =
+                        LearningAssistantText.answerSystemPrompt(state.teachingMode, question),
                     userPrompt =
                         LearningAssistantText.answerUserPrompt(
                             question = question,
@@ -97,7 +100,7 @@ internal class DoubaoLearningAssistantEngine(
                 ArkTextResult(
                     text = text,
                     mode = AssistantResponseMode.Fallback,
-                    statusMessage = "豆包模型尚未配置，已使用本地课程内容回答。",
+                    statusMessage = status(R.string.learning_status_assistant_local),
                 )
             }
         val questionAnswer =
@@ -136,7 +139,7 @@ internal class DoubaoLearningAssistantEngine(
                 ArkTextResult(
                     text = fallback(),
                     mode = AssistantResponseMode.Fallback,
-                    statusMessage = "豆包模型尚未配置，已整理本地学习笔记。",
+                    statusMessage = status(R.string.learning_status_summary_local),
                 )
             }
         return LearningAssistantSummary(result.text, result.mode, result.statusMessage)
@@ -216,7 +219,8 @@ internal class DoubaoLearningAssistantEngine(
                                 ArkTextResult(
                                     text = text,
                                     mode = AssistantResponseMode.Live,
-                                    statusMessage = "豆包已结合当前课程内容完成回答。",
+                                    statusMessage =
+                                        status(R.string.learning_status_assistant_answered),
                                 )
                             }
                     } catch (failure: ArkHttpFailure) {
@@ -246,7 +250,11 @@ internal class DoubaoLearningAssistantEngine(
                 ArkTextResult(
                     text = text,
                     mode = AssistantResponseMode.Error,
-                    statusMessage = "豆包暂时不可用（${error.safeArkMessage()}），已使用本地课程内容回答。",
+                    statusMessage =
+                        status(
+                            R.string.learning_status_assistant_unavailable,
+                            error.safeArkMessage(status)
+                        ),
                 )
             } finally {
                 runCatching {
@@ -292,7 +300,7 @@ internal class DoubaoLearningAssistantEngine(
                     ArkTextResult(
                         text = text,
                         mode = AssistantResponseMode.Live,
-                        statusMessage = "豆包已整理本次学习笔记。",
+                        statusMessage = status(R.string.learning_status_summary_ready),
                     )
                 }
             } catch (cancelled: CancellationException) {
@@ -302,7 +310,11 @@ internal class DoubaoLearningAssistantEngine(
                 ArkTextResult(
                     text = fallback(),
                     mode = AssistantResponseMode.Error,
-                    statusMessage = "豆包暂时不可用（${error.safeArkMessage()}），已保留实时学习笔记。",
+                    statusMessage =
+                        status(
+                            R.string.learning_status_summary_unavailable,
+                            error.safeArkMessage(status)
+                        ),
                 )
             }
         }
@@ -423,10 +435,10 @@ private data class ArkTextResult(
     val statusMessage: String,
 )
 
-private fun Throwable.safeArkMessage(): String =
+private fun Throwable.safeArkMessage(strings: LearningStatusStrings): String =
     when (this) {
         is ArkHttpFailure -> message.orEmpty()
-        is java.io.InterruptedIOException -> "request timed out"
-        is IOException -> "network error"
-        else -> "request failed"
+        is java.io.InterruptedIOException -> strings(R.string.learning_status_request_timeout)
+        is IOException -> strings(R.string.learning_status_network_error)
+        else -> strings(R.string.learning_status_request_failed)
     }

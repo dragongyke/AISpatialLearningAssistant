@@ -15,6 +15,7 @@ import com.pico.spatial.core.ecs.ModelComponent
 import com.pico.spatial.core.ecs.TransformComponent
 import com.pico.spatial.core.ecs.event.SceneEvents
 import com.pico.spatial.core.ecs.resource.Resource
+import com.pico.spatial.core.ecs.resource.UnlitMaterial
 import com.pico.spatial.core.math.Vector3
 import com.pico.spatial.sample.spatialvideo.STAGE_ID
 import com.pico.spatial.sample.spatialvideo.di.VIDEO_SESSION_SCOPE_ID
@@ -97,20 +98,21 @@ class LearningCrystalOrbDeviceTest {
                             assertNotNull(renderer.root.components.get<CollisionComponent>())
                             assertNotNull(renderer.root.components.get<InteractableComponent>())
                             assertNotNull(renderer.root.components.get<HoverEffectComponent>())
-                            for (name in
-                                listOf(
-                                    "CarvedWalnut",
-                                    "AgedBrassInlay",
-                                    "GatheringFilaments",
-                                    "OrbitingRunes"
-                                )) {
-                                assertNotNull(
-                                    "Missing generated model: $name",
-                                    renderer.root
-                                        .findEntity("LearningCrystalOrb_$name")
-                                        ?.components
-                                        ?.get<ModelComponent>()
-                                )
+                            assertTrue(
+                                "Orb model budget exceeded",
+                                entities.count { it.components.get<ModelComponent>() != null } <= 8
+                            )
+                            for (stream in LearningCrystalOrbStream.entries) {
+                                for (part in listOf("Filaments", "Veils")) {
+                                    val name = "LearningCrystalOrb_${stream.name}$part"
+                                    assertNotNull(
+                                        "Missing generated model: $name",
+                                        renderer.root
+                                            .findEntity(name)
+                                            ?.components
+                                            ?.get<ModelComponent>()
+                                    )
+                                }
                             }
                             val pose = renderer.root.components.get<TransformComponent>()!!.position
                             var time = 0.0
@@ -144,19 +146,16 @@ class LearningCrystalOrbDeviceTest {
                                     pose,
                                     renderer.root.components.get<TransformComponent>()!!.position
                                 )
-                                val waiting =
-                                    state == LearningVoiceControlState.Analyzing ||
-                                        state == LearningVoiceControlState.Answering
-                                assertEquals(
-                                    waiting,
-                                    renderer.root.findEntity("LearningCrystalOrb_Waiting")!!.enabled
-                                )
-                                assertEquals(
-                                    state == LearningVoiceControlState.Speaking,
-                                    renderer.root
-                                        .findEntity("LearningCrystalOrb_Speaking")!!
-                                        .enabled
-                                )
+                                for (stream in LearningCrystalOrbStream.entries) {
+                                    val current =
+                                        renderer.root.findEntity(
+                                            "LearningCrystalOrb_${stream.name}"
+                                        )
+                                    assertTrue(
+                                        "Missing or disabled current in $state",
+                                        current?.enabled == true
+                                    )
+                                }
                                 assertEquals(scene, renderer.root.scene)
                             }
                             renderer.close()
@@ -253,6 +252,9 @@ class LearningCrystalOrbDeviceTest {
                     entity.components.get<ModelComponent>()?.let { model ->
                         add(checkNotNull(model.mesh))
                         addAll(model.materials.toList())
+                        model.materials.filterIsInstance<UnlitMaterial>().forEach {
+                            it.getBaseColorTexture()?.let(::add)
+                        }
                     }
                     entity.components.get<CollisionComponent>()?.let { collision ->
                         addAll(collision.collisionShape)

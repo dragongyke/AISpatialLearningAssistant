@@ -5,17 +5,27 @@ import kotlin.math.sin
 
 internal object LearningCrystalOrbGeometry {
     const val shellRadiusMeters = 0.12f
-    const val maxVisualRadiusMeters = 0.178f
-    const val colliderRadiusMeters = 0.19f
+    const val maxVisualRadiusMeters = shellRadiusMeters
+    const val colliderRadiusMeters = shellRadiusMeters + 0.012f
+    const val innerGlassScale = 0.78f
+    const val innerGlassOpacity = 0.65f
 }
 
 internal object LearningCrystalOrbMotion {
     // Fractional counter-rotations must also complete whole turns at the wrap boundary.
-    const val orbitRepeatDegrees = 9000f
-    const val swirlRepeatDegrees = 7200f
+    const val swirlRepeatDegrees = 1440f
 }
 
 internal data class LearningCrystalOrbTint(val red: Float, val green: Float, val blue: Float)
+
+internal enum class LearningCrystalOrbStream(
+    val tint: LearningCrystalOrbTint,
+    val speedRatio: Float
+) {
+    Cyan(LearningCrystalOrbTint(0.035f, 0.78f, 1f), 1f),
+    Magenta(LearningCrystalOrbTint(1f, 0.075f, 0.48f), -0.75f),
+    Gold(LearningCrystalOrbTint(1f, 0.57f, 0.045f), 0.5f)
+}
 
 internal data class LearningCrystalOrbFrame(
     val tint: LearningCrystalOrbTint,
@@ -23,13 +33,41 @@ internal data class LearningCrystalOrbFrame(
     val coreScale: Float,
     val visualScale: Float,
     val shellOpacity: Float,
-    val orbitSpeedDegrees: Float,
-    val waitingGlow: Float,
     val gatheringScale: Float,
     val swirlSpeedDegrees: Float,
-    val speakingGlow: Float,
     val speakingScale: Float,
-)
+) {
+    val sweepScale
+        get() = gatheringScale * speakingScale
+
+    val innerScale
+        get() =
+            (LearningCrystalOrbGeometry.innerGlassScale * coreScale).coerceAtMost(
+                0.97f / visualScale
+            )
+
+    val threadLight
+        get() = 0.70f + glow * 0.80f
+
+    val veilOpacity
+        get() = 0.50f + glow * 0.49f
+
+    val shellTint
+        get() =
+            LearningCrystalOrbTint(
+                0.12f + tint.red * 0.10f,
+                0.20f + tint.green * 0.10f,
+                0.38f + tint.blue * 0.12f
+            )
+
+    val innerTint
+        get() =
+            LearningCrystalOrbTint(
+                0.006f + tint.red * 0.013f,
+                0.005f + tint.green * 0.009f,
+                0.021f + tint.blue * 0.027f
+            )
+}
 
 internal fun learningCrystalOrbFrame(
     state: LearningVoiceControlState,
@@ -87,19 +125,16 @@ internal fun learningCrystalOrbFrame(
         shellOpacity =
             if (state == LearningVoiceControlState.Unavailable) 0.28f
             else if (hovered) 0.22f else 0.16f,
-        orbitSpeedDegrees =
+        swirlSpeedDegrees =
             when (state) {
-                LearningVoiceControlState.Ready -> 6f
-                LearningVoiceControlState.Listening -> 10f
-                LearningVoiceControlState.Analyzing -> 28f
-                LearningVoiceControlState.Answering -> 26f
-                LearningVoiceControlState.Speaking -> 12f
+                LearningVoiceControlState.Ready -> 9f
+                LearningVoiceControlState.Listening -> 16f
+                LearningVoiceControlState.Analyzing -> 74f
+                LearningVoiceControlState.Answering -> 66f
+                LearningVoiceControlState.Speaking -> 19f
                 LearningVoiceControlState.Unavailable -> 0f
             },
-        waitingGlow = if (waiting) 0.52f + wave * 0.22f else 0f,
-        gatheringScale = if (waiting) 1.08f - wave * 0.28f else 1f,
-        swirlSpeedDegrees = if (waiting) 82f else 0f,
-        speakingGlow = if (speaking) 0.38f + wave * 0.18f + level * 0.2f else 0f,
-        speakingScale = if (speaking) 0.84f + wave * 0.2f + level * 0.1f else 1f,
+        gatheringScale = if (waiting) 0.96f - wave * 0.20f else 1f,
+        speakingScale = if (speaking) 0.80f + wave * 0.135f + level * 0.06f else 1f,
     )
 }

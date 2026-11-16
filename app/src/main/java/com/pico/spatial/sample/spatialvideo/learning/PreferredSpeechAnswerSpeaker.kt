@@ -7,6 +7,9 @@ internal class PreferredSpeechAnswerSpeaker(
     private val streaming: SpeechAnswerSpeaker,
     private val fallback: SpeechAnswerSpeaker,
 ) : SpeechAnswerSpeaker {
+    override val playbackLevel: Float?
+        get() = streaming.playbackLevel ?: fallback.playbackLevel
+
     override val isConfigured
         get() = streaming.isConfigured || fallback.isConfigured
 

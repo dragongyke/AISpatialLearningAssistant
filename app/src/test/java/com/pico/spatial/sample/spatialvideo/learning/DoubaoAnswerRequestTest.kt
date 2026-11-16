@@ -112,16 +112,7 @@ class DoubaoAnswerRequestTest {
     @Test
     fun framesAndSubtitleHistoryAreSentInOneAnswerRequest() = runBlocking {
         withEngine { engine, requests ->
-            val previous =
-                LearningQuestionAnswer(
-                    "old",
-                    2_000,
-                    "Earlier question",
-                    "Earlier answer",
-                    0,
-                    4_000,
-                    1
-                )
+            val previous = LearningQuestionAnswer("old", 2_000, "刚才讲的是什么？", "刚才讲的是斜率。", 0, 4_000, 1)
             val state = LearningUiState(subtitleOffsetMs = 2_000)
             engine.answer(
                 "What is on the board?",
@@ -138,9 +129,18 @@ class DoubaoAnswerRequestTest {
             assertEquals(2, content.length())
             assertEquals("text", content.getJSONObject(0).getString("type"))
             val text = content.getJSONObject(0).getString("text")
-            assertTrue(text.contains("Earlier question"))
-            assertTrue(text.contains("Earlier answer"))
-            assertTrue(text.contains("English"))
+            assertTrue(text.contains(previous.questionText))
+            assertTrue(text.contains(previous.answerText))
+            assertTrue(text.contains("Question: What is on the board?"))
+            assertTrue(text.contains("language of the current question"))
+            assertTrue(
+                requests
+                    .single()
+                    .getJSONArray("messages")
+                    .getJSONObject(0)
+                    .getString("content")
+                    .contains("Reply in English")
+            )
             assertTrue(text.contains("00:08"))
             assertTrue(text.contains(state.transcriptSegments.first().text))
             assertFalse(text.contains("Visual evidence is unavailable"))
@@ -333,6 +333,7 @@ class DoubaoAnswerRequestTest {
         val partials = mutableListOf<String>()
         val engine =
             DoubaoLearningAssistantEngine(
+                testStatusStrings,
                 DoubaoAssistantConfiguration("test-key", "test-model", server.url("/").toString()),
                 client,
                 observations::add,
@@ -379,6 +380,7 @@ class DoubaoAnswerRequestTest {
         try {
             val engine =
                 DoubaoLearningAssistantEngine(
+                    testStatusStrings,
                     DoubaoAssistantConfiguration("test-key", "test-model", "https://ark.invalid"),
                     client,
                     {},
@@ -427,6 +429,7 @@ class DoubaoAnswerRequestTest {
         try {
             block(
                 DoubaoLearningAssistantEngine(
+                    testStatusStrings,
                     DoubaoAssistantConfiguration(
                         "test-key",
                         "doubao-seed-2-1-turbo-260628",

@@ -1,11 +1,13 @@
 package com.pico.spatial.sample.spatialvideo.learning
 
 import android.util.Log
+import com.pico.spatial.sample.spatialvideo.R
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +32,7 @@ import org.json.JSONObject
 
 /** One text/audio stream per answer: synthesis can run ahead of playback. */
 internal class DoubaoBidirectionalSpeechAnswerSpeaker(
+    private val status: LearningStatusStrings,
     private val configuration: DoubaoStreamingTtsConfiguration = DoubaoStreamingTtsConfiguration(),
     private val client: OkHttpClient =
         OkHttpClient.Builder()
@@ -40,19 +43,23 @@ internal class DoubaoBidirectionalSpeechAnswerSpeaker(
     private val outputFactory: (() -> Unit) -> PcmSpeechOutput = { AndroidPcmSpeechOutput(it) },
 ) : SpeechAnswerSpeaker {
     private val activePlayback = ActiveSpeechPlayback()
+    private val meteredOutput = AtomicReference<PcmSpeechOutput?>()
+    override val playbackLevel: Float?
+        get() = meteredOutput.get()?.playbackLevel
+
     override val isConfigured
         get() = configuration.isConfigured
 
     override val readinessMessage
         get() =
-            if (isConfigured) "Doubao continuous voice reply is ready."
-            else "Doubao TTS is not configured; replies remain text-only."
+            if (isConfigured) status(R.string.learning_status_voice_stream_ready)
+            else status(R.string.learning_status_voice_unconfigured)
 
     override suspend fun speak(text: String, onPlaybackStarted: () -> Unit): SpeechPlaybackResult {
         val input = Channel<String>(1)
         input.send(text)
         input.close()
-        var result = SpeechPlaybackResult("Nothing to speak.", false)
+        var result = SpeechPlaybackResult(status(R.string.learning_status_voice_empty), false)
         speakStream(input, { true }, {}, onPlaybackStarted) { result = it }
         return result
     }
@@ -81,15 +88,14 @@ internal class DoubaoBidirectionalSpeechAnswerSpeaker(
                 }
             }
             if (isCurrent())
-                onResult(SpeechPlaybackResult("Doubao finished speaking the AI answer.", audible))
+                onResult(
+                    SpeechPlaybackResult(status(R.string.learning_status_voice_finished), audible)
+                )
         } catch (_: TimeoutCancellationException) {
             currentCoroutineContext().ensureActive()
             if (isCurrent())
                 onResult(
-                    SpeechPlaybackResult(
-                        "Voice connection timed out. The answer remains available as text.",
-                        audible
-                    )
+                    SpeechPlaybackResult(status(R.string.learning_status_voice_timeout), audible)
                 )
         } catch (cancelled: CancellationException) {
             throw cancelled
@@ -104,7 +110,7 @@ internal class DoubaoBidirectionalSpeechAnswerSpeaker(
             if (isCurrent())
                 onResult(
                     SpeechPlaybackResult(
-                        "Voice connection failed. The complete answer remains available as text.",
+                        status(R.string.learning_status_voice_connection_failed),
                         audible
                     )
                 )
@@ -203,6 +209,7 @@ internal class DoubaoBidirectionalSpeechAnswerSpeaker(
             output.stop()
         }
         activePlayback.register(stopAction)
+        meteredOutput.set(output)
         fun send(event: Int, json: String = "{}") {
             check(socket.send(DoubaoTtsProtocol.encode(event, sessionId, json).toByteString())) {
                 "TTS socket is not writable."
@@ -269,6 +276,7 @@ internal class DoubaoBidirectionalSpeechAnswerSpeaker(
         } finally {
             closing.set(true)
             activePlayback.clear(stopAction)
+            meteredOutput.compareAndSet(output, null)
             socket.cancel()
             frames.cancel()
             output.close()
@@ -292,6 +300,15 @@ internal class DoubaoBidirectionalSpeechAnswerSpeaker(
                     )
                     .apply {
                         configuration.lowLatencyModel?.let { put("model", it) }
+                        if (event == 100) {
+                            // Use the first spoken sentence of this answer, not the headset locale.
+                            put(
+                                "additions",
+                                JSONObject()
+                                    .put("enable_auto_language_recognition", true)
+                                    .toString()
+                            )
+                        }
                         if (text != null) put("text", text)
                     }
             )

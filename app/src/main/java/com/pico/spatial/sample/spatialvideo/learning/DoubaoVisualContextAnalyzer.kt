@@ -23,6 +23,7 @@ import android.os.Build
 import android.util.Base64
 import android.util.Log
 import com.pico.spatial.sample.spatialvideo.BuildConfig
+import com.pico.spatial.sample.spatialvideo.R
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.concurrent.SynchronousQueue
@@ -65,11 +66,7 @@ internal interface VideoVisualContextAnalyzer {
     suspend fun captureFrames(
         timestampMs: Long,
         state: LearningUiState,
-    ): VisualFrameCaptureResult =
-        VisualFrameCaptureResult(
-            emptyList(),
-            "Video frames are unavailable; the answer will use transcript context only.",
-        )
+    ): VisualFrameCaptureResult
 
     suspend fun analyze(
         question: String,
@@ -110,9 +107,9 @@ internal class DoubaoVideoVisualContextAnalyzer(
     override val readinessMessage: String
         get() =
             if (isConfigured) {
-                "Doubao video understanding is ready."
+                context.getString(R.string.learning_status_vision_ready)
             } else {
-                "Doubao vision is not configured; answers will use transcript context only."
+                context.getString(R.string.learning_status_vision_unconfigured)
             }
 
     override suspend fun analyze(
@@ -147,9 +144,9 @@ internal class DoubaoVideoVisualContextAnalyzer(
             frames = bounded,
             statusMessage =
                 if (bounded.isEmpty()) {
-                    "Video frames could not be sampled; the answer will use transcript context only."
+                    context.getString(R.string.learning_status_frames_missing)
                 } else {
-                    "Captured ${bounded.size} nearby video frame(s) for the answer."
+                    context.getString(R.string.learning_status_frames_captured, bounded.size)
                 },
         )
     }
@@ -232,7 +229,11 @@ internal class DoubaoVideoVisualContextAnalyzer(
                             ?: error("Ark vision returned an empty response.")
                     VisualContextResult(
                         summary = summary,
-                        statusMessage = "Doubao analyzed ${frames.size} nearby video frame(s).",
+                        statusMessage =
+                            context.getString(
+                                R.string.learning_status_frames_analyzed,
+                                frames.size
+                            ),
                         isLive = true,
                     )
                 }
@@ -241,8 +242,7 @@ internal class DoubaoVideoVisualContextAnalyzer(
             } catch (error: Exception) {
                 VisualContextResult(
                     summary = null,
-                    statusMessage =
-                        "Doubao vision was unavailable (${error.safeVisualMessage()}); transcript context was retained.",
+                    statusMessage = context.getString(R.string.learning_status_vision_failed),
                     isLive = false,
                 )
             }
@@ -400,6 +400,3 @@ internal class VideoFrameContextProvider(private val context: Context) {
         const val JPEG_QUALITY = 72
     }
 }
-
-private fun Throwable.safeVisualMessage(): String =
-    if (this is IOException) "network error" else "frame analysis failed"

@@ -85,8 +85,11 @@ pico-cli editor pack --workspace-root $root `
 ```
 
 Alternatively, explicitly enable the Gradle asset module. This requires matching
-PICO Editor 6.0 tools. Ordinary APK builds leave this module disabled and use the
-checked-in bundle, so they do not require a local Editor installation.
+PICO Editor 6.2 tools and the `com.pico.spatial.tools` 6.2.2 plugin. Ordinary APK
+builds leave this module disabled and use the checked-in bundle, so they do not
+require a local Editor installation. SDK 6.2.8 does not require repacking this
+unchanged bundle; the newer runtime supports older resource formats. Any future
+asset rebuild must use the matching 6.2 tool line, followed by headset validation.
 
 ```powershell
 .\gradlew.bat -PbuildSceneAssets=true :lecture-hall-editor-asset:assembleDebug

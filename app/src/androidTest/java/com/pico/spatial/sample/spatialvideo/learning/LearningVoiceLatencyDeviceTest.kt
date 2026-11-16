@@ -85,9 +85,7 @@ class LearningVoiceLatencyDeviceTest {
     fun chineseDerivativeAnswerStreamsLiveTextAndCompletesAudiblePlayback() = runBlocking {
         runAnswerCase(
             caseName = "zh_derivative",
-            question =
-                "\u5bfc\u6570\u662f\u4ec0\u4e48\u610f\u601d\uff1f" +
-                    "\u8bf7\u7528\u4e2d\u6587\u56de\u7b54\u4e24\u5230\u4e09\u53e5\uff0c\u5e76\u4e3e\u4e00\u4e2a\u7b80\u5355\u7684\u751f\u6d3b\u4f8b\u5b50\u3002",
+            question = "\u5bfc\u6570\u662f\u4ec0\u4e48\u610f\u601d\uff1f" + "请举一个生活中的例子，用两三句话说明。",
         )
     }
 
@@ -95,9 +93,7 @@ class LearningVoiceLatencyDeviceTest {
     fun englishCodingAnswerStreamsLiveTextAndCompletesAudiblePlayback() = runBlocking {
         runAnswerCase(
             caseName = "en_coding",
-            question =
-                "What is a variable in programming? " +
-                    "Answer in English in two or three short sentences with a simple example.",
+            question = "What does the programming term “变量” mean? Give me a short example.",
         )
     }
 
@@ -361,6 +357,7 @@ class LearningVoiceLatencyDeviceTest {
                 ?.takeIf(String::isNotBlank)
         val engine =
             DoubaoLearningAssistantEngine(
+                InstrumentationRegistry.getInstrumentation().targetContext.learningStatusStrings(),
                 configuration =
                     modelOverride?.let { defaultConfiguration.copy(model = it) }
                         ?: defaultConfiguration,
@@ -462,6 +459,18 @@ class LearningVoiceLatencyDeviceTest {
                     answer.questionAnswer.answerText.isNotBlank()
                 )
                 assertFalse("Live text must remain an append-only stream.", changedPrefix.get())
+                val reply = answer.questionAnswer.answerText
+                val han = reply.count { it in '\u3400'..'\u9fff' }
+                val latin = reply.count { it in 'A'..'Z' || it in 'a'..'z' }
+                when (caseName) {
+                    "zh_derivative" ->
+                        assertTrue("Expected a Chinese explanation.", han > 5 && han > latin)
+                    "en_coding" ->
+                        assertTrue(
+                            "Expected English, not the language of the quoted term.",
+                            latin > 12 && latin > han * 2
+                        )
+                }
                 assertTrue(
                     "Stream must include the full final answer.",
                     streamedAnswer.trim() == answer.questionAnswer.answerText.trim(),
@@ -633,6 +642,7 @@ class LearningVoiceLatencyDeviceTest {
         caseName: String = "tts_barge_in",
     ): DoubaoBidirectionalSpeechAnswerSpeaker =
         DoubaoBidirectionalSpeechAnswerSpeaker(
+                InstrumentationRegistry.getInstrumentation().targetContext.learningStatusStrings(),
                 outputFactory = { onFirstAudio ->
                     ObservedPcmOutput(onFirstAudio, caseName).also { outputs.add(it) }
                 },

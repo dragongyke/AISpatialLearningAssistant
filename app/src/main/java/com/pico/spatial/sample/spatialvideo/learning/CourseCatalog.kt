@@ -279,6 +279,13 @@ object LearningCourseFilter {
         videos: List<LearningCourseVideo>,
         category: String,
         query: String,
+    ): List<LearningCourseVideo> = filter(videos, category, query) { emptyList() }
+
+    fun filter(
+        videos: List<LearningCourseVideo>,
+        category: String,
+        query: String,
+        additionalSearchFields: (LearningCourseVideo) -> List<String>,
     ): List<LearningCourseVideo> {
         val normalizedQuery = query.trim().lowercase()
         return videos.filter { video ->
@@ -292,7 +299,10 @@ object LearningCourseFilter {
                             video.provider,
                             video.category,
                         )
-                        .any { it.lowercase().contains(normalizedQuery) }
+                        .any { it.lowercase().contains(normalizedQuery) } ||
+                    additionalSearchFields(video).any {
+                        it.contains(normalizedQuery, ignoreCase = true)
+                    }
             matchesCategory && matchesQuery
         }
     }

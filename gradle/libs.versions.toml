@@ -1,5 +1,5 @@
 [versions]
-spatialBom = "6.0.0"
+spatialBom = "6.2.8"
 agp = "8.13.2"
 kotlin = "2.1.20"
 coreKtx = "1.13.0"

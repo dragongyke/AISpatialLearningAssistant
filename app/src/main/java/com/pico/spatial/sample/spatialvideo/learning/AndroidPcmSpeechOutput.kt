@@ -14,6 +14,9 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withTimeout
 
 internal interface PcmSpeechOutput {
+    val playbackLevel: Float?
+        get() = null
+
     suspend fun write(pcm: ByteArray)
 
     suspend fun finish()
@@ -53,6 +56,13 @@ internal class AndroidPcmSpeechOutput(private val onFirstAudio: () -> Unit) : Pc
             )
             .build()
     private var bytesWritten = 0L
+    private val envelope = PcmPlaybackEnvelope()
+    override val playbackLevel: Float?
+        @Synchronized
+        get() =
+            if (stopped || !started) null
+            else envelope.levelAt(track.playbackHeadPosition.toLong() and 0xffffffffL)
+
     private var firstSignalFrame: Long? = null
     private var started = false
     private val notified = AtomicBoolean(false)
@@ -96,6 +106,7 @@ internal class AndroidPcmSpeechOutput(private val onFirstAudio: () -> Unit) : Pc
                     AudioTrack.WRITE_NON_BLOCKING
                 )
             check(count >= 0) { "Audio output write failed." }
+            if (count > 0) envelope.append(pcm, offset, count, bytesWritten / 2)
             offset += count
             bytesWritten += count
             // 160 ms absorbs normal packet jitter without adding a sentence-sized delay.

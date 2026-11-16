@@ -1,19 +1,13 @@
 package com.pico.spatial.sample.spatialvideo.ui
 
-import kotlin.math.abs
-import kotlin.math.sqrt
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LearningCrystalOrbMeshesTest {
-    private val meshes =
-        listOf(
-            LearningCrystalOrbMeshes.pedestalWood(),
-            LearningCrystalOrbMeshes.pedestalBrass(),
-            LearningCrystalOrbMeshes.waitingSwirl(),
-            LearningCrystalOrbMeshes.waitingRunes(),
-        )
+    private val shell = LearningCrystalOrbMeshes.shell()
+    private val streams = LearningCrystalOrbStream.entries.map(LearningCrystalOrbMeshes::sweep)
+    private val meshes = listOf(shell) + streams.flatMap { listOf(it.filaments, it.veils) }
 
     @Test
     fun meshesHaveFiniteUnitNormalsAndNondegenerateConsistentlyWoundTriangles() {
@@ -37,55 +31,74 @@ class LearningCrystalOrbMeshesTest {
     }
 
     @Test
-    fun allAnimatedGeometryFitsTheExistingColliderAndVisualEnvelope() {
-        for ((index, mesh) in meshes.withIndex()) {
-            val maxAnimationScale = if (index == 2) 1.1f else 1f
-            for (point in mesh.positions) {
-                val radius = point.length() * maxAnimationScale
-                assertTrue(radius <= LearningCrystalOrbGeometry.maxVisualRadiusMeters)
-                assertTrue(radius * 1.06f < LearningCrystalOrbGeometry.colliderRadiusMeters)
+    fun sweepsOccupyDifferentDepthsInsideTheGlassRatherThanAFlatBand() {
+        for (stream in streams) {
+            for (mesh in listOf(stream.filaments, stream.veils)) {
+                val p = mesh.positions
+                val radius = p.maxOf { it.length() }
+                assertTrue("Sweep exceeds 12 cm glass: $radius m", radius <= 0.12f)
+                assertTrue(p.maxOf { it.length() } - p.minOf { it.length() } > 0.025f)
+                assertTrue(p.maxOf { it.x } - p.minOf { it.x } > 0.10f)
+                assertTrue(p.maxOf { it.y } - p.minOf { it.y } > 0.10f)
+                assertTrue(p.maxOf { it.z } - p.minOf { it.z } > 0.10f)
             }
         }
-        assertEquals(0.19f, LearningCrystalOrbGeometry.colliderRadiusMeters, 0f)
-        assertEquals(0.12f, LearningCrystalOrbGeometry.shellRadiusMeters, 0f)
+        assertTrue(shell.positions.all { kotlin.math.abs(it.length() - 0.12f) < 1e-5f })
+        assertTrue(
+            shell.positions.zip(shell.normals).all { (point, normal) -> point.dot(normal) > 0f }
+        )
     }
 
     @Test
-    fun pedestalHasAFlaredFootAndRisingCarvedSupportsInsteadOfAStraightCylinder() {
-        val wood = meshes[0].positions
-        val foot = wood.filter { it.y < -0.14f }
-        val neck = wood.filter { it.y in -0.126f..-0.12f }
-        assertTrue(foot.maxOf { sqrt(it.x * it.x + it.z * it.z) } > 0.07f)
-        assertTrue(neck.any { sqrt(it.x * it.x + it.z * it.z) < 0.04f })
-        assertTrue(wood.any { it.y > -0.085f && abs(it.x) > 0.08f })
-        assertTrue(wood.any { it.y > -0.085f && abs(it.z) > 0.08f })
+    fun veilsHaveCompleteUvsAndBoundedNonuniformLightMaps() {
+        val colors = mutableSetOf<Int>()
+        for ((index, stream) in LearningCrystalOrbStream.entries.withIndex()) {
+            val mesh = streams[index].veils
+            assertEquals(mesh.positions.size, mesh.uv.size)
+            assertTrue(mesh.uv.all { (u, v) -> u in 0f..1f && v in 0f..1f })
+            val pixels = LearningCrystalOrbCaustics.pixels(stream)
+            assertEquals(
+                LearningCrystalOrbCaustics.width * LearningCrystalOrbCaustics.height,
+                pixels.size
+            )
+            fun brightest(p: Int) = maxOf(p ushr 16 and 255, p ushr 8 and 255, p and 255)
+            assertTrue(
+                "Light gaps must be nearly transparent under additive blending",
+                pixels.minOf(::brightest) < 8
+            )
+            assertTrue("Crest must remain bright", pixels.maxOf(::brightest) > 230)
+            colors += pixels.contentHashCode()
+        }
+        assertEquals(3, colors.size)
+        assertTrue(
+            3 * 4 * LearningCrystalOrbCaustics.width * LearningCrystalOrbCaustics.height <=
+                192 * 1024
+        )
     }
 
     @Test
-    fun detailedMeshesRemainSmallAndDeterministic() {
-        assertTrue(meshes.sumOf { it.positions.size } < 9000)
-        assertTrue(meshes.sumOf { it.triangleIndices.size / 3 } < 14000)
-        assertEquals(meshes[0], LearningCrystalOrbMeshes.pedestalWood())
-        assertEquals(meshes[1], LearningCrystalOrbMeshes.pedestalBrass())
-        assertEquals(meshes[2], LearningCrystalOrbMeshes.waitingSwirl())
-        assertEquals(meshes[3], LearningCrystalOrbMeshes.waitingRunes())
-    }
-
-    @Test
-    fun carvedSupportCrossSectionsDoNotFlipAlongTheirCurve() {
-        // The turned profile precedes four 33-ring, 10-sided supports and their end caps.
-        val firstSupport = 12 * 64 + 2 * 65
-        val wood = meshes[0].positions
-        repeat(4) { support ->
-            val start = firstSupport + support * (33 * 10 + 2 * 11)
-            repeat(31) { row ->
-                val side = wood[start + row * 10] - wood[start + row * 10 + 5]
-                val next = wood[start + (row + 1) * 10] - wood[start + (row + 1) * 10 + 5]
-                assertTrue(
-                    "Carved support twists abruptly",
-                    side.normalized().dot(next.normalized()) > 0.9f
-                )
+    fun allRenderedMeshesStayWithinTheExistingGeometryAndHitBudgets() {
+        // The inner glass uses a second instance of the same shell mesh.
+        val instances = meshes + shell
+        assertTrue(instances.size <= 8)
+        assertTrue(instances.sumOf { it.positions.size } < 9000)
+        assertTrue(instances.sumOf { it.triangleIndices.size / 3 } < 14000)
+        val maxRadius =
+            streams
+                .flatMap { listOf(it.veils, it.filaments) }
+                .maxOf { mesh -> mesh.positions.maxOf { it.length() } }
+        for (state in LearningVoiceControlState.entries) {
+            repeat(60) { tick ->
+                val frame = learningCrystalOrbFrame(state, true, false, tick / 10.0, 1f)
+                val radius = maxRadius * frame.sweepScale * frame.visualScale
+                assertTrue("Animated sweep outside glass: $radius m", radius <= 0.12f)
+                assertTrue(frame.innerScale * frame.visualScale < 1f)
+                assertTrue(radius < LearningCrystalOrbGeometry.colliderRadiusMeters)
             }
         }
+        val padding =
+            LearningCrystalOrbGeometry.colliderRadiusMeters -
+                LearningCrystalOrbGeometry.shellRadiusMeters
+        assertTrue("Gaze target should hug the floating glass", padding in 0f..0.015f)
     }
 }

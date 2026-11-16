@@ -158,6 +158,12 @@ requires PICO OS 6 v6.2 for this SDK. Compilation alone does not establish runti
 compatibility. The existing scene bundle is retained: newer runtimes support older
 resource formats, but its load/render behavior still needs headset verification.
 
+A device reporting `6.2.0` is not sufficient proof of compatibility. A tested
+firmware build lacked `DYNAMIC_SHADOW_COMPONENT` in its system Spatial library,
+causing startup to fail inside the SDK before the course UI. If logs show this
+`NoSuchFieldError`, use a firmware/runtime build matched to SDK 6.2.8; changing
+AI credentials does not resolve this runtime mismatch.
+
 ## Clone the project
 
 Ordinary Git is enough to build an APK. The runtime images, offline speech model,
@@ -255,6 +261,15 @@ Debug embeds configured credentials in `BuildConfig`, where they can be extracte
 from the APK. Keep these APKs private; never upload them or local configuration,
 Gradle caches or build output directories to GitHub or public distribution platforms.
 Release continues to clear provider keys, speech token and speech app ID.
+
+Before entering a course's Stage, the app checks the embedded model configuration
+(text and vision) and Doubao speech configuration (recognition and synthesis).
+If either is incomplete, a system-language notice explains the limited features
+and how to configure a private build. Select **Continue** to enter Stage and use
+the available features, or dismiss the notice to stay in Shared Space. This also
+applies to history and note-timestamp entries. Fully configured builds enter
+directly. This local check does not validate credentials, permissions or quota
+with the providers.
 
 For Vibe Lab or another build service, the private local file does not travel with
 a Git clone. If the platform supports secret environment variables and a custom

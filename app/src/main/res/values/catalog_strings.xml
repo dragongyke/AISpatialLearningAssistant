@@ -22,6 +22,13 @@
     <string name="catalog_history_progress">%1$s  %2$s / %3$s</string>
     <string name="catalog_last_studied">Last studied %1$s</string>
     <string name="catalog_continue">Continue</string>
+    <string name="catalog_ai_setup_title">Some AI features are unavailable</string>
+    <string name="catalog_ai_setup_continue">Continue</string>
+    <string name="catalog_ai_setup_missing_both">large-model API Key/model settings and Doubao speech credentials</string>
+    <string name="catalog_ai_setup_missing_model">large-model API Key/model settings</string>
+    <string name="catalog_ai_setup_missing_speech">Doubao speech App ID/Access Token settings</string>
+    <string name="catalog_ai_setup_limitations">This build is missing %1$s. You can still watch courses and use playback controls, but some AI assistant features are unavailable.</string>
+    <string name="catalog_ai_setup_instructions">For the full AI experience, clone the GitHub project and copy ai.local.properties.example to ai.local.properties. Fill in your Ark API Key, model IDs and Doubao speech App ID/Access Token, then build and install a private Debug APK as described in the README. Release builds clear credentials. Keep your keys and configured APK private.</string>
     <string name="catalog_note">Learning note</string>
     <string name="catalog_note_heading">LEARNING NOTE</string>
     <string name="catalog_note_select">Select a course note</string>

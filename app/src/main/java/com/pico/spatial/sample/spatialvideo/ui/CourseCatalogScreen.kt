@@ -43,7 +43,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -91,8 +90,6 @@ import com.pico.spatial.ui.platform.Material
 import com.pico.spatial.ui.platform.containers.LocalSpatialNavigator
 import com.pico.spatial.ui.platform.containers.OpenStageResult
 import com.pico.spatial.ui.platform.containers.StageStyle
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getKoin
 
 @Composable
@@ -101,7 +98,6 @@ fun CourseCatalogScreen(modifier: Modifier = Modifier) {
     val learningViewModel: LearningSessionViewModel =
         remember(scope) { scope.get<LearningSessionViewModel>() }
     val spatialNavigator = LocalSpatialNavigator.current
-    val coroutineScope = rememberCoroutineScope()
     var selectedCategory by remember { mutableStateOf("All") }
     var searchQuery by remember { mutableStateOf("") }
     val learningState by learningViewModel.uiState.collectAsStateWithLifecycle()
@@ -112,6 +108,7 @@ fun CourseCatalogScreen(modifier: Modifier = Modifier) {
         }
 
     val windowCoordinator = rememberLearningWindowCoordinator()
+    val requestStageEntry = rememberLearningStageEntry(windowCoordinator)
 
     LaunchedEffect(Unit) { windowCoordinator.showHistory() }
 
@@ -129,8 +126,10 @@ fun CourseCatalogScreen(modifier: Modifier = Modifier) {
     }
 
     fun openCourseVideo(video: LearningCourseVideo) {
-        learningViewModel.selectCourseVideo(video)
-        coroutineScope.launch(Dispatchers.Main.immediate) { windowCoordinator.enterStage() }
+        requestStageEntry {
+            learningViewModel.selectCourseVideo(video)
+            true
+        }
     }
 
     CourseCatalogSurface(
@@ -153,8 +152,8 @@ fun LearningHistoryWindow(modifier: Modifier = Modifier) {
     val learningViewModel: LearningSessionViewModel =
         remember(scope) { scope.get<LearningSessionViewModel>() }
     val learningState by learningViewModel.uiState.collectAsStateWithLifecycle()
-    val coroutineScope = rememberCoroutineScope()
     val windowCoordinator = rememberLearningWindowCoordinator()
+    val requestStageEntry = rememberLearningStageEntry(windowCoordinator)
     val spatialNavigator = LocalSpatialNavigator.current
 
     Box(modifier = modifier.fillMaxSize().background(CATALOG_BACKGROUND).padding(20.dp)) {
@@ -165,9 +164,9 @@ fun LearningHistoryWindow(modifier: Modifier = Modifier) {
                 LearningCourseCatalog.videos
                     .firstOrNull { it.id == record.videoId }
                     ?.let { video ->
-                        learningViewModel.selectCourseVideo(video)
-                        coroutineScope.launch(Dispatchers.Main.immediate) {
-                            windowCoordinator.enterStage()
+                        requestStageEntry {
+                            learningViewModel.selectCourseVideo(video)
+                            true
                         }
                     }
             },
@@ -192,8 +191,8 @@ fun LearningNoteWindow(modifier: Modifier = Modifier) {
     val display = rememberCatalogDisplay()
     val searchLabel = stringResource(R.string.catalog_note_search)
     val editorLabel = stringResource(R.string.catalog_note_editor)
-    val coroutineScope = rememberCoroutineScope()
     val windowCoordinator = rememberLearningWindowCoordinator()
+    val requestStageEntry = rememberLearningStageEntry(windowCoordinator)
     val blocks =
         remember(state.notePreviewMarkdown, state.noteSearchQuery) {
             val query = state.noteSearchQuery.trim()
@@ -340,12 +339,12 @@ fun LearningNoteWindow(modifier: Modifier = Modifier) {
                                 LearningNoteBlockView(
                                     block = block,
                                     onTimestampSelected = { timestampMs ->
-                                        if (
-                                            learningViewModel.openLearningNoteTimestamp(timestampMs)
-                                        ) {
-                                            coroutineScope.launch(Dispatchers.Main.immediate) {
-                                                windowCoordinator.enterStage()
-                                            }
+                                        val videoId = state.notePreviewVideoId
+                                        requestStageEntry {
+                                            learningViewModel.openLearningNoteTimestamp(
+                                                timestampMs,
+                                                videoId
+                                            )
                                         }
                                     },
                                 )

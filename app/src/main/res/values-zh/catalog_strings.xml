@@ -22,6 +22,13 @@
     <string name="catalog_history_progress">%1$s　%2$s / %3$s</string>
     <string name="catalog_last_studied">上次学习：%1$s</string>
     <string name="catalog_continue">继续学习</string>
+    <string name="catalog_ai_setup_title">部分 AI 功能暂不可用</string>
+    <string name="catalog_ai_setup_continue">继续</string>
+    <string name="catalog_ai_setup_missing_both">大模型 API Key／模型配置和豆包语音凭据</string>
+    <string name="catalog_ai_setup_missing_model">大模型 API Key／模型配置</string>
+    <string name="catalog_ai_setup_missing_speech">豆包语音 App ID／Access Token 配置</string>
+    <string name="catalog_ai_setup_limitations">当前安装包未配置%1$s。你仍可观看课程、使用播放控制，但只能体验部分 AI 助手功能。</string>
+    <string name="catalog_ai_setup_instructions">如需完整体验，请克隆 GitHub 工程，将 ai.local.properties.example 复制为 ai.local.properties，填入自己的方舟 API Key、模型 ID 及豆包语音 App ID／Access Token，再按 README 构建并安装个人测试用 Debug APK。Release 包会清除凭据。请勿公开密钥或已配置的安装包。</string>
     <string name="catalog_note">学习笔记</string>
     <string name="catalog_note_heading">学习笔记</string>
     <string name="catalog_note_select">请选择一篇课程笔记</string>

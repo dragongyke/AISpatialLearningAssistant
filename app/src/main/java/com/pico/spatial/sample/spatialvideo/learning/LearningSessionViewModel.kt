@@ -813,8 +813,11 @@ class LearningSessionViewModel(
         startFinalSummary(state, persisted.progressMs, showDocument = false)
     }
 
-    fun openLearningNoteTimestamp(timestampMs: Long): Boolean {
-        val videoId = _uiState.value.notePreviewVideoId ?: return false
+    fun openLearningNoteTimestamp(
+        timestampMs: Long,
+        videoId: String? = _uiState.value.notePreviewVideoId,
+    ): Boolean {
+        if (videoId == null) return false
         val video = LearningCourseCatalog.videos.firstOrNull { it.id == videoId } ?: return false
         selectCourseVideo(video, startPositionMs = timestampMs)
         return true
